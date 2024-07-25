@@ -4,6 +4,13 @@ MITRE has a long history in the Software Assurance and Software Vulnerability ar
 The case studies presented here leverage MITRE’s decades of experience in source code weakness categorization and reveal detailed information about specific real-world software issues. Our hope is that these case studies provide educators, project leaders, software development teams, and assessment teams insight into these critical issues and show how to avoid them.
 
 With each case study focusing on a real issue in real software, there should be no debate as to the applicability of these mistakes to one’s own day-to-day coding projects. By understanding these issues, the mistakes that were made, and how each was fixed, we will be in a better position to avoid similar problems in the future.
+
+## Public Release
+
+> [!NOTE]
+> Approved for Public Release; Distribution Unlimited. Public Release Case
+> Number 23-3938.
+
 ## About MITRE
 MITRE is a not-for-profit company that works in the public interest to tackle difficult problems that challenge the safety, stability, security, and well-being of our nation. We operate multiple federally funded research and development centers (FFRDCs), participate in public-private partnerships across national security and civilian agency missions, and maintain an independent technology research program in areas such as artificial intelligence, intuitive data science, quantum information science, health informatics, policy and economic expertise, trustworthy autonomy, cyber threat sharing, and cyber resilience.
 
