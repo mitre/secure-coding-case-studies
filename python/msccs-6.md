@@ -67,7 +67,7 @@ Mitigation: To address this issue the use of the eval() function was removed and
 
     fixed file: src/searchor/main.py
     
-    32				url = Engine[engine].search(query, copy_url=copy, open_web=open)
+    32			url = Engine[engine].search(query, copy_url=copy, open_web=open)
 
 An alternative, commonly-cited mitigation for this kind of weakness is to use the ast.literal_eval() function, since it is intentionally designed to avoid executing code. However, an adversary could still cause excessive memory or stack consumption via deeply nested structures, so the python documentation discourages use of ast.literal_eval() on untrusted data.
 
