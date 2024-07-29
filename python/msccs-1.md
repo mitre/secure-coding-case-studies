@@ -1,8 +1,10 @@
+
 # MSCCS-1 :: SQL INJECTION IN POSTGRAAS SERVER
+
 **Introduction:** The use of a database to store information is fundamental to many applications. Unfortunately, if the commands to place or retrieve this information are not properly constructed, then an adversary could inappropriately alter or read the information. The underlying source code weakness that makes such attacks possible is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses. In 2023 such a vulnerability was disclosed in Blue Yonder postgraas_server. Postgraas offers basic create, read, update, and delete (CRUD) operations for complete PostgreSQL database instances via a simple representational state transfer (REST) application programming interface (API). This case study will look at that vulnerability, the mistake made by the developers, what it enabled an adversary to accomplish, and how the code was eventually corrected.
 
-**Software:** postgraas_server
-**Language:** Python
+**Language:** Python  
+**Software:** postgraas_server  
 **URL:** https://github.com/blue-yonder/postgraas_server
 
 **Weakness:** CWE-89: Improper Neutralization of Special Elements Used in an SQL Command
@@ -16,31 +18,31 @@ A classic example of this type of weakness is when string concatenation is used 
     dbCursor.execute("SELECT * FROM items WHERE owner = '" + strName + "' AND item = 'PrivateData'")
     result = cursor.fetchall()
 
-A provided name of "Sam" will result in the expected SQL command that selects only the private data owned by Sam.
+A provided name of `Sam` will result in the expected SQL command that selects only the private data owned by Sam.
 
     SELECT * FROM items WHERE owner = 'Sam' AND item = 'PrivateData'
 
-However, a provided name of "x' OR '1=1'--" will result in an SQL command that selects every record in the items table. The OR logic is always TRUE since 1 always equals 1, and hence it does not matter what value is provided for owner. The added -- characters comment out the rest of the line to prevent the additional logic from being applied.
+However, a provided name of `x' OR '1=1'--` will result in an SQL command that selects every record in the items table. The OR logic is always TRUE since 1 always equals 1, and hence it does not matter what value is provided for owner. The added -- characters comment out the rest of the line to prevent the additional logic from being applied.
 
     SELECT * FROM items WHERE owner = 'x' OR '1=1'--' AND item = 'PrivateData'
 
-This resulting SQL command is equivalent to SELECT * FROM items; which is not what the original intention of the command was. By using more complex SQL syntax an adversary could craft a resulting SQL command to achieve a wide variety of objectives.
+This resulting SQL command is equivalent to `SELECT * FROM items;` which is not what the original intention of the command was. By using more complex SQL syntax an adversary could craft a resulting SQL command to achieve a wide variety of objectives.
 
 **Vulnerability:** CVE-2018-25088 – Published 18 July 2023
 
-Looking at the vulnerable source code in postgraas_server, line 22 (line 24 is also vulnerable in the same way) use the Python format() method to insert a string into the SQL statement. The format() method performs a concatenation of a provided value into a template string. No neutralization is performed as part of the format() method. An adversary that can control the value being inserted could use these lines of code to inject malicious SQL into the template string thus manipulating the actions that the SQL statement would perform.
+Looking at the vulnerable source code in postgraas_server, line 22 (line 24 is also vulnerable in the same way) uses the Python format() method to insert a string into the SQL statement. The format() method performs a concatenation of a provided value into a template string. No neutralization is performed as part of the format() method. An adversary that can control the value being inserted could use these lines of code to inject malicious SQL into the template string thus manipulating the actions that the SQL statement would perform.
 
-> vulnerable file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.py
-> 
-> 19	def check_db_or_user_exists(db_name, db_user, config):
-> 20		with _create_pg_connection(config) as con:
-> 21			with con.cursor() as cur:
-> 22				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
-> 23				db_exists = cur.fetchone() is not None
-> 24				cur.execute("SELECT 1 FROM pg_roles WHERE rolname='{}';".format(db_user))
-> 25				user = cur.fetchone()
-> 26				user_exists = user is not None
-> 27				return db_exists or user_exists
+    vulnerable file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.py
+    
+    19 def check_db_or_user_exists(db_name, db_user, config):
+    20   with _create_pg_connection(config) as con:
+    21     with con.cursor() as cur:
+    22       cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
+    23       db_exists = cur.fetchone() is not None
+    24       cur.execute("SELECT 1 FROM pg_roles WHERE rolname='{}';".format(db_user))
+    25       user = cur.fetchone()
+    26       user_exists = user is not None
+    27       return db_exists or user_exists
 
 For this code weakness to be exploitable, the values being inserted (db_name and db_user) must be controllable by the user, also known as tainted input. Looking deeper into the code, the values are obtained from the function parameters defined on line 19. These parameters originate from an untrusted source as part of the database connection arguments provided to the application. This flow of data from the malicious user’s HTTP Request to line 19 is illustrated in the diagram below. The remainder of this section describes this flow in detail.
 
