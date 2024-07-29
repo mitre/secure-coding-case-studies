@@ -34,23 +34,51 @@ Looking at the vulnerable source code in postgraas_server, line 22 (line 24 is a
 
     vulnerable file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.py
     
-    19 def check_db_or_user_exists(db_name, db_user, config):
-    20   with _create_pg_connection(config) as con:
-    21     with con.cursor() as cur:
-    22       cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
-    23       db_exists = cur.fetchone() is not None
-    24       cur.execute("SELECT 1 FROM pg_roles WHERE rolname='{}';".format(db_user))
-    25       user = cur.fetchone()
-    26       user_exists = user is not None
-    27       return db_exists or user_exists
+    19	def check_db_or_user_exists(db_name, db_user, config):
+    20		with _create_pg_connection(config) as con:
+    21			with con.cursor() as cur:
+    22				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
+    23				db_exists = cur.fetchone() is not None
+    24				cur.execute("SELECT 1 FROM pg_roles WHERE rolname='{}';".format(db_user))
+    25				user = cur.fetchone()
+    26				user_exists = user is not None
+    27				return db_exists or user_exists
 
 For this code weakness to be exploitable, the values being inserted (db_name and db_user) must be controllable by the user, also known as tainted input. Looking deeper into the code, the values are obtained from the function parameters defined on line 19. These parameters originate from an untrusted source as part of the database connection arguments provided to the application. This flow of data from the malicious user’s HTTP Request to line 19 is illustrated in the diagram below. The remainder of this section describes this flow in detail.
+
+![post()->create()->create_postgres_db()->check_db_or_user_exists()](msccs-1-image-1.jpg)
 
 *POST()*
 
 The data flow into the weakness begins with the handling of a POST request on line 128 of the file management_resources.py. POST requests can be manipulated by an adversary and sent to the postgraas_server as part of an adversary’s exploit — meaning any argument that comes along with the POST request is fully controlled by the adversary.
 
-
+    supporting file: postgraas_server\management_resources.py
+    
+    128	def post(self):
+    129		parser = reqparse.RequestParser()
+    130		parser.add_argument(
+    131			'postgraas_instance_name',
+    132			required=True,
+    133			type=str,
+    134			help="name of the postgraas instance"
+    135		)
+    136		parser.add_argument('db_name', required=True, type=str, help="Database name")
+    137		parser.add_argument('db_username', required=True, type=str, help="Username of db user")
+    138		parser.add_argument('db_pwd', required=True, type=str, help="Password of the db user")
+    139		args = parser.parse_args()
+    …
+    159		db_credentials = {
+    160			'db_name': args['db_name'],
+    161			'db_username': args['db_username'],
+    162			'db_pwd': args['db_pwd'],
+    163			'host': current_app.postgraas_backend.hostname,
+    164			'port': current_app.postgraas_backend.port
+    165			}
+    …
+    183		try:
+    184			db_entry.container_id = current_app.postgraas_backend.create(db_entry,db_credentials)
+    185		except PostgraasApiException as e:
+    186			abort(500, msg=str(e))
 
 The db_name and db_username arguments are retrieved on line 139 after being named on lines 136 and 137 respectively. Then on lines 160 and 161 within the same function, each of these arguments is added to the db_credentials object without any validation or modification. No protections are in place to stop an adversary from manipulating the parameters and providing specially crafted db_name and db_username values.
 On line 184 the db_credentials object is passed into the create() call to establish the connection with the PostgreSQL database.
@@ -59,7 +87,14 @@ On line 184 the db_credentials object is passed into the create() call to establ
 
 Following the flow further sees the create() function defined on line 9 of the file _init_.py and the definition of the connection_info object that holds the db_credentials object passed via the code above.
 
-
+    supporting file: postgraas_server\backends\postgres_cluster\_init_.py
+    
+    9	def create(self, entity, connection_info):
+    10		try:
+    11			pgcd.create_postgres_db(connection_info, self.config)
+    12		except ValueError as e:
+    13			raise PostgraasApiException(str(e))
+    14		return None
 
 The connection_info object, which now contains the tainted db_name and db_username values, is then passed to the create_postgres_db() call on line 11.
 
@@ -67,25 +102,23 @@ The connection_info object, which now contains the tainted db_name and db_userna
 
 The create_postgres_db() function defined on line 30 in the file postgres_cluster_driver.py receives untrusted db_name and db_username values that were part of the previously defined connection_info object through the connection_dict parameter.
 
+    supporting file: postgraas_server\backends\postgres_cluster\postgres_cluster_driver.py
+    
+    30	def create_postgres_db(connection_dict, config):
+    31	 if check_db_or_user_exists(connection_dict['db_name'],connection_dict['db_username'],config):
+    32			raise ValueError("db or user already exists")
+
 *CHECK_DB_OR_USER_EXISTS()*
 
 These untrusted values are then passed to the vulnerable check_db_or_user_exists() function on line 31 which was previously presented as the vulnerable source code and shown to be subject to SQL Injection.
 
 **Exploit:** CAPEC-66: SQL Injection
 
-In a benign interaction a user would provide an expected name of a database. An example of such a db_name might be:
-
-    annual_sales
-
-The resulting SQL command would be:
+In a benign interaction a user would provide an expected name of a database. An example of such a db_name might be: `annual_sales` The resulting SQL command would be:
 
     SELECT 1 FROM pg_database WHERE datname='annual_sales'
     
-Unfortunately, an adversary interacting with the vulnerable software could send a specially crafted POST request with a malicious db_name argument. In the example exploit that follows, the adversary will leverage the malicious interaction to learn about a specific property of the database that should not be available. Assume the adversary provides the following long and obviously incorrect value for db_name:
-
-    known_database_name' UNION SELECT 1 from pg_database WHERE datistemplate = TRUE --
-
-Doing so would result in the following SQL command after the vulnerable format() concatenation is performed:
+Unfortunately, an adversary interacting with the vulnerable software could send a specially crafted POST request with a malicious db_name argument. In the example exploit that follows, the adversary will leverage the malicious interaction to learn about a specific property of the database that should not be available. Assume the adversary provides the following long and obviously incorrect value for db_name: `known_database_name' UNION SELECT 1 from pg_database WHERE datistemplate = TRUE --` Doing so would result in the following SQL command after the vulnerable format() concatenation is performed:
 
     SELECT 1 FROM pg_database WHERE datname='known_database_name' UNION SELECT 1 from pg_database WHERE datistemplate = TRUE --'
 
@@ -95,20 +128,19 @@ The adversary can learn the true or false result of their manipulated SQL comman
 
 Many techniques exist to generate valid SQL that can cause the SQL engine to alter the makeup of the database, overwrite files on the server, and execute operating system commands. By further manipulating the SQL command, an adversary could perform a wide array of different actions, making this weakness one of the most dangerous.
 
-**Mitigation:** To fix this issue, the format() method was replaced by Psycopg’s built-in parameterization functionality on line 23 to automatically convert Python objects to and from SQL literals.
+**Mitigation:** To fix this issue, the format() method was replaced by Psycopg’s built-in parameterization functionality on line 23 (also on line 25) to automatically convert Python objects to and from SQL literals.
 
-> fixed file: postgraas_server\backends\postgres_cluster\postgres_cluster_driver.py
-> 
-> 20	def check_db_or_user_exists(db_name, db_user, config):
-> 21		with _create_pg_connection(config) as con:
-> 22			with con.cursor() as cur:
-> 23				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
-> 23				cur.execute("SELECT 1 FROM pg_database WHERE datname=%s;", (db_name, ))
-> 24				db_exists = cur.fetchone() is not None
-> 25				cur.execute("SELECT 1 FROM pg_roles WHERE rolname=%s;", (db_user, ))
-> 26				user = cur.fetchone()
-> 27				user_exists = user is not None
-> 28				return db_exists or user_exists
+    fixed file: postgraas_server\backends\postgres_cluster\postgres_cluster_driver.py
+    
+    20	def check_db_or_user_exists(db_name, db_user, config):
+    21		with _create_pg_connection(config) as con:
+    22			with con.cursor() as cur:
+    23				cur.execute("SELECT 1 FROM pg_database WHERE datname=%s;", (db_name, ))
+    24				db_exists = cur.fetchone() is not None
+    25				cur.execute("SELECT 1 FROM pg_roles WHERE rolname=%s;", (db_user, ))
+    26				user = cur.fetchone()
+    27				user_exists = user is not None
+    28				return db_exists or user_exists
 
 Parameterization is a well-known tactic to properly neutralize potentially tainted input. Parameterization removes the ability for a malicious value to escape outside of the intended query to create a new query that performs a different task. Parameterization works by separating the values from the queries enabling the SQL engine to enforce values only being used for their intended purpose.
 
@@ -116,26 +148,19 @@ Parameterization is a well-known tactic to properly neutralize potentially taint
 
 **References:**
 
-postgraas_server Project Page:
-https://github.com/blue-yonder/postgraas_server
+postgraas_server Project Page: https://github.com/blue-yonder/postgraas_server
 
-CVE-2018-25088 Entry:
-https://www.cve.org/CVERecord?id=CVE-2018-25088
+CVE-2018-25088 Entry: https://www.cve.org/CVERecord?id=CVE-2018-25088
 
-CWE-89 Entry:
-https://cwe.mitre.org/data/definitions/89.html
+CWE-89 Entry: https://cwe.mitre.org/data/definitions/89.html
 
-CAPEC-66 Entry:
-https://capec.mitre.org/data/definitions/66.html
+CAPEC-66 Entry: https://capec.mitre.org/data/definitions/66.html
 
-OSV Vulnerability Report:
-https://osv.dev/vulnerability/GHSA-vghm-8cjp-hjw6
+OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-vghm-8cjp-hjw6
 
-NVD Vulnerability Report:
-https://nvd.nist.gov/vuln/detail/CVE-2018-25088
+NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2018-25088
 
-postgraas_server Code Commit to Fix Issue:
-https://github.com/blue-yonder/postgraas_server/commit/7cd8d016edc74a78af0d81c948bfafbcc93c937c
+postgraas_server Code Commit to Fix Issue: https://github.com/blue-yonder/postgraas_server/commit/7cd8d016edc74a78af0d81c948bfafbcc93c937c
 
 Psycopg Documentation Related to Safe Passing of Parameter:
 https://www.psycopg.org/docs/usage.html#passing-parameters-to-sql-queries
