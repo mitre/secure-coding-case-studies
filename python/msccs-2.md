@@ -2,8 +2,8 @@
 
 **Introduction:** The redirection of an HTTP based web application to an adversary-controlled URL (also known as “Open Redirect”) is a dangerous condition that can lead to a successful phishing attack. This type of attack is one of the most common methods of exploitation and can result in a variety of devastating consequences including the installation of malware and stolen credentials. In 2023 such a vulnerability was disclosed in the Python-based Jupyter Server. This case study looks at that vulnerability, the root cause input validation mistake, what it allowed an adversary to achieve, and how the code was eventually corrected.
 
-**Language:** Python
-**Software:** Jupyter Server
+**Language:** Python  
+**Software:** Jupyter Server  
 **URL:** https://github.com/jupyter-server/jupyter_server
 
 **Weakness:** CWE-601: URL Redirection to Untrusted Site
