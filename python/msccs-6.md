@@ -16,23 +16,23 @@ Searchor leverages the Python Click library to create an extensible, composable,
 
     vulnerable file: src/searchor/main.py
     
-    11		@cli.command()
+    11	@cli.command()
     …
-    28		@click.argument("engine")
-    29		@click.argument("query")
-    30		def search(engine, query, open, copy):
-    31			try:
-    32				url = eval(
-    33					f"Engine.{engine}.search('{query}', copy_url={copy}, open_web={open})"
-    34				)
-    35				click.echo(url)
-    36				searchor.history.update(engine, query, url)
-    37				if open:
-    38					click.echo("opening browser...")
-    39				if copy:
-    40					click.echo("link copied to clipboard")
-    41			except AttributeError:
-    42				print("engine not recognized")
+    28	@click.argument("engine")
+    29	@click.argument("query")
+    30	def search(engine, query, open, copy):
+    31		try:
+    32			url = eval(
+    33				f"Engine.{engine}.search('{query}', copy_url={copy}, open_web={open})"
+    34			)
+    35			click.echo(url)
+    36			searchor.history.update(engine, query, url)
+    37			if open:
+    38				click.echo("opening browser...")
+    39			if copy:
+    40				click.echo("link copied to clipboard")
+    41		except AttributeError:
+    42			print("engine not recognized")
 
 Line 30 defines the search() method and passes in four parameters: engine, query, open, copy. Of specific interest is the “engine” and “query” parameters that are provided by the user on line 28 and 29 respectively. No validation is performed on the values obtained.
 
@@ -49,12 +49,18 @@ An adversary could exploit this weakness by submitting a request to the search()
     open = False
     copy = False
 
-The engine, open, and copy parameters are all normal expected values. The query parameter however is crafted to add an adversary chosen command to the end of the original command. Note that the “%20” is the URL encoding for the space character, and “%23” is the URL encoding for the “#” character. The resulting command created on line 33 from these values, and passed into the eval() function, would be:
-Engine.ACME.search('abc'), __import__('os').system('ls')#', copy_url=False, open_web=False)
-The single quotation mark in the first part of the adversary provided query parameter value “abc’)” closes out the original search() command. This original command, which can be anything as it is expected to fail, becomes:
-Engine.ACME.search('abc')
+The engine, open, and copy parameters are all normal expected values. The query parameter however is crafted to add an adversary chosen command to the end of the original command. Note that the `%20` is the URL encoding for the space character, and `%23` is the URL encoding for the “#” character. The resulting command created on line 33 from these values, and passed into the eval() function, would be:
+
+`Engine.ACME.search('abc'), __import__('os').system('ls')#', copy_url=False, open_web=False)`
+
+The single quotation mark in the first part of the adversary provided query parameter value `abc')` closes out the original search() command. This original command, which can be anything as it is expected to fail, becomes:
+
+`Engine.ACME.search('abc')`
+
 The comma in the adversary provided query parameter adds a second command to be processed by the eval() function:
-__import__('os').system('ls')
+
+'__import__('os').system('ls')'
+
 This adversary inserted command performs a benign directory listing, but it could be modified to perform any desired command, including the use of the exec() command to execute any desired python expression. It would also be possible to create a command that opens a semi-permanent connection to the adversary’s system to enable remote control of the vulnerable system.
 The trailing hash character “#” that is part of the adversary provided query parameter comments out the tail end of the original Engine command. Without this, the new command string would cause a syntax violation and not execute correctly.
 Mitigation: To address this issue the use of the eval() function was removed and replaced on line 32 with a direct call to the Engine.search() method. Calling the search() method directly — instead of through an eval() command — completely removes the potential for Code Injection.
