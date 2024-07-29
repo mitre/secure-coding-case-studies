@@ -68,7 +68,7 @@ It is worth pointing out that to properly address the weakness, the code must re
 
 It executes a slightly different command — without an iterations value — when the username is not found: `cls.hash_password(password)`
 
-If providing an iteration value causes a measurably longer execution time as compared to the no iteration version of the call, then an adversary could still detect that difference and discover when a valid username was provided. However, looking at the implementation of hash_password(), line 156 shows that default value of 600,000 is used when no value is passed for iterations.
+If providing an iteration value causes a measurably longer execution time as compared to the no iteration version of the call, then an adversary could still detect that difference and discover when a valid username was provided. However, looking at the implementation of hash_password(), line 156 shows that default value of `600,000` is used when no value is passed for iterations.
 
     fixed file: piccolo/apps/user/tables.py
     
