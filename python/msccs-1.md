@@ -161,5 +161,4 @@ NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2018-25088
 
 postgraas_server Code Commit to Fix Issue: https://github.com/blue-yonder/postgraas_server/commit/7cd8d016edc74a78af0d81c948bfafbcc93c937c
 
-Psycopg Documentation Related to Safe Passing of Parameter:
-https://www.psycopg.org/docs/usage.html#passing-parameters-to-sql-queries
+Psycopg Documentation Related to Safe Passing of Parameter: https://www.psycopg.org/docs/usage.html#passing-parameters-to-sql-queries
