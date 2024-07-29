@@ -46,7 +46,7 @@ Looking at the vulnerable source code in postgraas_server, line 22 (line 24 is a
 
 For this code weakness to be exploitable, the values being inserted (db_name and db_user) must be controllable by the user, also known as tainted input. Looking deeper into the code, the values are obtained from the function parameters defined on line 19. These parameters originate from an untrusted source as part of the database connection arguments provided to the application. This flow of data from the malicious user’s HTTP Request to line 19 is illustrated in the diagram below. The remainder of this section describes this flow in detail.
 
-![post()->create()->create_postgres_db()->check_db_or_user_exists()](msccs-1-image-1.jpg)
+![post()->create()->create_postgres_db()->check_db_or_user_exists()](../images/msccs-1-image-1.jpg)
 
 *POST()*
 
