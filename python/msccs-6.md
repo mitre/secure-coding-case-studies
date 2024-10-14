@@ -59,7 +59,7 @@ The single quotation mark in the first part of the adversary provided query para
 
 The comma in the adversary provided query parameter adds a second command to be processed by the eval() function:
 
-'__import__('os').system('ls')'
+`__import__('os').system('ls')`
 
 This adversary inserted command performs a benign directory listing, but it could be modified to perform any desired command, including the use of the exec() command to execute any desired python expression. It would also be possible to create a command that opens a semi-permanent connection to the adversary’s system to enable remote control of the vulnerable system.
 The trailing hash character “#” that is part of the adversary provided query parameter comments out the tail end of the original Engine command. Without this, the new command string would cause a syntax violation and not execute correctly.
