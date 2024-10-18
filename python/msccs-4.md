@@ -16,7 +16,7 @@ The extension works by preprocessing a markdown file, looking for special insert
 
 **Vulnerability:** CVE-2023-32309 – Published 15 May 2023
 
-The weakness in the code relies on the fact that the lines argument to parse_snippets() on line 210 is tainted (i.e., user controlled), and could contain special character sequences like `../` that would result in a snippet file path that is not restricted to the base_path.
+The weakness in the code stems from the fact that the argument "lines" to the parse_snippets() function on line 210 is tainted (i.e., user controlled), and could contain special character sequences like `../` that would result in a snippet file path that is not restricted to the base_path.
 
 The snippet file is then opened for reading on line 311, and the contents of the file are ultimately appended to the lines in the generated markdown file. An adversary that controls that original lines argument could use this path traversal weakness to open and read any file of their choosing.
 
