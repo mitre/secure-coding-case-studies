@@ -8,7 +8,7 @@
 
 **Weakness:** CWE-22: Improper Limitation of a Pathname to a Restricted Directory
 
-The weakness “Improper Limitation of a Pathname to a Restricted Directory” (also called “Path Traversal”) exists when an application accepts a user-controlled input, uses that input to construct a pathname that should be within a restricted directory, then reads or writes to the resulting filename without neutralizing directory separators such as “../” in the user-controlled input. Unfortunately, this can allow an adversary to cause the application to access files in unauthorized locations elsewhere in the file system.
+The weakness “Improper Limitation of a Pathname to a Restricted Directory” (also called “Path Traversal”) exists when an application accepts a user-controlled input, uses that input to construct a pathname that should be within a restricted directory, then reads or writes to the resulting filename without neutralizing navigation commands such as “..” in the user-controlled input. Unfortunately, this can allow an adversary to cause the application to access files in unauthorized locations elsewhere in the file system.
 
 The pymdown-extensions package contains an extension called pymdown-snippets, which inserts the contents of “snippet” files into markdown documents. This makes it easier for users to manage and modularize documentation by inserting the same snippet into multiple markdown files, such as footers or contact information.
 
