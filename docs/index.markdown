@@ -21,3 +21,7 @@ layout: home
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-5.md">Improper Certificate Validation In Airflow</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-6.md">Code Injection In Searchor</a></li>
 </ul>
+<a href="https://github.com/mitre/secure-coding-case-studies/tree/main/javascript"><b>JavaScript</b></a>
+<ul>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/msccs-7.md">Path Traversal In Saltcorn Server</a></li>
+</ul>
