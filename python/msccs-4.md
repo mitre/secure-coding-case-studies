@@ -95,25 +95,26 @@ In this example, the adversary would have caused the contents of the password fi
 **Mitigation:** The issue was fixed with two primary changes to the source code:
 1)	Define a "restrict_base_path" option to allow the snippet admin to specify the directory under which all files must be stored.
 2)	Use absolute paths to ensure that the generated filename is under the expected base path (as quoted in the patch: “restrict snippets to be actual children of the base path”).
-The first change was to the __init__() method which sets a new “restrict_base_path” variable on line 86 directly from a new corresponding setting in the configuration on line 375. Additionally, line 85 was added to create a normalized absolutized version of the base_path obtained from the configuration. This normalization collapses redundant separators and up-level references within the provided base_path value. (e.g., A/foo/../B becomes A/B)
+
+The first change was to the \_\_init\_\_() method which sets a new “restrict_base_path” variable on line 86 directly from a new corresponding setting in the configuration on line 375. Additionally, line 85 was added to create a normalized absolutized version of the base_path obtained from the configuration. This normalization collapses redundant separators and up-level references within the provided base_path value. (e.g., A/foo/../B becomes A/B)
 
     fixed file: pymdownx/snippets.py
     
-    79		def __init__(self, config, md):
-    80			"""Initialize."""
+    79 def __init__(self, config, md):
+    80     """Initialize."""
     81
-    82			base = config.get('base_path')
-    83			if isinstance(base, str):
-    84				base = [base]
-    85			self.base_path = [os.path.abspath(b) for b in base]
-    86			self.restrict_base_path = config['restrict_base_path']
+    82     base = config.get('base_path')
+    83     if isinstance(base, str):
+    84         base = [base]
+    85     self.base_path = [os.path.abspath(b) for b in base]
+    86     self.restrict_base_path = config['restrict_base_path']
     …
-    373		self.config = {
-    374			'base_path': [["."], "Base path for snippet paths - Default: [\".\"]"],
-    375			'restrict_base_path': [
-    376				True,
-    377				"Restrict snippet paths such that they are under the base paths - Default: True"
-    378			],
+    373    self.config = {
+    374        'base_path': [["."], "Base path for snippet paths - Default: [\".\"]"],
+    375        'restrict_base_path': [
+    376            True,
+    377            "Restrict snippet paths such that they are under the base paths - Default: True"
+    378        ],
 
 The second change was to the get_snippet_path() method where the original os.path.join() call was removed and replaced by lines 163-169. This added code obtains the normalized file path for the snippet file on line 164, then on line 166 ensures that the snippet file is in the same directory as the base_path.
 
@@ -134,7 +135,7 @@ The second change was to the get_snippet_path() method where the original os.pat
     168					else:
     169						filename = os.path.join(base, path)
 
-**Conclusion:** The changes made to the pymdown-extensions source code prevent malicious sequences such as “../” or even “/” from causing the extension to generate unexpected pathnames. With the weakness resolved, user-controlled input that reaches the get_snippet_path() method will only produce pathnames under the base path – or trigger an error – thus preventing the access of files outside the restricted base path and the potential exposure of sensitive information.
+**Conclusion:** The changes made to the pymdown-extensions source code prevent malicious sequences such as “../” or even “/” from causing the extension to generate unexpected pathnames. With the weakness resolved, user-controlled input that reaches the get_snippet_path() method will only produce pathnames under the base path or trigger an error, thus preventing the access of files outside the restricted base path and the potential exposure of sensitive information.
 
 **References:**
 
