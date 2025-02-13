@@ -1,9 +1,9 @@
-# MSCCS-8 :: Cross-Site Scripting In COSMOS Server
+# MSCCS-8 :: Cross-Site Scripting In OpenC3 COSMOS
 
 **Introduction:** Website applications often need to respond to a requested action based on input provided by a user. If that response contains a copy of the user’s input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2024, such a weakness was discovered in the login page of the open source edition of OpenC3 COSMOS. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
 
-**Language:** JavaScript
-**Software:** OpenC3 COSMOS (Open Source Edition)
+**Language:** JavaScript  
+**Software:** OpenC3 COSMOS (Open Source Edition)  
 **URL:** https://github.com/OpenC3/cosmos
 
 **Weakness:** CWE-79: Improper Neutralization of Input During Web Page Generation
@@ -18,7 +18,7 @@ A common tactic adversaries use in reflected XSS exploits is to leverage a phish
 
 **Vulnerability:** CVE-2024-43795 – Published 2 October 2024
 
-The vulnerability in OpenC3 COSMOS occurs when the login() method fails to properly neutralize a user input parameter. The user controlled "redirect" parameter is then used to specify what webpage to direct the user to.
+The vulnerability in OpenC3 COSMOS occurs when the login() method fails to properly neutralize a user input parameter. The user controlled `redirect` parameter is then used to specify what webpage to direct the user to.
 
     vulnerable file: openc3-cosmos-init/plugins/openc3-tool-base/public/js/auth.js
 
@@ -28,11 +28,11 @@ The vulnerability in OpenC3 COSMOS occurs when the login() method fails to prope
     40        location = '/login?redirect=${encodeURI(redirect)}'
     41    }
 
-To be vulnerable, two conditions must be met. First, the parameter “redirect” must be controllable by an adversary such that they can point the redirect to a location of their choosing. Second, the code must improperly neutralize (e.g., canonicalize, encode, escape, quote, validate) the adversary provided input such that the target location is not rejected.
+To be vulnerable, two conditions must be met. First, the parameter `redirect` must be controllable by an adversary such that they can point the redirect to a location of their choosing. Second, the code must improperly neutralize (e.g., canonicalize, encode, escape, quote, validate) the adversary provided input such that the target location is not rejected.
 
 *ADVERSARY CONTROLLED INPUT*
 
-Regarding the first condition, the weakness in the source code relies on the string “redirect” being tainted. The string is initialized on line 145 of Login.vue, where it is received directly from the HTTP request’s query string and then stored in the "redirect" parameter. The "redirect" parameter is user-controlled because the "window.location.search" parameter refers to the search query part of a URL. An adversary can craft a custom phishing URL in which the search query part contains malicious JavaScript code.
+Regarding the first condition, the weakness in the source code relies on the parameter `redirect` being tainted. The string is initialized on line 145 of Login.vue, where it is received directly from the HTTP request’s query string and then stored as a constant. The `redirect` parameter is user-controlled because the "window.location.search" parameter refers to the search query part of a URL. An adversary can craft a custom phishing URL in which the search query part contains malicious JavaScript code.
 
     vulnerable file: openc3-cosmos-init/plugins/packages/openc3-tool-common/src/tools/base/components/Login.vue
 
@@ -46,7 +46,7 @@ Regarding the first condition, the weakness in the source code relies on the str
 
 *IMPROPER NEUTRALIZATION*
 
-Regarding the second condition, there should be safeguards to ensure that tainted input will not lead to undesired behavior. This is known as neutralization. There is no neutralization of the tainted input after it is initialized on line 145. As a result, an attacker could set the "redirect" string on line 145 to inject malicious JavaScript code and it would be accepted and passed into the decodeURI method on line 148.
+Regarding the second condition, there should be safeguards to ensure that tainted input will not lead to undesired behavior. This is known as neutralization. There is no neutralization of the tainted input after it is initialized on line 145. As a result, an attacker could set the `redirect` string on line 145 to inject malicious JavaScript code and it would be accepted and passed into the decodeURI method on line 148.
 
 **Exploit:** CAPEC-63: Cross-Site Scripting
 
@@ -78,7 +78,7 @@ To resolve this issue the source code was modified to include a form of neutrali
     152        window.location = '/'
     153      }
 
-Line 148 add a check that the "redirect" parameter begins with one slash (“/”) and only one slash. This single slash as the first character in the search query of a URL is the syntax for directing to a local webpage. The presented exploit will no longer work because the first character in a valid "redirect" parameter is now required to be "/", meaning the "redirect" parameter will not be used if the first character is the "j" in "javascript". If the "redirect" parameter is invalid, the code moves to line 152 and the window.location value is set to the root path of the website.
+Line 148 add a check that the `redirect` parameter begins with one slash (“/”) and only one slash. This single slash as the first character in the search query of a URL is the syntax for directing to a local webpage. The presented exploit will no longer work because the first character in a valid "redirect" parameter is now required to be "/", meaning the `redirect` parameter will not be used if the first character is the "j" in "javascript". If the `redirect` parameter is invalid, the code moves to line 152 and the window.location value is set to the root path of the website.
 
 **Conclusion:**
 
