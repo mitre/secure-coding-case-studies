@@ -24,4 +24,5 @@ layout: home
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/javascript"><b>JavaScript</b></a>
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/msccs-7.md">Path Traversal In Saltcorn Server</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/msccs-8.md">Cross-Site Scripting In OpenC3 COSMOS Server</a></li>
 </ul>
