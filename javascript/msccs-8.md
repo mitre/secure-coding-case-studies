@@ -46,7 +46,7 @@ Regarding the first condition, the weakness in the source code relies on the par
 
 *IMPROPER NEUTRALIZATION*
 
-Regarding the second condition, there should be safeguards to ensure that tainted input will not lead to undesired behavior. This is known as neutralization. There is no neutralization of the tainted input after it is initialized on line 145. As a result, an attacker could set the `redirect` string on line 145 to inject malicious JavaScript code and it would be accepted and passed into the decodeURI method on line 148.
+Regarding the second condition, there should be safeguards to ensure that tainted input will not lead to undesired behavior. This is known as neutralization. There is no neutralization of the tainted input after it is initialized on line 145. As a result, an adversary could set the `redirect` string on line 145 to inject malicious JavaScript code and it would be accepted and passed into the decodeURI method on line 148.
 
 **Exploit:** CAPEC-63: Cross-Site Scripting
 
