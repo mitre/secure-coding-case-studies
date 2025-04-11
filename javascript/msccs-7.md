@@ -8,7 +8,7 @@
 
 **Weakness:** CWE-22: Improper Limitation of a Pathname to a Restricted Directory
 
-The weakness arises when an application utilizes user-controllable data to build a pathname meant to remain within a restricted directory. If the application fails to neutralize navigation commands such as ".." in the input, it may inadvertently allow attackers to access files in unauthorized areas of the file system. 
+The weakness arises when an application utilizes user-controllable data to build a pathname meant to remain within a restricted directory. If the application fails to neutralize navigation commands such as ".." in the input, it may inadvertently allow adversaries to access files in unauthorized areas of the file system. 
 
 Saltcorn is an open source, no-code database application builder. The Saltcorn package contains a `sync` server route responsible for managing data synchronization between the Saltcorn server and clients, ensuring data consistency and handling offline changes efficiently. 
 
