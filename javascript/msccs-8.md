@@ -12,7 +12,7 @@ The weakness exists when a web application fails to properly neutralize user-con
 
 There are three main kinds of cross-site scripting (XSS): reflected, stored, and DOM-based. This case study will focus on reflected XSS, which is when the web application reads data directly from an HTTP request and "reflects" that data back to the user within the HTTP response. For example, the server component of a web application may process a request by looking at the input parameters provided in the query string (step 3 in the diagram below). The web application then typically generates a response that the user’s browser will receive and process (step 4 in the diagram below). If that response contains a copy of the original input, and if that original input contained malicious code embedded by an adversary (step 2 in diagram below), then that code will be executed by the user’s browser. A classic example is when an input is not valid and an error message is returned by the server showing the invalid value that was provided.
 
-![XSS=identify->send->click->reflect->execute](../images/msccs-8-image-1.jpg)
+<br/><p align="center"><img src="../images/msccs-8-image-1.jpg" width=75% height=75% alt="XSS=identify->send->click->reflect->execute"></p><br/>
 
 A common tactic adversaries use in reflected XSS exploits is to leverage a phishing attack. The adversary places malicious input into a URL with a hostname that appears valid and tricks a user into thinking the URL is legitimate. When a user clicks on the phishing URL, the request is sent to the web application which in turn generates a response that (if vulnerable) includes the malicious content which is then executed by the user's browser.
 
