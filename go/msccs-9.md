@@ -240,9 +240,15 @@ Validating inputs supplied by the user ensures that arbitrary parameters are not
 
 **References:**  
 WhoDB Project Page: https://github.com/clidey/whodb  
+
 CVE-2025-24787 Entry: https://www.cve.org/CVERecord?id=CVE-2025-24787  
+
 CWE-88 Entry: https://cwe.mitre.org/data/definitions/88.html  
+
 CAPEC-137 Entry: https://capec.mitre.org/data/definitions/137.html  
+
 OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-c7w4-9wv8-7x7c  
+
 NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2025-24787  
+
 WhoDB Code Commit to Fix Issue: https://github.com/clidey/whodb/commit/8d67b767e00552e5eba2b1537179b74bfa662ee1
