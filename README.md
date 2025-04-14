@@ -8,7 +8,9 @@ With each case study focusing on a real issue in real software, there should be 
 
 ## Definitions
 
-**Neutralization** = A general term to describe the process of ensuring that input or output has certain security properties before it is used. This is independent of the specific protection mechanism that performs the neutralization. The term could refer to one or more of the following: filtering/cleansing, canonicalization/resolution, encoding/decoding, escaping/unescaping, quoting/unquoting, validation, or other mechanisms.
+**Improper** = A term used to cover security behaviors that are either missing or insufficient/incorrect. When the term "imporper" is used then both situations are possible. "Incorrect" is when the developer attempts to do a task but does not do it correctly, while "Missing" is when the developer does not even attempt to perform the security behavior.
+
+**Neutralization** = A term to describe the process of ensuring that input or output has certain security properties before it is used. This is independent of the specific protection mechanism that performs the neutralization. The term could refer to one or more of the following: filtering/cleansing, canonicalization/resolution, encoding/decoding, escaping/unescaping, quoting/unquoting, validation, or other mechanisms.
 
 **Tainted** = A state where the contents of an object (i.e., input, data, string) may have been altered or controlled by an adversary and therefore cannot be trusted.
 
