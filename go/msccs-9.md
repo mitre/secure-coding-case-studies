@@ -45,7 +45,7 @@ The vulnerability in the WhoDB code arises from inadequate input validation in t
     24        charset := common.GetRecordValueOrDefault(config.Credentials.Advanced, charsetKey, "utf8mb4")
     25        parseTime := common.GetRecordValueOrDefault(config.Credentials.Advanced, parseTimeKey, "True")
     26        loc := common.GetRecordValueOrDefault(config.Credentials.Advanced, locKey, "Local")
-    27        allowClearTextPasswords := common.GetRecordValueOrDefault(config.Credentials.Advanced,allowClearTextPasswordsKey,"0")
+    27        allowClearTextPasswords :=common.GetRecordValueOrDefault(config.Credentials.Advanced,allowClearTextPasswordsKey,"0")
     28        hostPath := common.GetRecordValueOrDefault(config.Credentials.Advanced, hostPathKey, "/")
     29
     30        params := url.Values{}
