@@ -10,95 +10,98 @@
 
 This weakness arises when an application fails to properly neutralize special elements in user-supplied input that are used as argument delimiters in command execution logic. This neutralization entails modifying (e.g. canonicalizing, encoding, escaping, quoting, validating) inputs so that special elements/characters are treated as literal data instead of interpreted as commands or logic. The following is a simple example of an application constructing a MongoDB connection URI in Go:
 
-```
-1   func connectToDatabase(userInput string) {
-2       connectionURI := "mongodb://localhost:27017/?authSource=" + userInput
-3       client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(connectionURI))
-4
-5       // Perform database operations...
-6   }
-```
+    func connectToDatabase(userInput string) {
+        connectionURI := "mongodb://localhost:27017/?authSource=" + userInput
+        client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(connectionURI))
+    
+        // Perform database operations...
+    }
 
-The function parameter `userInput` is passed in on line 1, and no validation or escaping is performed before its use on line 2. Thus, an adversary could inject arbitrary parameters into the connection URI. For example, if the adversary inputs the string `admin&ssl=false`, then the resulting connection URI would be `mongodb://localhost:27017/?authSource=admin&ssl=false`, thus disabling SSL and exposing possibly sensitive data in transit or allowing the interception of unencrypted database traffic.
+The function parameter `userInput` is passed into the function, and no validation or escaping is performed before its used to build the connectionURI on the second line. Thus, an adversary could inject arbitrary parameters into the connection URI by including the delimiter `&` as part of the input. For example, if the adversary inputs the string `admin&ssl=false`, then the resulting connection URI would be:
+
+    mongodb://localhost:27017/?authSource=admin&ssl=false
+
+The injected `ssl=false` parameter would disable SSL and potentiall expose sensitive data in transit or allow the interception of unencrypted database traffic.
 
 **Vulnerability:** CVE-2025-24787
 
 WhoDB is a Go-based database management system that utilizes several libraries to connect drivers to database servers, like Elasticsearch, PostgreSQL, and MySQL. Because each of these drivers requires the construction of database connection URIs based on user input, improper handling of these inputs could lead to unintended behavior. WhoDB is meant to simplify the process and control which settings are made available to keep the database connection within the desired security bounds.
 
-The vulnerability in the WhoDB code arises from inadequate input validation in the construction of a database connection URI. This case study focuses on the MySQL connection, which is set up via the `DB()` function on line 22 of the source code file `mysql/db.go`. This function is responsible for establishing the connection to a MySQL database using GORM, an object-relational mapping (ORM) library for Go. The parameter `config` is passed into the function on line 22 and contains the user-provided database connection values, which are then extracted from `config.Credentials.Advanced` on lines 23-39. No validation is performed on any of the inputs received.
+The vulnerability in the WhoDB code arises from inadequate input validation in the construction of the database connection URI. This case study focuses on the MySQL connection, which is set up via the funciton DB() on line 22 of the source code file `mysql/db.go`. This function is responsible for establishing the connection to a MySQL database using GORM, an object-relational mapping (ORM) library for Go. The parameter `config` is passed into the function on line 22 and contains the user-provided database connection values, which are then extracted from `config.Credentials.Advanced` on lines 23-39. No validation is performed on any of the inputs received.
 
-```
-Vulnerable file: core/src/plugins/mysql/db.go
+    Vulnerable file: core/src/plugins/mysql/db.go
+    
+    13    const (
+    14        portKey                    = "Port"
+    15        charsetKey                 = "Charset"
+    16        parseTimeKey               = "Parse Time"
+    17        locKey                     = "Loc"
+    18        allowClearTextPasswordsKey = "Allow clear text passwords"
+    19        hostPathKey                = "Host path"
+    20	  )
+    21
+    22    func DB(config *engine.PluginConfig) (*gorm.DB, error) {
+    23        port := common.GetRecordValueOrDefault(config.Credentials.Advanced, portKey, "3306")
+    24        charset := common.GetRecordValueOrDefault(config.Credentials.Advanced, charsetKey, "utf8mb4")
+    25        parseTime := common.GetRecordValueOrDefault(config.Credentials.Advanced, parseTimeKey, "True")
+    26        loc := common.GetRecordValueOrDefault(config.Credentials.Advanced, locKey, "Local")
+    27        allowClearTextPasswords := common.GetRecordValueOrDefault(config.Credentials.Advanced,allowClearTextPasswordsKey,"0")
+    28        hostPath := common.GetRecordValueOrDefault(config.Credentials.Advanced, hostPathKey, "/")
+    29
+    30        params := url.Values{}
+    31
+    32        for _, record := range config.Credentials.Advanced {
+    33            switch record.Key {
+    34            case portKey, charsetKey, parseTimeKey, locKey, allowClearTextPasswordsKey, hostPathKey:
+    35                continue
+    36            default:
+    37                params.Add(record.Key, fmt.Sprintf("%v", record.Value))
+    38            }
+    39        }
+    40
+    41      dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)%v%v?charset=%v&parseTime=%v&loc=%v&allowCleartextPasswords=%v&%v",
+                               config.Credentials.Username,
+                               config.Credentials.Password,
+                               config.Credentials.Hostname,
+                               port,
+                               hostPath,
+                               config.Credentials.Database,
+                               charset,
+                               parseTime,
+                               loc,
+                               allowClearTextPasswords,
+                               params.Encode())
+    42      db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+    43      if err != nil {
+    44          return nil, err
+    45      }
+    46      return db, nil
 
-13	  const (
-14      		portKey                    = "Port"
-15    	    	charsetKey                 = "Charset"
-16    		    parseTimeKey               = "Parse Time"
-17        		locKey                     = "Loc"
-18	        	allowClearTextPasswordsKey = "Allow clear text passwords"
-19	        	hostPathKey                = "Host path"
-20	  )
-21
-22    func DB(config *engine.PluginConfig) (*gorm.DB, error) {
-23        port := common.GetRecordValueOrDefault(config.Credentials.Advanced, portKey, "3306")
-24        charset := common.GetRecordValueOrDefault(config.Credentials.Advanced, charsetKey, "utf8mb4")
-25        parseTime := common.GetRecordValueOrDefault(config.Credentials.Advanced, parseTimeKey, "True")
-26        loc := common.GetRecordValueOrDefault(config.Credentials.Advanced, locKey, "Local")
-27        allowClearTextPasswords := common.GetRecordValueOrDefault(config.Credentials.Advanced, allowClearTextPasswordsKey, "0")
-28        hostPath := common.GetRecordValueOrDefault(config.Credentials.Advanced, hostPathKey, "/")
-29
-30        params := url.Values{}
-31
-32    for _, record := range config.Credentials.Advanced {
-33        switch record.Key {
-34            case portKey, charsetKey, parseTimeKey, locKey, allowClearTextPasswordsKey, hostPathKey:
-35                continue
-36            default:
-37                params.Add(record.Key, fmt.Sprintf("%v", record.Value))
-38        }
-39    }
-```
+On line 41, the Data Source Name (DSN) string is constructed using the retrieved configuration values without any input validation (e.g. escaping or encoding of special characters), thus allowing users to inject arbitrary parameters into the URI string.
 
-On line 41, the Data Source Name (DSN) string is constructed using the retrieved configuration values, and a MySQL database connection is opened on line 42. The configuration values are concatenated to the DSN string without any input validation (e.g. escaping or encoding of special characters), allowing users to inject arbitrary parameters into the URI string.
-
-```
-41      dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)%v%v?charset=%v&parseTime=%v&loc=%v&allowCleartextPasswords=%v&%v", config.Credentials.Username, config.Credentials.Password, config.Credentials.Hostname, port, hostPath, config.Credentials.Database, charset, parseTime, loc, allowClearTextPasswords, params.Encode())
-42      db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-43      if err != nil {
-44          return nil, err
-45      }
-46      return db, nil
-```
-
-The database connection object `db` is then returned on line 46.
+The MySQL database connection is then opened on line 42, and the database connection object `db` is then returned on line 46.
 
 **Exploit:** CAPEC-137: Parameter Injection
 
-Users normally interact with the WhoDB by sending HTTP requests with the desired values to connect to a database. However, an adversary can exploit the vulnerability by injecting additional parameters into the HTTP request and manipulating any of the connection values. For example, instead of providing an expected location value of `Local`, an adversary could provide a location value of `Local&allowAllFiles=true`. The ‘&’ character acts as a field delimiter and enables the adversary to then append any new connection value they desire. In this case, the parameter `allowAllFiles` is added and the connecting string that results is as follows:
+Users normally interact with WhoDB by sending HTTP requests with the desired values to connect to a database. However, an adversary can exploit the vulnerability by injecting additional parameters into the HTTP request and manipulating any of the connection values. For example, instead of providing an expected loc value of `Local`, an adversary could provide a loc value of `Local&allowAllFiles=true`. The ‘&’ character acts as a field delimiter and enables the adversary to append another connection value as they desire. In the example input above, the parameter `allowAllFiles` is added and the connecting string that results is as follows:
 
-```
-root:password@tcp(mysql:3306)/mysql?charset=utf8mb4&parseTime=True&loc=Local&allowAllFiles=true&allowCleartextPasswords=0&[ADDITIONAL PARAMETERS IF ANY]
-```
+    root:password@tcp(mysql:3306)/mysql?charset=utf8&parseTime=True&loc=Local&allowAllFiles=true&allowCleartextPasswords=0
 
 The `AllowAllFiles` configuration flag determines whether the client application (in this case, WhoDB) is allowed to access any file on its local filesystem or only files that have been explicitly registered. In other words, setting `AllowAllFiles` equal to true disables the known good check when loading files via a `LOAD DATA LOCAL INFILE` query. The `LOAD DATA LOCAL INFILE` query in MySQL is typically used to perform bulk imports of data specified files located on the client machine into a database table. However, if improperly configured with the `AllowAllFiles` flag set to `true`, it can be abused to exfiltrate sensitive files (like `/etc/passwd`) from the client machine running WhoDB to an adversary-controlled MySQL server.
 
 Using the connection that was just established, the adversary can create a new table in their database and enable (via the global setting `local_infile`) the loading of files from the local client into this table.
 
-```
-CREATE TABLE temp_storage (
-    line TEXT
-);
-SET GLOBAL local_infile=1;
-```
+    CREATE TABLE temp_storage (
+        line TEXT
+    );
+    SET GLOBAL local_infile=1;
 
 A `LOAD DATA LOCAL INFILE` query can then be used as previously discussed to read the contents of a sensitive file like `/etc/passwd` into the `temp_storage` table.
 
-```
-LOAD DATA LOCAL INFILE '/etc/passwd'
-INTO TABLE temp_storage
-FIELDS TERMINATED BY '\0'
-LINES TERMINATED BY '\n';
-```
+    LOAD DATA LOCAL INFILE '/etc/passwd'
+    INTO TABLE temp_storage
+    FIELDS TERMINATED BY '\0'
+    LINES TERMINATED BY '\n';
 
 Once the local file has been copied into the table, the adversary can then query the `temp_storage` table to view the contents of the file.
 
@@ -238,7 +241,8 @@ Validating inputs supplied by the user ensures that arbitrary parameters are not
 
 **Conclusion:** The addition of input validation to the WhoDB source code prevents arbitrary parameter injection, which previously led to local file inclusion and consequent exfiltration of sensitive files. With the weakness resolved, user-controlled input is eliminated as an attack vector via the database connection strings.
 
-**References:**  
+**References:**
+
 WhoDB Project Page: https://github.com/clidey/whodb  
 
 CVE-2025-24787 Entry: https://www.cve.org/CVERecord?id=CVE-2025-24787  
