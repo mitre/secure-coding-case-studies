@@ -1,6 +1,6 @@
 # MSCCS-9 :: PARAMETER INJECTION IN WHODB
 
-**Introduction**: Improper neutralization of special elements in command logic can lead to severe security vulnerabilities. An adversary can exploit such a vulnerability by injecting malicious parameters into database connection strings, enabling unauthorized access or manipulation of system resources. The underlying weakness in the source code is particularly dangerous in applications that rely on dynamic query construction with user-supplied input. In February 2025, a vulnerability stemming from this weakness was disclosed in the Go-based WhoDB database management system. This case study explores the root cause of the vulnerability, its potential impact, and how the code was ultimately fixed.
+**Introduction**: Improper neutralization of special elements in command logic can lead to severe security vulnerabilities. An adversary can exploit such a vulnerability by injecting malicious parameters into database connection strings, enabling unauthorized access or manipulation of system resources. The underlying weakness in the source code is particularly dangerous in applications that rely on dynamic command construction with user-supplied input. In February 2025, a vulnerability stemming from this weakness was disclosed in the Go-based WhoDB database management system. This case study explores the root cause of the vulnerability, its potential impact, and how the code was ultimately fixed.
 
 **Language**: Go  
 **Software**: WhoDB  
@@ -21,13 +21,13 @@ The function parameter `userInput` is passed into the function, and no validatio
 
     mongodb://localhost:27017/?authSource=admin&ssl=false
 
-The injected `ssl=false` parameter would disable SSL and potentiall expose sensitive data in transit or allow the interception of unencrypted database traffic.
+The injected `ssl=false` parameter would disable SSL and potentially expose sensitive data in transit or allow the interception of unencrypted database traffic.
 
 **Vulnerability:** CVE-2025-24787
 
 WhoDB is a Go-based database management system that utilizes several libraries to connect drivers to database servers, like Elasticsearch, PostgreSQL, and MySQL. Because each of these drivers requires the construction of database connection URIs based on user input, improper handling of these inputs could lead to unintended behavior. WhoDB is meant to simplify the process and control which settings are made available to keep the database connection within the desired security bounds.
 
-The vulnerability in the WhoDB code arises from inadequate input validation in the construction of the database connection URI. This case study focuses on the MySQL connection, which is set up via the funciton DB() on line 22 of the source code file `mysql/db.go`. This function is responsible for establishing the connection to a MySQL database using GORM, an object-relational mapping (ORM) library for Go. The parameter `config` is passed into the function on line 22 and contains the user-provided database connection values, which are then extracted from `config.Credentials.Advanced` on lines 23-39. No validation is performed on any of the inputs received.
+The vulnerability in the WhoDB code arises from inadequate input validation in the construction of the database connection URI. This case study focuses on the MySQL connection, which is set up via the function DB() on line 22 of the source code file `mysql/db.go`. This function is responsible for establishing the connection to a MySQL database using GORM, an object-relational mapping (ORM) library for Go. The parameter `config` is passed into the function on line 22 and contains the user-provided database connection values, which are then extracted from `config.Credentials.Advanced` on lines 23-39. No validation is performed on any of the inputs received.
 
     vulnerable file: core/src/plugins/mysql/db.go
     
@@ -105,7 +105,7 @@ A `LOAD DATA LOCAL INFILE` query can then be used as previously discussed to rea
 
 Once the local file has been copied into the table, the adversary can then query the `temp_storage` table to view the contents of the file.
 
-**Mitigation:** To fix this issue, several input validation measures were added to the source code that constructs the DSN string. The first change was the implementation of the `ParseConnectionConfig()` function containing these checks in a new file grom\db.go.
+**Mitigation:** To fix this issue, several input validation measures were added to the source code that constructs the DSN string. The first change was the implementation of the ParseConnectionConfig() function containing these checks in a new file grom\db.go.
 
 On line 65 the user-provided value for the port number is first converted to an integer using Go’s `strconv.Atoi` method, returning an error in case the value is not an integer. Inputs for parameters specific to MySQL are then validated beginning on line 71 with the user-provided value for the `parseTime` parameter being constrained to specific Boolean-like values (i.e., 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, and False) using the builtin Go method `strconv.ParseBool`, returning an error on any other value. On line 75, the user-provided value for the location is constrained by using the builtin Go method `time.LoadLocation`, returning an error if the location value does not correspond to a valid time zone. On line 79, the `strconv.ParseBool` method is used again to constrain the user-provided `allowClearTextPasswords` parameter to Boolean-like values, returning an error otherwise. On line 90, the `strconv.Atoi` method is used again to ensure that the user-provided connection timeout value is an integer, returning an error otherwise. Finally, on lines 96-99, `url.PathEscape` is used to encode special characters in the username, password, database, and hostname fields so that they are safe for use in URLs and queries.
 
@@ -176,7 +176,7 @@ With all input properly validated, the `input` variable is returned on line 125 
     125        return input, nil
     126    }
 
-On line 27 of the fixed mysql/db.go file, a call to the previously-defined `ParseConnectionConfig()` function is added to validate all the configuration details provided in the `config` parameter. A mysqlConfig struct is then instantiated on line 32, and the information from `connectionInput` is copied into it on lines 33-41. Lastly, instead of manually concatenating parameters to the DSN string as done in the vulnerable code, the `mysqlConfig.FormatDSN()` method is used on line 43 to securely format the previously created `mysqlConfig` struct into a valid DSN.
+On line 27 of the fixed mysql/db.go file, a call to the previously-defined ParseConnectionConfig() function is added to validate all the configuration details provided in the `config` parameter. A mysqlConfig struct is then instantiated on line 32, and the information from `connectionInput` is copied into it on lines 33-41. Lastly, instead of manually concatenating parameters to the DSN string as done in the vulnerable code, the `mysqlConfig.FormatDSN` method is used on line 43 to securely format the previously created `mysqlConfig` struct into a valid DSN.
 
 The database connection object `db` is then returned on line 47.
 
