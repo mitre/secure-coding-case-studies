@@ -8,7 +8,7 @@
 
 **Weakness:** CWE-88: Improper Neutralization of Argument Delimiters in a Command
 
-This weakness arises when an application fails to properly neutralize special elements in user-supplied input that are used as argument delimiters in command execution logic. This neutralization entails modifying (e.g. canonicalizing, encoding, escaping, quoting, validating) inputs so that special elements/characters are treated as literal data instead of interpreted as commands or logic. The following is a simple example of an application constructing a MongoDB connection URI in Go:
+This weakness arises when an application fails to properly neutralize special elements in user-supplied input that are used as argument delimiters in command execution logic. This neutralization entails modifying (e.g., canonicalizing, encoding, escaping, quoting, validating) inputs so that special elements/characters are treated as literal data instead of interpreted as commands or logic. The following is a simple example of an application constructing a MongoDB connection URI in Go:
 
     func connectToDatabase(userInput string) {
         connectionURI := "mongodb://localhost:27017/?authSource=" + userInput
@@ -29,7 +29,7 @@ WhoDB is a Go-based database management system that utilizes several libraries t
 
 The vulnerability in the WhoDB code arises from inadequate input validation in the construction of the database connection URI. This case study focuses on the MySQL connection, which is set up via the funciton DB() on line 22 of the source code file `mysql/db.go`. This function is responsible for establishing the connection to a MySQL database using GORM, an object-relational mapping (ORM) library for Go. The parameter `config` is passed into the function on line 22 and contains the user-provided database connection values, which are then extracted from `config.Credentials.Advanced` on lines 23-39. No validation is performed on any of the inputs received.
 
-    Vulnerable file: core/src/plugins/mysql/db.go
+    vulnerable file: core/src/plugins/mysql/db.go
     
     13    const (
     14        portKey                    = "Port"
@@ -105,137 +105,106 @@ A `LOAD DATA LOCAL INFILE` query can then be used as previously discussed to rea
 
 Once the local file has been copied into the table, the adversary can then query the `temp_storage` table to view the contents of the file.
 
-**Mitigation:** To fix this issue, several input validation measures were added to the source code that constructs the DSN string.
+**Mitigation:** To fix this issue, several input validation measures were added to the source code that constructs the DSN string. The first change was the implementation of the `ParseConnectionConfig()` function containing these checks in a new file grom\db.go.
 
-The `gorm/db.go` file implements a `ParseConnectionConfig()` function containing these checks. On line 65 of the fixed code below, the user-provided value for the port number is first converted to an integer using Go’s `strconv.Atoi` method, returning an error in case the value is not an integer.
+On line 65 the user-provided value for the port number is first converted to an integer using Go’s `strconv.Atoi` method, returning an error in case the value is not an integer. Inputs for parameters specific to MySQL are then validated beginning on line 71 with the user-provided value for the `parseTime` parameter being constrained to specific Boolean-like values (i.e., 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, and False) using the builtin Go method `strconv.ParseBool`, returning an error on any other value. On line 75, the user-provided value for the location is constrained by using the builtin Go method `time.LoadLocation`, returning an error if the location value does not correspond to a valid time zone. On line 79, the `strconv.ParseBool` method is used again to constrain the user-provided `allowClearTextPasswords` parameter to Boolean-like values, returning an error otherwise. On line 90, the `strconv.Atoi` method is used again to ensure that the user-provided connection timeout value is an integer, returning an error otherwise. Finally, on lines 96-99, `url.PathEscape` is used to encode special characters in the username, password, database, and hostname fields so that they are safe for use in URLs and queries.
 
-```
-File: core\src\plugins\gorm\db.go
+All of these configuration details, which have been provided by the user via the config parameter have now gone through input validation, are stored in the `input` variable on line 95.
 
-39    type ConnectionInput struct {
-40        //common
-41        Username string `validate:"required"`
-42        Password string `validate:"required"`
-43        Database string `validate:"required"`
-44        Hostname string `validate:"required"`
-45        Port     int    `validate:"required"`
-46
-47        //mysql/mariadb
-48        ParseTime               bool           `validate:"boolean"`
-49        Loc                     *time.Location `validate:"required"`
-50        AllowClearTextPasswords bool           `validate:"boolean"`
-51
-          ...
-57
-58        ConnectionTimeout int
-59
-60        ExtraOptions map[string]string `validate:"omitnil"`
-61    }
-62
-63    func (p *GormPlugin) ParseConnectionConfig(config *engine.PluginConfig) (*ConnectionInput, error) {
-64        //common
-65        port, err := strconv.Atoi(common.GetRecordValueOrDefault(config.Credentials.Advanced, portKey, "3306"))
-66        if err != nil {
-67            return nil, err
-68        }
-```
+    new file: core\src\plugins\gorm\db.go
+    
+    63    func (p *GormPlugin) ParseConnectionConfig(config *engine.PluginConfig) (*ConnectionInput, error) {
+    64        //common
+    65        port, err := strconv.Atoi(common.GetRecordValueOrDefault(config.Credentials.Advanced, portKey, "3306"))
+    66        if err != nil {
+    67            return nil, err
+    68        }
+    69
+    70        //mysql/mariadb specific
+    71        parseTime, err := strconv.ParseBool(common.GetRecordValueOrDefault(config.Credentials.Advanced, parseTimeKey, "True"))
+    72        if err != nil {
+    73            return nil, err
+    74        }
+    75        loc, err := time.LoadLocation(common.GetRecordValueOrDefault(config.Credentials.Advanced, locKey, "Local"))
+    76        if err != nil {
+    77            return nil, err
+    78        }
+    79        allowClearTextPasswords, err := strconv.ParseBool(common.GetRecordValueOrDefault(config.Credentials.Advanced, allowClearTextPasswordsKey, "0"))
+    80        if err != nil {
+    81            return nil, err
+    82        }
+    ...
+    90        connectionTimeout, err := strconv.Atoi(common.GetRecordValueOrDefault(config.Credentials.Advanced, connectionTimeoutKey, "90"))
+    91        if err != nil {
+    92            return nil, err
+    93        }
+    94
+    95        input := &ConnectionInput{
+    96            Username:                url.PathEscape(config.Credentials.Username),
+    97            Password:                url.PathEscape(config.Credentials.Password),
+    98            Database:                url.PathEscape(config.Credentials.Database),
+    99            Hostname:                url.PathEscape(config.Credentials.Hostname),
+    100           Port:                    port,
+    101           ParseTime:               parseTime,
+    102           Loc:                     loc,
+    103           AllowClearTextPasswords: allowClearTextPasswords,
+    ...
+    108           ConnectionTimeout:       connectionTimeout,
+    109       }
 
-Inputs for parameters specific to MySQL are validated beginning on line 71. On line 71, the user-provided value for the `parseTime` parameter is constrained to specific Boolean-like values (`1`, `t`, `T`, `TRUE`, `true`, `True`, `0`, `f`, `F`, `FALSE`, `false`, and `False`) using Go’s `strconv.ParseBool` method, returning an error on any other value. On line 75, the user-provided value for the location is constrained by using Go’s `time.LoadLocation` method, returning an error if the location value does not correspond to a valid time zone. On line 79, the `strconv.ParseBool` method is used again to constrain the user-provided `allowClearTextPasswords` parameter to Boolean-like values, returning an error otherwise.
 
-```
-70        //mysql/mariadb specific
-71        parseTime, err := strconv.ParseBool(common.GetRecordValueOrDefault(config.Credentials.Advanced, parseTimeKey, "True"))
-72        if err != nil {
-73            return nil, err
-74        }
-75        loc, err := time.LoadLocation(common.GetRecordValueOrDefault(config.Credentials.Advanced, locKey, "Local"))
-76        if err != nil {
-77            return nil, err
-78        }
-79        allowClearTextPasswords, err := strconv.ParseBool(common.GetRecordValueOrDefault(config.Credentials.Advanced, allowClearTextPasswordsKey, "0"))
-80        if err != nil {
-81            return nil, err
-82        }
-```
+One last bit of input validation is performed before being returned for use. In the original vulnerable code, any custom parameters were added to `params` without validation. The new code passes these additional parameters to the builtin Go method `url.QueryEscape` on line 119, which escapes input to ensure that parameters can be safely placed inside a URL query. These parameters are then stored in the `input.ExtraOptions` field on 122.
 
-On line 90, the `strconv.Atoi` method is used again to ensure that the user-provided connection timeout value is an integer, returning an error otherwise.
+With all input properly validated, the `input` variable is returned on line 125 for use by the original MySQL connection.
 
-```
-90        connectionTimeout, err := strconv.Atoi(common.GetRecordValueOrDefault(config.Credentials.Advanced, connectionTimeoutKey, "90"))
-91        if err != nil {
-92            return nil, err
-93        }
-```
+    new file: core\src\plugins\gorm\db.go
+    
+    111        // if this config is a pre-configured profile, then allow reading of additional params
+    112        if config.Credentials.IsProfile {
+    113            params := make(map[string]string)
+    114            for _, record := range config.Credentials.Advanced {
+    115                switch record.Key {
+    116                    case portKey, parseTimeKey, locKey, allowClearTextPasswordsKey, sslModeKey, httpProtocolKey, readOnlyKey, debugKey, connectionTimeoutKey:
+    117                        continue
+    118                    default:
+    119                        params[record.Key] = url.QueryEscape(record.Value) // todo: this may break for postgres
+    120                }
+    121            }
+    122            input.ExtraOptions = params
+    123        }
+    124
+    125        return input, nil
+    126    }
 
-On line 95, the `ConnectionInput` struct defined on lines 39-61 is used to store configuration details for the database connection in the `input` variable. On lines 96-99, `url.PathEscape` is used to encode special characters in the username, password, database, and hostname fields so that they are safe for use in URLs and queries.
-
-```
-95        input := &ConnectionInput{
-96            Username:                url.PathEscape(config.Credentials.Username),
-97            Password:                url.PathEscape(config.Credentials.Password),
-98            Database:                url.PathEscape(config.Credentials.Database),
-99            Hostname:                url.PathEscape(config.Credentials.Hostname),
-100           Port:                    port,
-101           ParseTime:               parseTime,
-102           Loc:                     loc,
-103           AllowClearTextPasswords: allowClearTextPasswords,
-	          ...
-108           ConnectionTimeout:       connectionTimeout,
-109       }
-```
-
-In the previous code, arbitrary parameters were added to `params` without validation. The new code only allows additional parameters if the configuration is a pre-configured profile (line 112). Additionally, these additional parameters are passed to Go’s `url.QueryEscape` method on line 119, which escapes input to ensure that parameters can be safely placed inside a URL query. These parameters are then stored in the `input.ExtraOptions` field on 122, and `input` is returned for use by the original MySQL connection.
-
-```
-111        // if this config is a pre-configured profile, then allow reading of additional params
-112        if config.Credentials.IsProfile {
-113            params := make(map[string]string)
-114            for _, record := range config.Credentials.Advanced {
-115                switch record.Key {
-116                    case portKey, parseTimeKey, locKey, allowClearTextPasswordsKey, sslModeKey, httpProtocolKey, readOnlyKey, debugKey, connectionTimeoutKey:
-117                        continue
-118                    default:
-119                        params[record.Key] = url.QueryEscape(record.Value) // todo: this may break for postgres
-120                }
-121            }
-122            input.ExtraOptions = params
-123        }
-124
-125        return input, nil
-126    }
-```
-
-On line 27 of the fixed `mysql/db.go` file, the previously-defined `ParseConnectionConfig()` function is used to store the configuration details into `connectionInput`. A Go for MySQL Config struct is instantiated on line 32, and the information from `connectionInput` is then copied into `mysqlConfig` on lines 33-41. Lastly, instead of manually concatenating parameters to the DSN string like before, the `mysqlConfig.FormatDSN()` method is used on line 43 to securely format the previously created `mysqlConfig` struct into a valid DSN.
-
-```
-Fixed file: core/src/plugins/mysql/db.go
-
-26    func (p *MySQLPlugin) DB(config *engine.PluginConfig) (*gorm.DB, error) {
-27        connectionInput, err := p.ParseConnectionConfig(config)
-28        if err != nil {
-29            return nil, err
-30        }
-31
-32        mysqlConfig := mysqldriver.NewConfig()
-33        mysqlConfig.User = connectionInput.Username
-34        mysqlConfig.Passwd = connectionInput.Password
-35        mysqlConfig.Net = "tcp"
-36        mysqlConfig.Addr = net.JoinHostPort(connectionInput.Hostname, strconv.Itoa(connectionInput.Port))
-37        mysqlConfig.DBName = connectionInput.Database
-38        mysqlConfig.AllowCleartextPasswords = connectionInput.AllowClearTextPasswords
-39        mysqlConfig.ParseTime = connectionInput.ParseTime
-40        mysqlConfig.Loc = connectionInput.Loc
-41        mysqlConfig.Params = connectionInput.ExtraOptions
-42
-43        db, err := gorm.Open(mysql.Open(mysqlConfig.FormatDSN()), &gorm.Config{})
-44        if err != nil {
-45            return nil, err
-46        }
-47        return db, nil
-48    }
-```
+On line 27 of the fixed mysql/db.go file, a call to the previously-defined `ParseConnectionConfig()` function is added to validate all the configuration details provided in the `config` parameter. A mysqlConfig struct is then instantiated on line 32, and the information from `connectionInput` is copied into it on lines 33-41. Lastly, instead of manually concatenating parameters to the DSN string as done in the vulnerable code, the `mysqlConfig.FormatDSN()` method is used on line 43 to securely format the previously created `mysqlConfig` struct into a valid DSN.
 
 The database connection object `db` is then returned on line 47.
+
+    fixed file: core/src/plugins/mysql/db.go
+    
+    26    func (p *MySQLPlugin) DB(config *engine.PluginConfig) (*gorm.DB, error) {
+    27        connectionInput, err := p.ParseConnectionConfig(config)
+    28        if err != nil {
+    29            return nil, err
+    30        }
+    31
+    32        mysqlConfig := mysqldriver.NewConfig()
+    33        mysqlConfig.User = connectionInput.Username
+    34        mysqlConfig.Passwd = connectionInput.Password
+    35        mysqlConfig.Net = "tcp"
+    36        mysqlConfig.Addr = net.JoinHostPort(connectionInput.Hostname, strconv.Itoa(connectionInput.Port))
+    37        mysqlConfig.DBName = connectionInput.Database
+    38        mysqlConfig.AllowCleartextPasswords = connectionInput.AllowClearTextPasswords
+    39        mysqlConfig.ParseTime = connectionInput.ParseTime
+    40        mysqlConfig.Loc = connectionInput.Loc
+    41        mysqlConfig.Params = connectionInput.ExtraOptions
+    42
+    43        db, err := gorm.Open(mysql.Open(mysqlConfig.FormatDSN()), &gorm.Config{})
+    44        if err != nil {
+    45            return nil, err
+    46        }
+    47        return db, nil
+    48    }
 
 Validating inputs supplied by the user ensures that arbitrary parameters are not injected into the connection URI, thus removing the weakness from the code. Similar changes were implemented in the URI constructions for other database drivers used by WhoDB.
 
