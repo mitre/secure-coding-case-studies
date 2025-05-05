@@ -58,6 +58,7 @@ Note that the ServerError function in html.go does not add a CSP header to the M
 
 To exploit this vulnerability, an adversary starts by convincing a user to subscribe to an adversary-controlled RSS feed via Miniflux. Then, the adversary can craft an item for this RSS feed that contains an inline description with an <img> tag and a srcset attribute that uses an invalid URL that contains malicious JavaScript. An example RSS feed item is provided below.
 
+```
 <item>
   <title>Example RSS Feed Item</title>
   <link>https://example.com/item</link>
@@ -69,6 +70,7 @@ To exploit this vulnerability, an adversary starts by convincing a user to subsc
   </description>
   <pubDate>Tue, 10 Oct 2023 12:00:00 GMT</pubDate>
 </item>
+```
 
 Notice the JavaScript contained in the srcset attribute. If the Miniflux user is subscribed to the adversary's RSS feed, the code in the mediaProxy function will reach the vulnerable section and add this RSS feed item to the user's Miniflux inbox. When the web browser loads the broken image, the malicious JavaScript is executed in the context of the victim Miniflux user. Actions will be performed on the Miniflux instance as the victim. If the victim is an administrator, administrative access to the Miniflux instance can be achieved. Actions that can be taken include but are not limited to the manipulation or theft of site cookies, a compromise of confidential information, the disclosure of end user files, the installation of Trojan horse programs, or redirection of the user to another site.
 
@@ -76,17 +78,17 @@ Notice the JavaScript contained in the srcset attribute. If the Miniflux user is
 
 To resolve this issue the source code was modified to remove the call to html.ServerError and thus prevent the Miniflux inbox entry from being built, replacing it with a logger error and an HTTP error on lines 86 and 87. 
 
-    fixed file: miniflux/v2/internal/ui/proxy.go
+  fixed file: miniflux/v2/internal/ui/proxy.go
 
-    23  func (h *handler) mediaProxy(w http.ResponseWriter, r *http.Request) {
-            ...
-    85      if err != nil {
-    86		    logger.Error(`[Proxy] Unable to initialize HTTP client: %v`, err)
-	  87	        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-    88		    return
-    89      }
-            ...
-    119	}
+  23  func (h *handler) mediaProxy(w http.ResponseWriter, r *http.Request) {
+          ...
+  85      if err != nil {
+  86		    logger.Error(`[Proxy] Unable to initialize HTTP client: %v`, err)
+	87	        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+  88		    return
+  89      }
+          ...
+  119	}
 
 Now, the mediaProxy function does not build a Miniflux inbox entry like the earlier example and will instead simply log an error which avoids adding an RSS feed item to the user's inbox when this section of code is executed.
 
