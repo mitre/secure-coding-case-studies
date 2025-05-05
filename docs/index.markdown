@@ -29,4 +29,5 @@ layout: home
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/go"><b>Go</b></a>
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/go/msccs-9.md">Parameter Injection In WhoDB</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/go/msccs-10.md">Cross-Site Scripting in Miniflux</a></li>
 </ul>
