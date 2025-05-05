@@ -42,8 +42,8 @@ Note that the ServerError function in html.go does not add a CSP header to the M
 
     vulnerable file: miniflux/v2/internal/http/response/html/html.go
 
-  23  	// ServerError sends an internal error to the client.
-  24  	func ServerError(w http.ResponseWriter, r *http.Request, err error) {
+    23  	// ServerError sends an internal error to the client.
+    24  	func ServerError(w http.ResponseWriter, r *http.Request, err error) {
 	25		    logger.Error("[HTTP:Internal Server Error] %s => %v", r.URL, err)
 	26
 	27		    builder := response.New(w, r)
@@ -78,17 +78,17 @@ Notice the JavaScript contained in the srcset attribute. If the Miniflux user is
 
 To resolve this issue the source code was modified to remove the call to html.ServerError and thus prevent the Miniflux inbox entry from being built, replacing it with a logger error and an HTTP error on lines 86 and 87. 
 
-  fixed file: miniflux/v2/internal/ui/proxy.go
+    fixed file: miniflux/v2/internal/ui/proxy.go
 
-  23  func (h *handler) mediaProxy(w http.ResponseWriter, r *http.Request) {
+    23  func (h *handler) mediaProxy(w http.ResponseWriter, r *http.Request) {
           ...
-  85      if err != nil {
-  86		    logger.Error(`[Proxy] Unable to initialize HTTP client: %v`, err)
+    85    if err != nil {
+    86		logger.Error(`[Proxy] Unable to initialize HTTP client: %v`, err)
 	87	        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-  88		    return
-  89      }
+    88		return
+    89      }
           ...
-  119	}
+    119  }
 
 Now, the mediaProxy function does not build a Miniflux inbox entry like the earlier example and will instead simply log an error which avoids adding an RSS feed item to the user's inbox when this section of code is executed.
 
@@ -96,8 +96,8 @@ Additionally, a CSP was added to the header on line 29 of html.go to any Miniflu
 
 	fixed file: miniflux/v2/internal/http/response/html/html.go
 
-  23	// ServerError sends an internal error to the client.
-  24	func ServerError(w http.ResponseWriter, r *http.Request, err error) {
+    23	// ServerError sends an internal error to the client.
+    24	func ServerError(w http.ResponseWriter, r *http.Request, err error) {
 	25		logger.Error("[HTTP:Internal Server Error] %s => %v", r.URL, err)
 	26
 	27		builder := response.New(w, r)
@@ -116,6 +116,7 @@ Now, even if a Miniflux inbox entry is built with an error response, a CSP will 
 Improper neutralization of input is a common weakness that annually ranks among the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking #2 in 2023 and #1 in 2024. The weakness can lead to remote code execution and/or the reading of application data. One such weakness led to a vulnerability that was discovered in Miniflux in 2023. In response, Miniflux made changes to ensure that unneutralized input was not added to a user's RSS feed. Instead, an error would be logged, effectively mitigating the root weakness of “Improper Neutralization of Input During Web Page Generation”. Without this weakness, Miniflux can no longer be exploited in a stored XSS attack to execute JavaScript code on the Miniflux instance. Software developers should always follow secure coding practices and ensure any user-controlled input is effectively neutralized to avoid such vulnerabilities in their own projects.
 
 **References:**
+
 https://osv.dev/vulnerability/GHSA-mqqg-xjhj-wfgw
 https://github.com/miniflux/v2/pull/1746/files
 https://github.com/miniflux/v2/security/advisories/GHSA-mqqg-xjhj-wfgw
