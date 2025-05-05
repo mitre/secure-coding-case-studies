@@ -8,7 +8,7 @@
 
 **Weakness:** CWE-88: Improper Neutralization of Argument Delimiters in a Command
 
-This weakness arises when an application fails to properly neutralize special elements in user-supplied input that are used as argument delimiters in command execution logic. This neutralization entails modifying (e.g., canonicalizing, encoding, escaping, quoting, validating) inputs so that special elements/characters are treated as literal data instead of interpreted as commands or logic. The following is a simple example of an application constructing a MongoDB connection URI in Go:
+This weakness arises when an application fails to properly neutralize special elements in user-supplied input that are used as argument delimiters in command execution logic. This neutralization entails modifying (e.g., canonicalizing, encoding, escaping, quoting, validating) inputs so that special elements are treated as literal data rather than interpreted as control characters that structure data within commands. The following is a simple example of an application constructing a MongoDB connection URI in Go:
 
     func connectToDatabase(userInput string) {
         connectionURI := "mongodb://localhost:27017/?authSource=" + userInput
@@ -31,15 +31,6 @@ The vulnerability in the WhoDB code arises from inadequate input validation in t
 
     vulnerable file: core/src/plugins/mysql/db.go
     
-    13    const (
-    14        portKey                    = "Port"
-    15        charsetKey                 = "Charset"
-    16        parseTimeKey               = "Parse Time"
-    17        locKey                     = "Loc"
-    18        allowClearTextPasswordsKey = "Allow clear text passwords"
-    19        hostPathKey                = "Host path"
-    20	  )
-    21
     22    func DB(config *engine.PluginConfig) (*gorm.DB, error) {
     23        port := common.GetRecordValueOrDefault(config.Credentials.Advanced, portKey, "3306")
     24        charset := common.GetRecordValueOrDefault(config.Credentials.Advanced, charsetKey, "utf8mb4")
