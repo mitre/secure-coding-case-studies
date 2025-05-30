@@ -141,7 +141,7 @@ Many techniques exist to generate valid SQL that can cause the SQL engine to alt
     27				user_exists = user is not None
     28				return db_exists or user_exists
 
-Parameterization is a well-known tactic to properly neutralize potentially tainted input. Parameterization removes the ability for a malicious value to escape outside of the intended query to create a new query that performs a different task. Parameterization works by separating the values from the queries enabling the SQL engine to enforce values only being used for their intended purpose.
+Parameterization is a well-known tactic to properly neutralize potentially tainted input and completely eliminate any related vulnerability. Parameterization removes the ability for a malicious value to escape outside of the intended query to create a new query that performs a different task. Parameterization works by separating the values from the queries enabling the SQL engine to enforce values only being used for their intended purpose. Refer to the OWASP Cheat Sheet linked to in the references for additional guidance on this technique.
 
 **Conclusion:** The addition of parameterization to the code improves the neutralization efforts and removes the weakness “Improper Neutralization of Special Elements Used in an SQL Command”. With the weakness resolved, user controlled input that reaches the execute() call no longer operates outside of the original intent of the SQL command.
 
@@ -163,10 +163,12 @@ postgraas_server Code Commit to Fix Issue: https://github.com/blue-yonder/postgr
 
 Psycopg Documentation Related to Safe Passing of Parameter: https://www.psycopg.org/docs/usage.html#passing-parameters-to-sql-queries
 
+OWASP Query Parameterization Cheat Sheet : https://cheatsheetseries.owasp.org/cheatsheets/Query_Parameterization_Cheat_Sheet.html
 
 **Contributions:**
 
-Originally created by Drew Buttner - The MITRE Corporation
+Originally created by Drew Buttner - The MITRE Corporation<br>
+Reviewed by David Wheeler - George Mason University
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
 This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
