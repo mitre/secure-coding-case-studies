@@ -27,5 +27,6 @@ MITRE’s approximately 10,000 employees work in the public interest to solve pr
 ## Public Release
 
 > [!NOTE]
+> This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
 > Approved for Public Release; Distribution Unlimited. Public Release Case
 > Number 23-3938.
