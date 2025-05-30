@@ -27,7 +27,7 @@ However, a provided name of `x' OR '1=1'--` will result in an SQL command that s
 
 This resulting SQL command is equivalent to `SELECT * FROM items;` which is not what the original intention of the command was. By using more complex SQL syntax an adversary could craft a resulting SQL command to achieve a wide variety of objectives.
 
-**Vulnerability:** CVE-2018-25088 – Published 18 July 2023
+**Vulnerability:** CVE-2018-25088
 
 Looking at the vulnerable source code in postgraas_server, line 22 (line 24 is also vulnerable in the same way) uses the Python format() method to insert a string into the SQL statement. The format() method performs a concatenation of a provided value into a template string. No neutralization is performed as part of the format() method. An adversary that can control the value being inserted could use these lines of code to inject malicious SQL into the template string thus manipulating the actions that the SQL statement would perform.
 
