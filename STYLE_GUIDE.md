@@ -29,13 +29,12 @@ Each case study should follow a consistent structure to ensure readability and l
 - Typical title follows the following structure: <weakness/exploit type> In <software name>
 - Most titles are between 4 and 6 words.
 
-> [!TIP]
->Examples:
+> Examples:
 >
->SQL Injection In Postgraas Server\
->Code Injection In Searchor\
->Cross-Site Scripting In OpenC3 COSMOS Server\
->Improper Certificate Validation In Airflow
+> SQL Injection In Postgraas Server\
+> Code Injection In Searchor\
+> Cross-Site Scripting In OpenC3 COSMOS Server\
+> Improper Certificate Validation In Airflow
 
 ### _Introduction_
 
@@ -46,48 +45,61 @@ Each case study should follow a consistent structure to ensure readability and l
   - This is followed by a sentence introducing the software application
   - The final sentence talks about the scope of the case study.
 
-> [!TIP]
->Example:
+> Example:
 >
->The use of a database to store information is fundamental to many applications. Unfortunately, if the commands to place or retrieve this information are not properly constructed, then an adversary could inappropriately alter or read the information. The underlying source code weakness that makes such attacks possible is annually one of the CWE Top 25 Most Dangerous Software Weaknesses. In 2023 such a vulnerability was disclosed in Blue Yonder postgraas_server. Postgraas offers basic create, read, update, and delete (CRUD) operations for complete PostgreSQL database instances via a simple representational state transfer (REST) application programming interface (API). This case study will look at that vulnerability, the mistake made by the developers, what it enabled an adversary to accomplish, and how the code was eventually corrected.
+> The use of a database to store information is fundamental to many applications. Unfortunately, if the commands to place or retrieve this information are not properly constructed, then an adversary could inappropriately alter or read the information. The underlying source code weakness that makes such attacks possible is annually one of the CWE Top 25 Most Dangerous Software Weaknesses. In 2023 such a vulnerability was disclosed in Blue Yonder postgraas_server. Postgraas offers basic create, read, update, and delete (CRUD) operations for complete PostgreSQL database instances via a simple representational state transfer (REST) application programming interface (API). This case study will look at that vulnerability, the mistake made by the developers, what it enabled an adversary to accomplish, and how the code was eventually corrected.
 
 ### _Language_
 
 - The source code language where the root cause weakness was made.
 
-> [!TIP]
->Examples:
+> Examples:
 >
->Python\
->JavaScript\
->C\
->C++\
->Java\
->Go
+> Python\
+> JavaScript\
+> C\
+> C++\
+> Java\
+> Go
 
 ### _Software_
 
 - The name of the software in which the issue existed.
 - Include the vendor name if applicable. Do not include the version in this field.
 
-> [!TIP]
->Examples:
+> Examples:
 >
->postgraas_server\
->Apache Airflow
+> postgraas_server\
+> Apache Airflow
 
 ### _URL_
 
 - The URL where the software can be found.
 - For open source projects this is typically a source repository such as GitHub
 
-> [!TIP]
->Examples:
+> Examples:
 >
->https<nolink>://github.com/blue-yonder/postgraas_server\
->https<nolink>://github.com/apache/airflow
+> https<nolink>://github.com/blue-yonder/postgraas_server\
+> https<nolink>://github.com/apache/airflow
 
 ### _Weakness_
+
+The weakness section should be used to introduce the type of code level mistake. This is not the section to show the vulnerable code, but rather a place to summarize and explain the type of mistake. For example, if the issue is related to an SQL Injection exploit, then use weakness section to explain what improper neutralization is and how this can manipulated by an adversary.
+
+This section is likely to be a couple of paragraphs in length.
+
+The use of generic code examples (i.e., not code the code from the vulnerable software that is the focus of the case study) is recommended when appropriate to help explain the type of weakness.
+
+- List the relevant CWE identifier and name at the begining of the section.
+- Do not refer to the real software in this section.
+
+> Example:
+>
+> CWE-89: Improper Neutralization of Special Elements Used in an SQL Command
+>
+> The weakness exists when software constructs all or part of an SQL command using externally influenced input that has been obtained from an upstream component, but the software does not neutralize (e.g., canonicalize, encode, escape, quote, validate) or incorrectly neutralizes special elements that could modify the intent of the SQL command.
+>
+> A classic example of this type of weakness is when ...
 
 ### _Vulnerability_
 
