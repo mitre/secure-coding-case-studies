@@ -73,7 +73,7 @@ Each case study should follow a consistent structure to ensure readability and l
 > [!TIP]
 >Examples:
 >
->postgraas_server
+>postgraas_server\
 >Apache Airflow
 
 ### _URL_
@@ -84,8 +84,8 @@ Each case study should follow a consistent structure to ensure readability and l
 > [!TIP]
 >Examples:
 >
->https://github.com/blue-yonder/postgraas_server
->https://github.com/apache/airflow
+>https<nolink>://github.com/blue-yonder/postgraas_server\
+>https<nolink>://github.com/apache/airflow
 
 ### _Weakness_
 
