@@ -67,7 +67,25 @@ Each case study should follow a consistent structure to ensure readability and l
 
 ### _Software_
 
+- The name of the software in which the issue existed.
+- Include the vendor name if applicable. Do not include the version in this field.
+
+> [!TIP]
+>Examples:
+>
+>postgraas_server
+>Apache Airflow
+
 ### _URL_
+
+- The URL where the software can be found.
+- For open source projects this is typically a source repository such as GitHub
+
+> [!TIP]
+>Examples:
+>
+>https://github.com/blue-yonder/postgraas_server
+>https://github.com/apache/airflow
 
 ### _Weakness_
 
