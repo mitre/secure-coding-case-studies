@@ -155,9 +155,9 @@ PyMdown Extensions Code Commit to Fix Issue: https://github.com/facelessuser/pym
 
 **Contributions:**
 
-Originally created by David Rothenberg - The MITRE Corporation<br>
+Originally created by Steve Christey - The MITRE Corporation<br>
 Reviewed by Drew Buttner - The MITRE Corporation<br>
-Reviewed by Steve Christey - The MITRE Corporation
+Reviewed by David Rothenberg - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
 This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
