@@ -10,7 +10,7 @@
 
 The weakness exists when an application accepts a user-controlled input and then uses that input to craft a URL that the application leverages during a redirect. Such a redirect is common when a web application finishes a task or needs to change course based on some event. Unfortunately, leveraging externally influenced input enables an adversary to trick a user into being redirected to a malicious location. In this specific case the “Improper Validation of Syntactic Correctness of Input” (i.e., CWE-1286) provided such an opportunity.
 
-**Vulnerability:** CVE-2023-39968 – Published 29 August 2023
+**Vulnerability:** CVE-2023-39968
 
 The URL redirection issue occurs in the login.py file within Jupyter Server when the vulnerable source code fails to neutralize certain values obtained from the user and then passes the resulting URL to the redirect() method on line 61.
 
@@ -162,3 +162,11 @@ Red Hat Bugzilla Report: https://bugzilla.redhat.com/show_bug.cgi?id=2235743
 tornado.web Web Framework Documentation: https://www.tornadoweb.org/en/stable/web.html
 
 IETF RFC 1738 Uniform Resource Locators: https://www.ietf.org/rfc/rfc1738.txt
+
+**Contributions:**
+
+Originally created by Drew Buttner - The MITRE Corporation<br>
+Reviewed by David Rothenberg - The MITRE Corporation
+
+(C) 2025 The MITRE Corporation. All rights reserved.<br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
