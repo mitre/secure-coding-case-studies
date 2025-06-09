@@ -150,6 +150,14 @@ Each of the above sections is explained in detail below. Please try to follow th
   
 ### _Conclusion_
 
+- Provides a brief summary of the case study.
+- Typically one paragraph in length.
+- Do not introduce any new information in the Conclusion.
+
+> Example:
+>
+> The addition of parameterization to the code improves the neutralization efforts and removes the weakness “Improper Neutralization of Special Elements Used in an SQL Command”. With the weakness resolved, user controlled input that reaches the execute() call no longer operates outside of the original intent of the SQL command.
+
 ### _References_
 
 - Provide the name and URL of software project page or source repository.
@@ -176,6 +184,14 @@ Each of the above sections is explained in detail below. Please try to follow th
 > Python Documentation for ast.literal_eval(): https://docs.python.org/3/library/ast.html#ast.literal_eval
 
 ### _Contributions_
+
+- Provides credit to those individuals who significantly contributed to the writing of the case study
+- Includes the original creator an any reviewer
+
+> Example:
+>
+> Originally created by Drew Buttner - The MITRE Corporation\
+> Reviewed by David Rothenberg - The MITRE Corporation
 
 ## 4. Source Code
 
@@ -210,4 +226,5 @@ When presenting actual code from the real world software being used by the case 
 
 ## 5. Images and Diagrams
 
-Images and diagrams should be used as tools to help the reader better understand a complex topic. For example, a diagram that summarizes the different steps involved in an exploit might help the reader better understand a complex topic detailed in the case study text.
+Images and diagrams should be used as tools to help the reader better understand a complex topic. For example, a diagram that summarizes the different steps involved in an exploit might help the reader better understand a complex topic detailed in the case study text. Typically, case studies have between 0 and 2 images or diagrams. More than 2 may become distracting, but this is not a hard and fast rule.
+
