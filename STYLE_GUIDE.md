@@ -121,7 +121,8 @@ Each of the above sections is explained in detail below. Please try to follow th
 - This section is used to describe the publicly disclosed vulnerability.
 - List the relevant CVE identifier at the begining of the section.
 - Next, provide any additional information necessary to introduce the specific real world software and what it is used for. Focus on information that is necessary for the reader to fully understand the vulnerability and its place within the software.
-- Provide the vulnerable source code (see the Source Code section of this guidance) and walk the reader through it line by line.
+- Then walk the reader through the actual vulnerable code in detail. Call out specific lines and show how the weakness exists. Avoid exploit details as these will go in the next section of the case study.
+- Provide the vulnerable source code. (see the Source Code section of this guidance)
 - Only include source code that is absolutely necessary in explaining the vulnerability to the reader. Use the triple dot "..." convention to skip multiple lines.
 - This is a longer section and should contain as much text as necessary to properly explain the vulnerable source code.
 
