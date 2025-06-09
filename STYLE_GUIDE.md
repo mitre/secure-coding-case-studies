@@ -105,7 +105,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 - List the relevant CWE identifier and name at the begining of the section.
 - This is not the section to show the vulnerable code, but rather a place to summarize and explain the type of mistake. For example, if the issue is related to an SQL Injection exploit, then use weakness section to explain what improper neutralization is and how this can manipulated by an adversary.
 - Typically one to two paragraphs in length.
-- The use of generic code examples (i.e., not code the actual code from the vulnerable software, but rather generic code to demonstrate the weakness) is recommended when appropriate to help explain the type of weakness. Please see the section in this style guide related to example code.
+- The use of generic code examples (i.e., not code the actual code from the vulnerable software, but rather generic code to demonstrate the weakness) is recommended when appropriate to help explain the type of weakness. Please see the section in this style guide related to displaying source code.
 - Do not refer to the real software in this section.
 
 > Example:
@@ -120,11 +120,26 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 - This section is used to describe the publicly disclosed vulnerability.
 - List the relevant CVE identifier at the begining of the section.
-- Provide the vulnerable source code (see the Example Code section of this guidance) and walk the reader through it line by line.
+- Next, provide any additional information necessary to introduce the specific real world software and what it is used for. Focus on information that is necessary for the reader to fully understand the vulnerability and its place within the software.
+- Provide the vulnerable source code (see the Source Code section of this guidance) and walk the reader through it line by line.
 - Only include source code that is absolutely necessary in explaining the vulnerability to the reader. Use the triple dot "..." convention to skip multiple lines.
 - This is a longer section and should contain as much text as necessary to properly explain the vulnerable source code.
 
 ### _Exploit_
+
+- This section is used to describe the how the vulnerability was (or could have been) exploited and what the consequenses of the exploit were (or could have been).
+- List the relevant CAPEC identifier and name at the begining of the section.
+- Typically one to three paragraphs in length.
+- When applicable, include example inputs that were used to drive the exploit and show how those inputs took advantage of the weakness in the code. Such code inputs should be highlighed in the same manner as example source code.
+
+> Example:
+>
+> To exploit this vulnerability an adversary must construct a GET or POST request that contains a crafted “next” parameter. This request would be directed to a web application that uses a vulnerable version of Jupyter Server. Such a request would be the GET URL crafted below:
+>
+    https://www.example.org/?next=https:///www.malicious_site.com
+>This URL — maybe sent via an email to a target user — would appear to come from a trusted application and the target user may be comfortable following the URL for that reason.
+>
+>Looking closer at the example URL, the value of the “next” parameter would not be compared to the allow_origin due to the lack of a netloc component, and would be passed directly to the redirect() call. The underlying Tornado Web Framework would process the redirect() call and send a response back to the user’s client with a 301 or 302 status code signaling the web client to connect to the malicious URL.
 
 ### _Mitigation_
 
@@ -132,7 +147,9 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 ### _References_
 
-## 4. Example Code
+### _Contributions_
+
+## 4. Source Code
 
 When showing source code in a case study, either generic example code or actual vulnerable // fixed code, make sure it is visually seperated from the text of the case study. To do this in Markdown use the "code block" formatting option which indent the block and highlight it. A fixed-width font will also be used. A code block is accomplished by preceeding each individual line with four spaces.
 
