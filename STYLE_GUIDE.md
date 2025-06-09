@@ -43,7 +43,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 - Keep it concise and descriptive.
 - Avoid overly technical or vague titles.
-- Typical title follows the following structure: <weakness/exploit type> In <software name>
+- Typical title follows the following structure: *\<Weakness/Exploit Type\> In \<Software Name\>*
 - Most titles are between 4 and 6 words.
 
 > Examples:
@@ -57,7 +57,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 - Briefly introduce the topic and explain why it is important.
 - Typical introductions are one paragraph in length.
-  - First sentence or two introduces the issue.
+  - First sentence or two introduces the issue and potential consequence.
   - The next sentence or two introduces the weakness type, potentially mentioning its place in the CWE Top 25
   - This is followed by a sentence introducing the software application
   - The final sentence talks about the scope of the case study.
@@ -101,12 +101,10 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 ### _Weakness_
 
-The weakness section should be used to introduce the type of code level mistake. This is not the section to show the vulnerable code, but rather a place to summarize and explain the type of mistake. For example, if the issue is related to an SQL Injection exploit, then use weakness section to explain what improper neutralization is and how this can manipulated by an adversary.
-
-This section is likely to be a couple of paragraphs in length.
-
-The use of generic code examples (i.e., not code the code from the vulnerable software that is the focus of the case study) is recommended when appropriate to help explain the type of weakness.
-
+- This section is used to introduce the type of code level mistake.
+- This is not the section to show the vulnerable code, but rather a place to summarize and explain the type of mistake. For example, if the issue is related to an SQL Injection exploit, then use weakness section to explain what improper neutralization is and how this can manipulated by an adversary.
+- Typically one to two paragraphs in length.
+- The use of generic code examples (i.e., not code the actual code from the vulnerable software, but rather generic code to demonstrate the weakness) is recommended when appropriate to help explain the type of weakness. Please see the section in this style guide related to example code.
 - List the relevant CWE identifier and name at the begining of the section.
 - Do not refer to the real software in this section.
 
@@ -116,7 +114,7 @@ The use of generic code examples (i.e., not code the code from the vulnerable so
 >
 > The weakness exists when software constructs all or part of an SQL command using externally influenced input that has been obtained from an upstream component, but the software does not neutralize (e.g., canonicalize, encode, escape, quote, validate) or incorrectly neutralizes special elements that could modify the intent of the SQL command.
 >
-> A classic example of this type of weakness is when ...
+> A classic example of this type of weakness is when string concatenation is used to build an SQL command, and untrusted inputs are leveraged from sources like network requests, file data, or user prompts. The example code snippet below shows this weakness ...
 
 ### _Vulnerability_
 
@@ -128,3 +126,33 @@ The use of generic code examples (i.e., not code the code from the vulnerable so
 
 ### _References_
 
+## 4. Example Code
+
+When showing source code in a case study, either generic example code or actual vulnerable // fixed code, make sure it is visually seperated from the text of the case study. To do this in Markdown use the "code block" formatting option which indent the block and highlight it. A fixed-width font will also be used. A code block is accomplished by preceeding each individual line with four spaces.
+
+> Example:
+>
+> A generic code example would be:
+>
+    strName = processNetworkRequest()\
+    dbCursor = connection.cursor()\
+    dbCursor.execute("SELECT * FROM items WHERE owner = '" + strName + "' AND item = 'PrivateData'")\
+    result = cursor.fetchall()
+
+> The same highlighting shoudl be used for single line of example code as well.
+
+    SELECT * FROM items WHERE owner = 'Sam' AND item = 'PrivateData'
+
+When presenting actual code from the real world software being used by the case study, incorporate the file name and actual line numbers to help the reader find the source code if they want to explore this code form themself.
+
+> Example:
+>
+> Looking at the vulnerable source code in postgres_cluster_driver.py, line 22 use ...
+> 
+    vulnerable file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.py
+
+    19	def check_db_or_user_exists(db_name, db_user, config):
+    20		with _create_pg_connection(config) as con:
+    21			with con.cursor() as cur:
+    22				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
+    23				db_exists = cur.fetchone() is not None
