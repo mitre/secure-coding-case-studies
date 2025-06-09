@@ -14,13 +14,13 @@ This style guide is designed to help contributors create high-quality, informati
 The most important step in creating an insightful and interesting case study is the selection of an appropriate real-world incident.
 
 - A case study MUST be about a real publicly disclosed vulnerability in real software. The real-world aspect of the case study provides the strongest possible argument that the type of issue is something that readers should pay attention to. The thinking being that if it happened to this software, then it could happen to my software.
-- Select an issue where the source code is available. The purpose of these secure coding case studies is to show the mistake made in the code, how that mistake was exploited, and then how the code was fixed to eliminate the problem. This can not be explained without access to the both the vulnerable and fixed source code. IMPORTANT: Make sure the code is properly licensed to be made public.
+- Select an issue where the source code is available. The purpose of these secure coding case studies is to show the mistake made in the code, how that mistake was exploited, and then how the code was fixed to eliminate the problem. This cannot be explained without access to both the vulnerable and fixed source code. IMPORTANT: Make sure the code is properly licensed to be made public.
 - Select an issue that has articles written about how to exploit it. Ideally, these articles even point to actual instances of compromise that can be examined and explained. Pointing to a real exploitation event adds credibility to the importance of the secure coding issue.
 - Finally, select an issue that has been fixed and where the patched software is available. The case study should not discuss unpatched or zero-day (i.e., not publicly disclosed) issues.
 
 ## 3. Case Study Structure
 
-Each case study should follow a consistent structure to ensure readability and logical flow. The order and style is critical to maintain this consistency. Each case study MUST have the following 12 sections in the order presented:
+Each case study should follow a consistent structure to ensure readability and logical flow. The order and style are critical to maintain this consistency. Each case study MUST have the following 12 sections in the order presented:
 
 ```
 1) Title
@@ -57,7 +57,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 - Briefly introduce the topic and explain why it is important.
 - Typical introductions are one paragraph in length.
-  - First sentence or two introduces the issue and potential consequence.
+  - First sentence or two introduces the issue and potential consequences.
   - The next sentence or two introduces the weakness type, potentially mentioning its place in the CWE Top 25
   - This is followed by a sentence introducing the software application
   - The final sentence talks about the scope of the case study.
@@ -102,7 +102,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 ### _Weakness_
 
 - This section is used to introduce the type of code level mistake.
-- List the relevant CWE identifier and name at the begining of the section.
+- List the relevant CWE identifier and name at the beginning of the section.
 - This is not the section to show the vulnerable code, but rather a place to summarize and explain the type of mistake. For example, if the issue is related to an SQL Injection exploit, then use weakness section to explain what improper neutralization is and how this can manipulated by an adversary.
 - Typically one to two paragraphs in length.
 - The use of generic code examples (i.e., not code the actual code from the vulnerable software, but rather generic code to demonstrate the weakness) is recommended when appropriate to help explain the type of weakness. Please see the section in this style guide related to displaying source code.
@@ -119,7 +119,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 ### _Vulnerability_
 
 - This section is used to describe the publicly disclosed vulnerability.
-- List the relevant CVE identifier at the begining of the section.
+- List the relevant CVE identifier at the beginning of the section.
 - Next, provide any additional information necessary to introduce the specific real world software and what it is used for. Focus on information that is necessary for the reader to fully understand the vulnerability and its place within the software.
 - Then walk the reader through the actual vulnerable code in detail. Call out specific lines and show how the weakness exists. Avoid exploit details as these will go in the next section of the case study.
 - Provide the vulnerable source code. (see the Source Code section of this guidance)
@@ -128,10 +128,10 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 ### _Exploit_
 
-- This section is used to describe the how the vulnerability was (or could have been) exploited and what the consequenses of the exploit were (or could have been).
-- List the relevant CAPEC identifier and name at the begining of the section.
+- This section is used to describe the how the vulnerability was (or could have been) exploited and what the consequences of the exploit were (or could have been).
+- List the relevant CAPEC identifier and name at the beginning of the section.
 - Typically one to three paragraphs in length, but complex exploits may take longer to explain and step the reader through.
-- When applicable, include example inputs that were used to drive the exploit and show how those inputs took advantage of the weakness in the code. Such code inputs should be highlighed in the same manner as example source code.
+- When applicable, include example inputs that were used to drive the exploit and show how those inputs took advantage of the weakness in the code. Such code inputs should be highlighted in the same manner as example source code.
 
 > Example:
 >
@@ -168,7 +168,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 - Provide the name and URL of vendor provided vulnerability report.
 - If possible, provide the name and URL of the specific code commit showing the code fix made.
 - Provide the name and URL of any article used to help inform the case study.
-- If a foundational turtorial or best practice guide is available then provide a URL to this as well.
+- If a foundational tutorial or best practice guide is available then provide a URL to this as well.
 - Do not list every article or guidance document that is available.
 
 > Examples:
@@ -187,7 +187,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 ### _Contributions_
 
 - Provides credit to those individuals who significantly contributed to the writing of the case study
-- Includes the original creator an any reviewer
+- Includes the original creator and any reviewer
 
 > Example:
 >
@@ -196,7 +196,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 ## 4. Source Code
 
-When showing source code in a case study, either generic example code or actual vulnerable // fixed code, make sure it is visually seperated from the text of the case study. To do this in Markdown use the "code block" formatting option which indent the block and highlight it. A fixed-width font will also be used. A code block is accomplished by preceeding each individual line with four spaces.
+When showing source code in a case study, either generic example code or actual vulnerable // fixed code, make sure it is visually separated from the text of the case study. To do this in Markdown use the "code block" formatting option which indents the block and highlights it. A fixed-width font will also be used. A code block is accomplished by preceding each individual line with four spaces.
 
 > Example:
 >
@@ -207,7 +207,7 @@ When showing source code in a case study, either generic example code or actual 
     dbCursor.execute("SELECT * FROM items WHERE owner = '" + strName + "' AND item = 'PrivateData'")\
     result = cursor.fetchall()
 
-> The same highlighting shoudl be used for single line of example code as well.
+> The same highlighting should be used for single line of example code as well.
 
     SELECT * FROM items WHERE owner = 'Sam' AND item = 'PrivateData'
 
