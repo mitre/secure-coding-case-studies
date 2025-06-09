@@ -102,10 +102,10 @@ Each of the above sections is explained in detail below. Please try to follow th
 ### _Weakness_
 
 - This section is used to introduce the type of code level mistake.
+- List the relevant CWE identifier and name at the begining of the section.
 - This is not the section to show the vulnerable code, but rather a place to summarize and explain the type of mistake. For example, if the issue is related to an SQL Injection exploit, then use weakness section to explain what improper neutralization is and how this can manipulated by an adversary.
 - Typically one to two paragraphs in length.
 - The use of generic code examples (i.e., not code the actual code from the vulnerable software, but rather generic code to demonstrate the weakness) is recommended when appropriate to help explain the type of weakness. Please see the section in this style guide related to example code.
-- List the relevant CWE identifier and name at the begining of the section.
 - Do not refer to the real software in this section.
 
 > Example:
@@ -117,6 +117,12 @@ Each of the above sections is explained in detail below. Please try to follow th
 > A classic example of this type of weakness is when string concatenation is used to build an SQL command, and untrusted inputs are leveraged from sources like network requests, file data, or user prompts. The example code snippet below shows this weakness ...
 
 ### _Vulnerability_
+
+- This section is used to describe the publicly disclosed vulnerability.
+- List the relevant CVE identifier at the begining of the section.
+- Provide the vulnerable source code (see the Example Code section of this guidance) and walk the reader through it line by line.
+- Only include source code that is absolutely necessary in explaining the vulnerability to the reader. Use the triple dot "..." convention to skip multiple lines.
+- This is a longer section and should contain as much text as necessary to properly explain the vulnerable source code.
 
 ### _Exploit_
 
@@ -156,3 +162,7 @@ When presenting actual code from the real world software being used by the case 
     21			with con.cursor() as cur:
     22				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
     23				db_exists = cur.fetchone() is not None
+
+## 5. Images and Diagrams
+
+Images and diagrams should be used as tools to help the reader better understand a complex topic. For example, a diagram that summarizes the different steps involved in an exploit might help the reader better understand a complex topic detailed in the case study text.
