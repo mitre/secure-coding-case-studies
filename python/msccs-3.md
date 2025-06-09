@@ -103,3 +103,12 @@ OSV Vulnerability Report: https://osv.dev/vulnerability/PYSEC-2023-173
 NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2023-41885
 
 Piccolo Code Commit to Fix Issue: https://github.com/piccolo-orm/piccolo/commit/edcfe3568382922ba3e3b65896e6e7272f972261
+
+**Contributions:**
+
+Originally created by Drew Buttner - The MITRE Corporation<br>
+Reviewed by David Rothenberg - The MITRE Corporation
+Reviewed by Steve Christey - The MITRE Corporation
+
+(C) 2025 The MITRE Corporation. All rights reserved.<br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
