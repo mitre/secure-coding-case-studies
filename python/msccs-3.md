@@ -107,7 +107,7 @@ Piccolo Code Commit to Fix Issue: https://github.com/piccolo-orm/piccolo/commit/
 **Contributions:**
 
 Originally created by Drew Buttner - The MITRE Corporation<br>
-Reviewed by David Rothenberg - The MITRE Corporation
+Reviewed by David Rothenberg - The MITRE Corporation<br>
 Reviewed by Steve Christey - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
