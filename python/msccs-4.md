@@ -153,3 +153,10 @@ NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2023-32309
 
 PyMdown Extensions Code Commit to Fix Issue: https://github.com/facelessuser/pymdown-extensions/commit/b7bb4878d6017c03c8dc97c42d8d3bb6ee81db9d
 
+**Contributions:**
+
+Originally created by Steve Christey - The MITRE Corporation<br>
+Reviewed by Drew Buttner - The MITRE Corporation
+
+(C) 2025 The MITRE Corporation. All rights reserved.<br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
