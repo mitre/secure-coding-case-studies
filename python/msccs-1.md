@@ -169,6 +169,7 @@ OWASP Query Parameterization Cheat Sheet : https://cheatsheetseries.owasp.org/ch
 
 Originally created by Drew Buttner - The MITRE Corporation<br>
 Reviewed by David Rothenberg - The MITRE Corporation<br>
+Reviewed by Steve Christey - The MITRE Corporation<br>
 Reviewed by David Wheeler - George Mason University
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
