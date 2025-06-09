@@ -166,7 +166,8 @@ IETF RFC 1738 Uniform Resource Locators: https://www.ietf.org/rfc/rfc1738.txt
 **Contributions:**
 
 Originally created by Drew Buttner - The MITRE Corporation<br>
-Reviewed by David Rothenberg - The MITRE Corporation
+Reviewed by David Rothenberg - The MITRE Corporation<br>
+Reviewed by Steve Christey - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
 This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
