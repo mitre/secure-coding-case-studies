@@ -102,7 +102,8 @@ Python Documentation for ast.literal_eval(): https://docs.python.org/3/library/a
 
 **Contributions:**
 
-Originally created by Drew Buttner - The MITRE Corporation<br>
+Originally created by David Rothenberg - The MITRE Corporation<br>
+Reviewed by Drew Buttner - The MITRE Corporation<br>
 Reviewed by Steve Christey - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
