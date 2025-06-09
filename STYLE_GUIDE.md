@@ -129,7 +129,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 - This section is used to describe the how the vulnerability was (or could have been) exploited and what the consequenses of the exploit were (or could have been).
 - List the relevant CAPEC identifier and name at the begining of the section.
-- Typically one to three paragraphs in length.
+- Typically one to three paragraphs in length, but complex exploits may take longer to explain and step the reader through.
 - When applicable, include example inputs that were used to drive the exploit and show how those inputs took advantage of the weakness in the code. Such code inputs should be highlighed in the same manner as example source code.
 
 > Example:
@@ -143,9 +143,24 @@ Each of the above sections is explained in detail below. Please try to follow th
 
 ### _Mitigation_
 
+- This section is used to describe how the original weakness in the source code was fixed.
+- Focus only on the changes that are relevant to the weakness being addressed by the case study.
+- Provide the fixed source code (see the Source Code section of this guidance) and walk the reader through the changes line by line.
+- This section can vary in length depending on how complex the fixed source code is and how many changes had to be made.
+  
 ### _Conclusion_
 
 ### _References_
+
+- Provide the name and URL of software project page or source repository.
+- Provide the name and URL of the CVE item.
+- Provide the name and URL of the CWE and CAPEC entries.
+- Provide the name and URL of the NVD / OSV vulnerability report if appropriate.
+- Provide the name and URL of vendor provided vulnerability report.
+- If possible, provide the name and URL of the specific code commit showing the code fix made.
+- Provide the name and URL of any article used to help inform the case study.
+- If a foundational turtorial or best practice guide is available then provide a URL to this as well.
+- Do not list every article or guidance document that is available.
 
 ### _Contributions_
 
