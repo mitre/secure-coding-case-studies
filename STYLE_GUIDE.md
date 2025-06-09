@@ -162,6 +162,19 @@ Each of the above sections is explained in detail below. Please try to follow th
 - If a foundational turtorial or best practice guide is available then provide a URL to this as well.
 - Do not list every article or guidance document that is available.
 
+> Examples:
+>
+> Searchor Project Page: https://github.com/ArjunSharda/Searchor<br>
+> CVE-2018-25088 Entry: https://www.cve.org/CVERecord?id=CVE-2023-3364<br>
+> CWE-94 Entry: https://cwe.mitre.org/data/definitions/94.html<br>
+> CAPEC-242 Entry: https://capec.mitre.org/data/definitions/242.html<br>
+> OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-66m2-493m-crh2<br>
+> NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2023-3364<br>
+> Searchor Code Commit to Fix Issue: https://github.com/ArjunSharda/Searchor/commit/16016506f7bf92b0f21f51841d599126d6fcd15b<br>
+> Click and Python: Build Extensible and Composable CLI Apps: https://realpython.com/python-click/<br>
+> Searchor-2.4.0-POC-Exploit: https://github.com/nexis-nexis/Searchor-2.4.0-POC-Exploit-<br>
+> Python Documentation for ast.literal_eval(): https://docs.python.org/3/library/ast.html#ast.literal_eval
+
 ### _Contributions_
 
 ## 4. Source Code
