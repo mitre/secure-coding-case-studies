@@ -63,7 +63,10 @@ The comma in the adversary provided query parameter adds a second command to be 
 
 This adversary inserted command performs a benign directory listing, but it could be modified to perform any desired command, including the use of the exec() command to execute any desired python expression. It would also be possible to create a command that opens a semi-permanent connection to the adversary’s system to enable remote control of the vulnerable system.
 The trailing hash character “#” that is part of the adversary provided query parameter comments out the tail end of the original Engine command. Without this, the new command string would cause a syntax violation and not execute correctly.
-Mitigation: To address this issue the use of the eval() function was removed and replaced on line 32 with a direct call to the Engine.search() method. Calling the search() method directly — instead of through an eval() command — completely removes the potential for Code Injection.
+
+**Mitigation:**
+
+To address this issue the use of the eval() function was removed and replaced on line 32 with a direct call to the Engine.search() method. Calling the search() method directly — instead of through an eval() command — completely removes the potential for Code Injection.
 
     fixed file: src/searchor/main.py
     
