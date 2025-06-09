@@ -10,11 +10,11 @@
 
 The weakness “Improper Limitation of a Pathname to a Restricted Directory” (also called “Path Traversal”) exists when an application accepts a user-controlled input, uses that input to construct a pathname that should be within a restricted directory, then reads or writes to the resulting filename without neutralizing navigation commands such as “..” in the user-controlled input. Unfortunately, this can allow an adversary to cause the application to access files in unauthorized locations elsewhere in the file system.
 
+**Vulnerability:** CVE-2023-32309 – Published 15 May 2023
+
 The pymdown-extensions package contains an extension called pymdown-snippets, which inserts the contents of “snippet” files into markdown documents. This makes it easier for users to manage and modularize documentation by inserting the same snippet into multiple markdown files, such as footers or contact information.
 
 The extension works by preprocessing a markdown file, looking for special insert commands that specify which “snippet” files to insert into the markdown, and inserting the contents of the snippets in the output. The extension stores these snippets under a “base location” directory, which is defined by the administrator using a “base_path” setting. Unfortunately, the code does not properly neutralize special characters within the snippet pathname, which can cause the pathname to point to a location that is outside of the base location (i.e., access files that are not in the directory where snippets are stored).
-
-**Vulnerability:** CVE-2023-32309 – Published 15 May 2023
 
 The weakness in the code stems from the fact that the argument "lines" to the parse_snippets() function on line 210 is tainted (i.e., user controlled), and could contain special character sequences like `../` that would result in a snippet file path that is not restricted to the base_path.
 
