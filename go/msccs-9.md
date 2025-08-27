@@ -1,12 +1,18 @@
 # MSCCS-9 :: PARAMETER INJECTION IN WHODB
 
-**Introduction**: Improper neutralization of special elements in command logic can lead to severe security vulnerabilities. An adversary can exploit such a vulnerability by injecting malicious parameters into database connection strings, enabling unauthorized access or manipulation of system resources. The underlying weakness in the source code is particularly dangerous in applications that rely on dynamic command construction with user-supplied input. In February 2025, a vulnerability stemming from this weakness was disclosed in the Go-based WhoDB database management system. This case study explores the root cause of the vulnerability, its potential impact, and how the code was ultimately fixed.
+### Introduction:
 
-**Language**: Go  
-**Software**: WhoDB  
+Improper neutralization of special elements in command logic can lead to severe security vulnerabilities. An adversary can exploit such a vulnerability by injecting malicious parameters into database connection strings, enabling unauthorized access or manipulation of system resources. The underlying weakness in the source code is particularly dangerous in applications that rely on dynamic command construction with user-supplied input. In February 2025, a vulnerability stemming from this weakness was disclosed in the Go-based WhoDB database management system. This case study explores the root cause of the vulnerability, its potential impact, and how the code was ultimately fixed.
+
+### Software:
+
+**Name:** WhoDB  
+**Language:** Go  
 **URL:** https://github.com/clidey/whodb
 
-**Weakness:** CWE-88: Improper Neutralization of Argument Delimiters in a Command
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/88.html">CWE-88: Improper Neutralization of Argument Delimiters in a Command</a>
 
 This weakness arises when an application fails to properly neutralize special elements in user-supplied input that are used as argument delimiters in command execution logic. This neutralization entails modifying (e.g., canonicalizing, encoding, escaping, quoting, validating) inputs so that special elements are treated as literal data rather than interpreted as control characters that structure data within commands. The following is a simple example of an application constructing a MongoDB connection URI in Go:
 
@@ -23,7 +29,9 @@ The function parameter `userInput` is passed into the function, and no validatio
 
 The injected `ssl=false` parameter would disable SSL and potentially expose sensitive data in transit or allow the interception of unencrypted database traffic.
 
-**Vulnerability:** CVE-2025-24787
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2025-24787">CVE-2025-24787</a> – Published 6 February 2025 
 
 WhoDB is a Go-based database management system that utilizes several libraries to connect drivers to database servers, like Elasticsearch, PostgreSQL, and MySQL. Because each of these drivers requires the construction of database connection URIs based on user input, improper handling of these inputs could lead to unintended behavior. WhoDB is meant to simplify the process and control which settings are made available to keep the database connection within the desired security bounds.
 
@@ -72,7 +80,9 @@ On line 41, the Data Source Name (DSN) string is constructed using the retrieved
 
 The MySQL database connection is then opened on line 42, and the database connection object `db` is then returned on line 46.
 
-**Exploit:** CAPEC-137: Parameter Injection
+### Exploit:
+
+<a href="https://capec.mitre.org/data/definitions/137.html">CAPEC-137: Parameter Injection</a>
 
 Users normally interact with WhoDB by sending HTTP requests with the desired values to connect to a database. However, an adversary can exploit the vulnerability by injecting additional parameters into the HTTP request and manipulating any of the connection values. For example, instead of providing an expected loc value of `Local`, an adversary could provide a loc value of `Local&allowAllFiles=true`. The ‘&’ character acts as a field delimiter and enables the adversary to append another connection value as they desire. In the example input above, the parameter `allowAllFiles` is added and the connecting string that results is as follows:
 
@@ -96,7 +106,9 @@ A `LOAD DATA LOCAL INFILE` query can then be used as previously discussed to rea
 
 Once the local file has been copied into the table, the adversary can then query the `temp_storage` table to view the contents of the file.
 
-**Mitigation:** To fix this issue, several input validation measures were added to the source code that constructs the DSN string. The first change was the implementation of the ParseConnectionConfig() function containing these checks in a new file grom\db.go.
+### Fix:
+
+To fix this issue, several input validation measures were added to the source code that constructs the DSN string. The first change was the implementation of the ParseConnectionConfig() function containing these checks in a new file grom\db.go.
 
 On line 65 the user-provided value for the port number is first converted to an integer using Go’s `strconv.Atoi` method, returning an error in case the value is not an integer. Inputs for parameters specific to MySQL are then validated beginning on line 71 with the user-provided value for the `parseTime` parameter being constrained to specific Boolean-like values (i.e., 1, t, T, TRUE, true, True, 0, f, F, FALSE, false, and False) using the builtin Go method `strconv.ParseBool`, returning an error on any other value. On line 75, the user-provided value for the location is constrained by using the builtin Go method `time.LoadLocation`, returning an error if the location value does not correspond to a valid time zone. On line 79, the `strconv.ParseBool` method is used again to constrain the user-provided `allowClearTextPasswords` parameter to Boolean-like values, returning an error otherwise. On line 90, the `strconv.Atoi` method is used again to ensure that the user-provided connection timeout value is an integer, returning an error otherwise. Finally, on lines 96-99, `url.PathEscape` is used to encode special characters in the username, password, database, and hostname fields so that they are safe for use in URLs and queries.
 
@@ -199,9 +211,11 @@ The database connection object `db` is then returned on line 47.
 
 Validating inputs supplied by the user ensures that arbitrary parameters are not injected into the connection URI, thus removing the weakness from the code. Similar changes were implemented in the URI constructions for other database drivers used by WhoDB.
 
-**Conclusion:** The addition of input validation to the WhoDB source code prevents arbitrary parameter injection, which previously led to local file inclusion and consequent exfiltration of sensitive files. With the weakness resolved, user-controlled input is eliminated as an attack vector via the database connection strings.
+### Conclusion:
 
-**References:**
+The addition of input validation to the WhoDB source code prevents arbitrary parameter injection, which previously led to local file inclusion and consequent exfiltration of sensitive files. With the weakness resolved, user-controlled input is eliminated as an attack vector via the database connection strings.
+
+### References:
 
 WhoDB Project Page: https://github.com/clidey/whodb  
 
@@ -213,6 +227,14 @@ CAPEC-137 Entry: https://capec.mitre.org/data/definitions/137.html
 
 OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-c7w4-9wv8-7x7c  
 
-NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2025-24787  
-
 WhoDB Code Commit to Fix Issue: https://github.com/clidey/whodb/commit/8d67b767e00552e5eba2b1537179b74bfa662ee1
+
+### Contributions:
+
+Originally created by Mark Tran - The MITRE Corporation<br>
+Reviewed by Travis Aldrich - The MITRE Corporation<br>
+Reviewed by Drew Buttner - The MITRE Corporation
+
+(C) 2025 The MITRE Corporation. All rights reserved.<br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
+NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2025-24787  
