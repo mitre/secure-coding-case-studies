@@ -1,19 +1,26 @@
 # MSCCS-10 :: CROSS-SITE SCRIPTING IN MINIFLUX
 
-**Introduction:**
+### Introduction:
+
 Website applications often need to respond to a requested action based on input provided by a user. If that response contains a copy of the user’s input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2023, such a weakness was discovered in Miniflux, a web feed reader. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
 
+### Software:
+
+**Name:** Miniflux  
 **Language:** Go  
-**Software:** Miniflux  
 **URL:** https://github.com/miniflux/v2
 
-**Weakness:** CWE-79: Improper Neutralization of Input During Web Page Generation
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/79.html">CWE-79: Improper Neutralization of Input During Web Page Generation</a>
 
 The weakness exists when a web application fails to properly neutralize user-controlled input in the web application's code, and the input is then used as part of a response to a user's request. 
 
 There are three main kinds of cross-site scripting (XSS): reflected, stored, and DOM-based. This case study will focus on stored XSS, which is when a web application reads potentially dangerous input that was stored in a server-side location. This dangerous input is then read back into the application at some future time and included in a response that is sent back to the user. For example, an attacker could leave a comment on a forum that contains a malicious script. This comment is stored in the forum's back-end database, and then retreived anytime a user views the forum page.
 
-**Vulnerability:** CVE-2023-27592 - Published 17 March 2023
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2023-27592">CVE-2023-27592</a> - Published 17 March 2023
 
 Miniflux is a feed reader that supports Really Simple Syndication (RSS). Subscribing to an RSS feed can allow users to keep up to date on many different websites in a central hub without having to check each website manually. An RSS feed item is a single entry in the RSS feed that corresponds to an update from a website the feed is pulling from. Miniflux displays RSS feed items from a user's RSS subcscriptions in a central hub for users to view.
 
@@ -56,7 +63,9 @@ Note that the ServerError function in html.go does not add a CSP header to the M
 	32		    builder.Write()
 	33	} 
 
-**Exploit:** CAPEC-63: Cross-Site Scripting
+### Exploit:
+
+<a href="https://capec.mitre.org/data/definitions/63.html">CAPEC-63: Cross-Site Scripting</a>
 
 To exploit this vulnerability, an adversary starts by convincing a user to subscribe to an adversary-controlled RSS feed via Miniflux. Then, the adversary can craft an item for this RSS feed that contains an inline description with an <img> tag and a srcset attribute that uses an invalid URL that contains malicious JavaScript. An example RSS feed item is provided below.
 
@@ -76,7 +85,8 @@ To exploit this vulnerability, an adversary starts by convincing a user to subsc
 
 Notice the JavaScript contained in the srcset attribute. If the Miniflux user is subscribed to the adversary's RSS feed, the code in the mediaProxy function will reach the vulnerable section and add this RSS feed item to the user's Miniflux inbox. When the web browser loads the broken image, the malicious JavaScript is executed in the context of the victim Miniflux user. Actions will be performed on the Miniflux instance as the victim. If the victim is an administrator, administrative access to the Miniflux instance can be achieved. Actions that can be taken include but are not limited to the manipulation or theft of site cookies, a compromise of confidential information, the disclosure of end user files, the installation of Trojan horse programs, or redirection of the user to another site.
 
-**Mitigation:**
+### Fix:
+
 To resolve this issue the source code was modified to remove the call to html.ServerError and thus prevent the Miniflux inbox entry from being built, replacing it with a logger error and an HTTP error on lines 86 and 87. 
 
     fixed file: miniflux/v2/internal/ui/proxy.go
@@ -112,10 +122,11 @@ Additionally, a CSP was added to the header on line 29 of html.go to any Miniflu
 
 Now, even if a Miniflux inbox entry is built with an error response, a CSP will be utilized to defend against XSS attacks.
 
-**Conclusion:**
+### Conclusion:
+
 Improper neutralization of input is a common weakness that annually ranks among the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking #2 in 2023 and #1 in 2024. The weakness can lead to remote code execution and/or the reading of application data. One such weakness led to a vulnerability that was discovered in Miniflux in 2023. In response, Miniflux made changes to ensure that unneutralized input was not added to a user's RSS feed. Instead, an error would be logged, effectively mitigating the root weakness of “Improper Neutralization of Input During Web Page Generation”. Without this weakness, Miniflux can no longer be exploited in a stored XSS attack to execute JavaScript code on the Miniflux instance. Software developers should always follow secure coding practices and ensure any user-controlled input is effectively neutralized to avoid such vulnerabilities in their own projects.
 
-**References:**
+### References:
 
 OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-mqqg-xjhj-wfgw
 
@@ -132,3 +143,11 @@ CWE-79 Entry: https://cwe.mitre.org/data/definitions/79.html
 Mozilla Documentation on Content Security Policies: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
 
 Mozilla Documentation on HTTP Status Codes: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
+
+### Contributions:
+
+Originally created by Travis Aldrich - The MITRE Corporation<br>
+Reviewed by Drew Buttner - The MITRE Corporation
+
+(C) 2025 The MITRE Corporation. All rights reserved.<br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
