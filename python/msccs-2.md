@@ -1,16 +1,24 @@
 # MSCCS-2 :: OPEN REDIRECT IN JUPYTER SERVER
 
-**Introduction:** The redirection of an HTTP based web application to an adversary-controlled URL (also known as “Open Redirect”) is a dangerous condition that can lead to a successful phishing attack. This type of attack is one of the most common methods of exploitation and can result in a variety of devastating consequences including the installation of malware and stolen credentials. In 2023 such a vulnerability was disclosed in the Python-based Jupyter Server. This case study looks at that vulnerability, the root cause input validation mistake, what it allowed an adversary to achieve, and how the code was eventually corrected.
+### Introduction:
 
+The redirection of an HTTP based web application to an adversary-controlled URL (also known as “Open Redirect”) is a dangerous condition that can lead to a successful phishing attack. This type of attack is one of the most common methods of exploitation and can result in a variety of devastating consequences including the installation of malware and stolen credentials. In 2023 such a vulnerability was disclosed in the Python-based Jupyter Server. This case study looks at that vulnerability, the root cause input validation mistake, what it allowed an adversary to achieve, and how the code was eventually corrected.
+
+### Software:
+
+**Name:** Jupyter Server  
 **Language:** Python  
-**Software:** Jupyter Server  
 **URL:** https://github.com/jupyter-server/jupyter_server
 
-**Weakness:** CWE-601: URL Redirection to Untrusted Site
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/601.html">CWE-601: URL Redirection to Untrusted Site</a>
 
 The weakness exists when an application accepts a user-controlled input and then uses that input to craft a URL that the application leverages during a redirect. Such a redirect is common when a web application finishes a task or needs to change course based on some event. Unfortunately, leveraging externally influenced input enables an adversary to trick a user into being redirected to a malicious location. In this specific case the “Improper Validation of Syntactic Correctness of Input” (i.e., CWE-1286) provided such an opportunity.
 
-**Vulnerability:** CVE-2023-39968
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2023-39968">CVE-2023-39968</a>
 
 The URL redirection issue occurs in the login.py file within Jupyter Server when the vulnerable source code fails to neutralize certain values obtained from the user and then passes the resulting URL to the redirect() method on line 61.
 
@@ -111,7 +119,7 @@ Remember how a triple slash URL is parsed by urlparse() to be an empty netloc an
 
 Jupyter_server must better recognize the format of the supplied URL as not matching the desired intention and not allowing the redirect by following the code on line 57.
 
-**Exploit:**
+### Exploit:
 
 To exploit this vulnerability an adversary must construct a GET or POST request that contains a crafted “next” parameter. This request would be directed to a web application that uses a vulnerable version of Jupyter Server. Such a request would be the GET URL crafted below:
 
@@ -121,7 +129,9 @@ This URL — maybe sent via an email to a target user — would appear to come f
 
 Looking closer at the example URL, the value of the “next” parameter would not be compared to the allow_origin due to the lack of a netloc component, and would be passed directly to the redirect() call. The underlying Tornado Web Framework would process the redirect() call and send a response back to the user’s client with a 301 or 302 status code signaling the web client to connect to the malicious URL.
 
-**Mitigation:** To address this issue the neutralization code within the Jupyter code was improved. The first change was to add additional validation code before the call to urlparse().
+### Fix:
+
+To address this issue the neutralization code within the Jupyter code was improved. The first change was to add additional validation code before the call to urlparse().
 
 The new code on line 52 searches for a colon in the user provided string “url” and explicitly adds the proper `://` separator between the scheme and the rest of the URL on line 53. This approach works since only http or https schemes are accepted and hence the `://` separator is required. Additional validation could have been added to verify that the value assigned to scheme exactly matches “http” or “https” which would further prevent adversaries from redirecting to unexpected components that communicate over custom schemes which can have more powerful capabilities that could be exploited.
 
@@ -138,9 +148,11 @@ The new code on line 52 searches for a colon in the user provided string “url�
 
 The second change adds a check for scheme similar to the existing check for netloc. This change was made in two different locations on lines 58 and 62. These expanded checks more accurately enforce the condition where an absolute path is provided. Specifically, an absolute path doesn’t include a scheme or a netloc.
 
-**Conclusion:** The changes made improve the neutralization efforts in the code and remove the root cause weakness “Improper Validation of Syntactic Correctness of Input”. Without this validation weakness, and with the previous protections still in place, the user controlled input that reaches the redirect() call no longer redirects the application beyond a trusted absolute path or a location within the allowed origin.
+### Conclusion:
 
-**References:**
+The changes made improve the neutralization efforts in the code and remove the root cause weakness “Improper Validation of Syntactic Correctness of Input”. Without this validation weakness, and with the previous protections still in place, the user controlled input that reaches the redirect() call no longer redirects the application beyond a trusted absolute path or a location within the allowed origin.
+
+### References:
 
 Jupyter Server Project Page: https://jupyter-server.readthedocs.io/en/latest/
 
@@ -163,11 +175,11 @@ tornado.web Web Framework Documentation: https://www.tornadoweb.org/en/stable/we
 
 IETF RFC 1738 Uniform Resource Locators: https://www.ietf.org/rfc/rfc1738.txt
 
-**Contributions:**
+### Contributions:
 
 Originally created by Drew Buttner - The MITRE Corporation<br>
 Reviewed by David Rothenberg - The MITRE Corporation<br>
 Reviewed by Steve Christey - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
-This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
