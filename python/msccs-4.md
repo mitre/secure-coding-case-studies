@@ -1,16 +1,24 @@
 # MSCCS-4 :: PATH TRAVERSAL IN PYMDOWN-EXTENSIONS
 
-**Introduction:** When applications do not control which parts of the file system can be accessed on behalf of other users, it can allow adversaries to read or write unexpected files, often leading to code execution, reading sensitive data, or causing a denial of service. The underlying source code weakness that makes such attacks possible is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at number 8 in the 2023 list. In 2023, a vulnerability based on this weakness was disclosed in the pymdown-snippets extension of the pymdown-extensions pip package. This case study looks at that vulnerability, the root cause mistake, what it allowed an adversary to achieve, and how the code was eventually corrected.
+### Introduction:
 
+When applications do not control which parts of the file system can be accessed on behalf of other users, it can allow adversaries to read or write unexpected files, often leading to code execution, reading sensitive data, or causing a denial of service. The underlying source code weakness that makes such attacks possible is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at number 8 in the 2023 list. In 2023, a vulnerability based on this weakness was disclosed in the pymdown-snippets extension of the pymdown-extensions pip package. This case study looks at that vulnerability, the root cause mistake, what it allowed an adversary to achieve, and how the code was eventually corrected.
+
+### Software:
+
+**Name:** pymdown-extensions  
 **Language:** Python  
-**Software:** pymdown-extensions  
 **URL:** https://github.com/facelessuser/pymdown-extensions
 
-**Weakness:** CWE-22: Improper Limitation of a Pathname to a Restricted Directory
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/22.html">CWE-22: Improper Limitation of a Pathname to a Restricted Directory</a>
 
 The weakness “Improper Limitation of a Pathname to a Restricted Directory” (also called “Path Traversal”) exists when an application accepts a user-controlled input, uses that input to construct a pathname that should be within a restricted directory, then reads or writes to the resulting filename without neutralizing navigation commands such as “..” in the user-controlled input. Unfortunately, this can allow an adversary to cause the application to access files in unauthorized locations elsewhere in the file system.
 
-**Vulnerability:** CVE-2023-32309 – Published 15 May 2023
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2023-32309">CVE-2023-32309</a> – Published 15 May 2023
 
 The pymdown-extensions package contains an extension called pymdown-snippets, which inserts the contents of “snippet” files into markdown documents. This makes it easier for users to manage and modularize documentation by inserting the same snippet into multiple markdown files, such as footers or contact information.
 
@@ -74,7 +82,9 @@ On line 223, the code performs a regular-expression search of each tainted line,
 
 The method get_snippet_path() is defined on line 155 and uses the os.path.join() method on line 162 to build a file path to the snippet using the tainted path argument that was passed in. The resulting snippet path is returned on line 174 and used on line 311 as previously described to open the file and read its contents.
 
-**Exploit:** CAPEC-126: Path Traversal
+### Exploit:
+
+<a href="https://capec.mitre.org/data/definitions/126.html">CAPEC-126: Path Traversal</a>
 
 To exploit this weakness, an adversary must construct or modify a markdown file containing a malicious insert command that points to unexpected locations, then upload the file to a server that is using a vulnerable pymdown-snippets version.
 Suppose the base location directory is /server/pymdown-ext/snippets/. Within a markdown file, the code looks for insert commands such as: `--8<-- "contact-us.md"`
@@ -92,7 +102,9 @@ When passed to the file read call on line 311 of the vulnerable source code, the
 
 In this example, the adversary would have caused the contents of the password file to be inserted into the returned markdown document!
 
-**Mitigation:** The issue was fixed with two primary changes to the source code:
+### Fix:
+
+The issue was fixed with two primary changes to the source code:
 1)	Define a "restrict_base_path" option to allow the snippet admin to specify the directory under which all files must be stored.
 2)	Use absolute paths to ensure that the generated filename is under the expected base path (as quoted in the patch: “restrict snippets to be actual children of the base path”).
 
@@ -135,9 +147,11 @@ The second change was to the get_snippet_path() method where the original os.pat
     168					else:
     169						filename = os.path.join(base, path)
 
-**Conclusion:** The changes made to the pymdown-extensions source code prevent malicious sequences such as “../” or even “/” from causing the extension to generate unexpected pathnames. With the weakness resolved, user-controlled input that reaches the get_snippet_path() method will only produce pathnames under the base path or trigger an error, thus preventing the access of files outside the restricted base path and the potential exposure of sensitive information.
+### Conclusion:
 
-**References:**
+The changes made to the pymdown-extensions source code prevent malicious sequences such as “../” or even “/” from causing the extension to generate unexpected pathnames. With the weakness resolved, user-controlled input that reaches the get_snippet_path() method will only produce pathnames under the base path or trigger an error, thus preventing the access of files outside the restricted base path and the potential exposure of sensitive information.
+
+### References:
 
 PyMdown Extensions Project Page: https://github.com/facelessuser/pymdown-extensions/
 
@@ -153,11 +167,11 @@ NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2023-32309
 
 PyMdown Extensions Code Commit to Fix Issue: https://github.com/facelessuser/pymdown-extensions/commit/b7bb4878d6017c03c8dc97c42d8d3bb6ee81db9d
 
-**Contributions:**
+### Contributions:
 
 Originally created by Steve Christey - The MITRE Corporation<br>
 Reviewed by Drew Buttner - The MITRE Corporation<br>
 Reviewed by David Rothenberg - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
-This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
