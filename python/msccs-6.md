@@ -1,16 +1,24 @@
 # MSCCS-6 :: CODE INJECTION IN SEARCHOR
 
-**Introduction:** The improper control over the generation of code (also known as “Code Injection”) has been a common mistake in software for many years. Annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, it is one that is theoretically possible in any coding language. In 2023 such a vulnerability was disclosed in Arjun Sharda's Searchor — an all-in-one Python library that simplifies web scraping, obtaining information on a topic, and generating search query URLs. This case study will explore that vulnerability, the mistake made by the developers, what it enabled an adversary to accomplish, and how the code was eventually corrected.
+### Introduction:
 
+The improper control over the generation of code (also known as “Code Injection”) has been a common mistake in software for many years. Annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, it is one that is theoretically possible in any coding language. In 2023 such a vulnerability was disclosed in Arjun Sharda's Searchor — an all-in-one Python library that simplifies web scraping, obtaining information on a topic, and generating search query URLs. This case study will explore that vulnerability, the mistake made by the developers, what it enabled an adversary to accomplish, and how the code was eventually corrected.
+
+### Software:
+
+**Name:** Searchor  
 **Language:** Python  
-**Software:** Searchor  
 **URL:** https://github.com/ArjunSharda/Searchor
 
-**Weakness:** CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code	
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/95.html">CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code</a>
 
 Code Injection — and more specifically dynamically evaluated code injection — is possible when software constructs all or part of a code segment using externally influenced input, but does not neutralize (e.g., canonicalize, encode, escape, quote, validate) or incorrectly neutralizes special elements known as directives that could modify the syntax and intended behavior of the code segment. This may allow an adversary to execute arbitrary code, or at least modify what code can be executed.
 
-**Vulnerability:** CVE-2023-43364 – Published 25 September 2023
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2023-43364">CVE-2023-43364</a> – Published 25 September 2023
 
 Searchor leverages the Python Click library to create an extensible, composable, and user-friendly command-line interface (CLI). The vulnerable source code in main.py defines the search command that can be used to query a specified URL.
 
@@ -40,7 +48,9 @@ The weakness is on line 33 where literal string interpolation (also known as f-s
 
 The code segment is then passed into a call to eval() on line 32. An adversary that provides a specially crafted “engine” or “query” value could create additional code to be evaluated beyond the intended search() command. This is such a common type of code injection that it has been assigned its own weakness identifier (CWE-95) specific to dynamically evaluated code, typically through the use of a function like eval().
 
-**Exploit:** CAPEC-242: Code Injection
+### Exploit:
+
+<a href="https://capec.mitre.org/data/definitions/242.html">CAPEC-242: Code Injection</a>
 
 An adversary could exploit this weakness by submitting a request to the search() method that contains a specially crafted malicious query. Consider the following parameter values:
 
@@ -64,7 +74,9 @@ The comma in the adversary provided query parameter adds a second command to be 
 This adversary inserted command performs a benign directory listing, but it could be modified to perform any desired command, including the use of the exec() command to execute any desired python expression. It would also be possible to create a command that opens a semi-permanent connection to the adversary’s system to enable remote control of the vulnerable system.
 The trailing hash character “#” that is part of the adversary provided query parameter comments out the tail end of the original Engine command. Without this, the new command string would cause a syntax violation and not execute correctly.
 
-**Mitigation:** To address this issue the use of the eval() function was removed and replaced on line 32 with a direct call to the Engine.search() method. Calling the search() method directly — instead of through an eval() command — completely removes the potential for Code Injection.
+### Fix:
+
+To address this issue the use of the eval() function was removed and replaced on line 32 with a direct call to the Engine.search() method. Calling the search() method directly — instead of through an eval() command — completely removes the potential for Code Injection.
 
     fixed file: src/searchor/main.py
     
@@ -72,9 +84,11 @@ The trailing hash character “#” that is part of the adversary provided query
 
 An alternative, commonly-cited mitigation for this kind of weakness is to use the ast.literal_eval() function, since it is intentionally designed to avoid executing code. However, an adversary could still cause excessive memory or stack consumption via deeply nested structures, so the python documentation discourages use of ast.literal_eval() on untrusted data.
 
-**Conclusion:** The change made to the code removes the weakness “Improper Neutralization of Directives in Dynamically Evaluated Code”. With the weakness resolved, the potential for Code Injection attacks is mitigated.
+### Conclusion:
 
-**References:**
+The change made to the code removes the weakness “Improper Neutralization of Directives in Dynamically Evaluated Code”. With the weakness resolved, the potential for Code Injection attacks is mitigated.
+
+### References:
 
 Searchor Project Page: https://github.com/ArjunSharda/Searchor
 
@@ -100,11 +114,11 @@ How ast.literal_eval can cause memory exhaustion: https://www.reddit.com/r/learn
 
 Python Documentation for ast.literal_eval(): https://docs.python.org/3/library/ast.html#ast.literal_eval
 
-**Contributions:**
+### Contributions:
 
 Originally created by David Rothenberg - The MITRE Corporation<br>
 Reviewed by Drew Buttner - The MITRE Corporation<br>
 Reviewed by Steve Christey - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
-This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
