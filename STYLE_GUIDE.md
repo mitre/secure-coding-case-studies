@@ -31,7 +31,7 @@ Each case study should follow a consistent structure to ensure readability and l
 6) Weakness
 7) Vulnerability
 8) Exploit
-9) Mitigation
+9) Fix
 10) Conclusion
 11) References
 12) Contributions
@@ -142,7 +142,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 >
 >Looking closer at the example URL, the value of the “next” parameter would not be compared to the allow_origin due to the lack of a netloc component, and would be passed directly to the redirect() call. The underlying Tornado Web Framework would process the redirect() call and send a response back to the user’s client with a 301 or 302 status code signaling the web client to connect to the malicious URL.
 
-### _Mitigation_
+### _Fix_
 
 - This section is used to describe how the original weakness in the source code was fixed.
 - Focus only on the changes that are relevant to the weakness being addressed by the case study.
@@ -152,7 +152,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 ### _Conclusion_
 
 - Provides a brief summary of the case study.
-- Typically one paragraph in length.
+- Typically one to two paragraphs in length.
 - Do not introduce any new information in the Conclusion.
 
 > Example:
