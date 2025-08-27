@@ -35,7 +35,7 @@ This resulting SQL command is equivalent to `SELECT * FROM items;` which is not 
 
 ### Vulnerability:
 
-<a href="https://www.cve.org/CVERecord?id=CVE-2018-25088">CVE-2018-25088</a>
+<a href="https://www.cve.org/CVERecord?id=CVE-2018-25088">CVE-2018-25088</a> – Published 18 July 2023
 
 Looking at the vulnerable source code in postgraas_server, line 22 (line 24 is also vulnerable in the same way) uses the Python format() method to insert a string into the SQL statement. The format() method performs a concatenation of a provided value into a template string. No neutralization is performed as part of the format() method. An adversary that can control the value being inserted could use these lines of code to inject malicious SQL into the template string thus manipulating the actions that the SQL statement would perform.
 
