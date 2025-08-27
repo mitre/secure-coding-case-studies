@@ -27,16 +27,14 @@ Each case study should follow a consistent structure to ensure readability and l
 ```
 1) Title
 2) Introduction
-3) Language
-4) Software
-5) URL
-6) Weakness
-7) Vulnerability
-8) Exploit
-9) Fix
-10) Conclusion
-11) References
-12) Contributions
+3) Software
+4) Weakness
+5) Vulnerability
+6) Exploit
+7) Fix
+8) Conclusion
+9) References
+10) Contributions
 ```
 
 Each of the above sections is explained in detail below. Please try to follow the guidance as closely as possible.
@@ -68,7 +66,22 @@ Each of the above sections is explained in detail below. Please try to follow th
 >
 > The use of a database to store information is fundamental to many applications. Unfortunately, if the commands to place or retrieve this information are not properly constructed, then an adversary could inappropriately alter or read the information. The underlying source code weakness that makes such attacks possible is annually one of the CWE Top 25 Most Dangerous Software Weaknesses. In 2023 such a vulnerability was disclosed in Blue Yonder postgraas_server. Postgraas offers basic create, read, update, and delete (CRUD) operations for complete PostgreSQL database instances via a simple representational state transfer (REST) application programming interface (API). This case study will look at that vulnerability, the mistake made by the developers, what it enabled an adversary to accomplish, and how the code was eventually corrected.
 
-### _Language_
+### _Software_
+
+- This section is used to identify the specific software that the case study is referencing.
+- Three different fields are expected.
+
+_Name_
+
+- The name of the software in which the issue existed.
+- Include the vendor name if applicable. Do not include the version in this field.
+
+> Examples:
+>
+> postgraas_server\
+> Apache Airflow
+
+_Language_
 
 - The source code language where the root cause weakness was made.
 
@@ -81,17 +94,7 @@ Each of the above sections is explained in detail below. Please try to follow th
 > Java\
 > Go
 
-### _Software_
-
-- The name of the software in which the issue existed.
-- Include the vendor name if applicable. Do not include the version in this field.
-
-> Examples:
->
-> postgraas_server\
-> Apache Airflow
-
-### _URL_
+_URL_
 
 - The URL where the software can be found.
 - For open source projects this is typically a source repository such as GitHub
