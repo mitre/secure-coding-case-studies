@@ -18,6 +18,8 @@ The most important step in creating an insightful and interesting case study is 
 - Select an issue that has articles written about how to exploit it. Ideally, these articles even point to actual instances of compromise that can be examined and explained. Pointing to a real exploitation event adds credibility to the importance of the secure coding issue.
 - Finally, select an issue that has been fixed and where the patched software is available. The case study should not discuss unpatched or zero-day (i.e., not publicly disclosed) issues.
 
+Once selected, create a new issue within the "Issues" section of the Secure Coding Case Studies GitHub respository. This will help ensure that someone else doesn't propose creating a case study for the same vulnerability. This will also provide a place for others to provide comments and insight related to the proposed case study.
+
 ## 3. Case Study Structure
 
 Each case study should follow a consistent structure to ensure readability and logical flow. The order and style are critical to maintain this consistency. Each case study MUST have the following 12 sections in the order presented:
