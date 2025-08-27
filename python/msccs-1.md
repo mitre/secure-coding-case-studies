@@ -187,4 +187,4 @@ Reviewed by Steve Christey - The MITRE Corporation<br>
 Reviewed by David Wheeler - George Mason University
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
-This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
