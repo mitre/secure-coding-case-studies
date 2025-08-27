@@ -1,12 +1,18 @@
 # MSCCS-1 :: SQL INJECTION IN POSTGRAAS SERVER
 
-**Introduction:** The use of a database to store information is fundamental to many applications. Unfortunately, if the commands to place or retrieve this information are not properly constructed, then an adversary could inappropriately alter or read the information. The underlying source code weakness that makes such attacks possible is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses. In 2023 such a vulnerability was disclosed in Blue Yonder postgraas_server. Postgraas offers basic create, read, update, and delete (CRUD) operations for complete PostgreSQL database instances via a simple representational state transfer (REST) application programming interface (API). This case study will look at that vulnerability, the mistake made by the developers, what it enabled an adversary to accomplish, and how the code was eventually corrected.
+### Introduction:
 
+The use of a database to store information is fundamental to many applications. Unfortunately, if the commands to place or retrieve this information are not properly constructed, then an adversary could inappropriately alter or read the information. The underlying source code weakness that makes such attacks possible is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses. In 2023 such a vulnerability was disclosed in Blue Yonder postgraas_server. Postgraas offers basic create, read, update, and delete (CRUD) operations for complete PostgreSQL database instances via a simple representational state transfer (REST) application programming interface (API). This case study will look at that vulnerability, the mistake made by the developers, what it enabled an adversary to accomplish, and how the code was eventually corrected.
+
+### Software:
+
+**Name:** postgraas_server  
 **Language:** Python  
-**Software:** postgraas_server  
 **URL:** https://github.com/blue-yonder/postgraas_server
 
-**Weakness:** CWE-89: Improper Neutralization of Special Elements Used in an SQL Command
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/89.html">CWE-89: Improper Neutralization of Special Elements Used in an SQL Command</a>
 
 The weakness exists when software constructs all or part of an SQL command using externally influenced input that has been obtained from an upstream component, but the software does not neutralize (e.g., canonicalize, encode, escape, quote, validate) or incorrectly neutralizes special elements that could modify the intent of the SQL command.
 
@@ -27,7 +33,9 @@ However, a provided name of `x' OR '1=1'--` will result in an SQL command that s
 
 This resulting SQL command is equivalent to `SELECT * FROM items;` which is not what the original intention of the command was. By using more complex SQL syntax an adversary could craft a resulting SQL command to achieve a wide variety of objectives.
 
-**Vulnerability:** CVE-2018-25088
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2018-25088">CVE-2018-25088</a>
 
 Looking at the vulnerable source code in postgraas_server, line 22 (line 24 is also vulnerable in the same way) uses the Python format() method to insert a string into the SQL statement. The format() method performs a concatenation of a provided value into a template string. No neutralization is performed as part of the format() method. An adversary that can control the value being inserted could use these lines of code to inject malicious SQL into the template string thus manipulating the actions that the SQL statement would perform.
 
@@ -111,7 +119,9 @@ The create_postgres_db() function defined on line 30 in the file postgres_cluste
 
 These untrusted values are then passed to the vulnerable check_db_or_user_exists() function on line 31 which was previously presented as the vulnerable source code and shown to be subject to SQL Injection.
 
-**Exploit:** CAPEC-66: SQL Injection
+### Exploit:
+
+<a href="https://capec.mitre.org/data/definitions/66.html">CAPEC-66: SQL Injection</a>
 
 In a benign interaction a user would provide an expected name of a database. An example of such a db_name might be: `annual_sales` The resulting SQL command would be:
 
@@ -127,7 +137,9 @@ The adversary can learn the true or false result of their manipulated SQL comman
 
 Many techniques exist to generate valid SQL that can cause the SQL engine to alter the makeup of the database, overwrite files on the server, and execute operating system commands. By further manipulating the SQL command, an adversary could perform a wide array of different actions, making this weakness one of the most dangerous.
 
-**Mitigation:** To fix this issue, the format() method was replaced by Psycopg’s built-in parameterization functionality on line 23 (also on line 25) to automatically convert Python objects to and from SQL literals.
+### Fix:
+
+To fix this issue, the format() method was replaced by Psycopg’s built-in parameterization functionality on line 23 (also on line 25) to automatically convert Python objects to and from SQL literals.
 
     fixed file: postgraas_server\backends\postgres_cluster\postgres_cluster_driver.py
     
@@ -143,9 +155,11 @@ Many techniques exist to generate valid SQL that can cause the SQL engine to alt
 
 Parameterization is a well-known tactic to properly neutralize potentially tainted input and completely eliminate any related vulnerability. Parameterization removes the ability for a malicious value to escape outside of the intended query to create a new query that performs a different task. Parameterization works by separating the values from the queries enabling the SQL engine to enforce values only being used for their intended purpose. Refer to the OWASP Cheat Sheet linked to in the references for additional guidance on this technique.
 
-**Conclusion:** The addition of parameterization to the code improves the neutralization efforts and removes the weakness “Improper Neutralization of Special Elements Used in an SQL Command”. With the weakness resolved, user controlled input that reaches the execute() call no longer operates outside of the original intent of the SQL command.
+### Conclusion:
 
-**References:**
+The addition of parameterization to the code improves the neutralization efforts and removes the weakness “Improper Neutralization of Special Elements Used in an SQL Command”. With the weakness resolved, user controlled input that reaches the execute() call no longer operates outside of the original intent of the SQL command.
+
+### References:
 
 postgraas_server Project Page: https://github.com/blue-yonder/postgraas_server
 
@@ -165,7 +179,7 @@ Psycopg Documentation Related to Safe Passing of Parameter: https://www.psycopg.
 
 OWASP Query Parameterization Cheat Sheet : https://cheatsheetseries.owasp.org/cheatsheets/Query_Parameterization_Cheat_Sheet.html
 
-**Contributions:**
+### Contributions:
 
 Originally created by Drew Buttner - The MITRE Corporation<br>
 Reviewed by David Rothenberg - The MITRE Corporation<br>
