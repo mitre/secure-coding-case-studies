@@ -1,16 +1,24 @@
 # MSCCS-3 :: OBSERVABLE TIMING DISCREPANCY IN PICCOLO
 
-**Introduction:** An observable timing discrepancy during the execution of an application can reveal security-relevant information. Even small variations in timing can be exploited by adversaries to indirectly infer certain details about the product's internal operations or the data it operates on. In 2023 such a vulnerability was disclosed in the Python-based Piccolo application. This case study looks at that vulnerability, what it allowed an adversary to achieve, and how the code was eventually corrected.
+### Introduction:
 
+An observable timing discrepancy during the execution of an application can reveal security-relevant information. Even small variations in timing can be exploited by adversaries to indirectly infer certain details about the product's internal operations or the data it operates on. In 2023 such a vulnerability was disclosed in the Python-based Piccolo application. This case study looks at that vulnerability, what it allowed an adversary to achieve, and how the code was eventually corrected.
+
+### Software:
+
+**Name:** Piccolo  
 **Language:** Python  
-**Software:** Piccolo  
 **URL:** https://github.com/piccolo-orm/piccolo
 
-**Weakness:** CWE-208: Observable Timing Discrepancy
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/89.html">CWE-208: Observable Timing Discrepancy</a>
 
 The weakness “Observable Timing Discrepancy” (also known as a type of “Information Exposure”) exists when an application performs different resource intensive operations depending on the internal state of the execution. If the difference in time to complete these operations is significant enough, then an adversary can measure the difference and gain knowledge about the internal state and the data being operated on.
 
-**Vulnerability:** CVE-2023-41885 – Published 12 September 2023
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2023-41885">CVE-2023-41885</a> – Published 12 September 2023
 
 The vulnerable code is part of the login() method defined on line 191 of the tables.py file.
 vulnerable file: piccolo/apps/user/tables.py
@@ -47,11 +55,15 @@ Note that the code follows best practice and returns the exact same response (i.
 
 However, an observable timing discrepancy is present due to the time it can take to perform the hash_password() method. If a correct username is provided then the hash_password() method is called on line 225 which takes additional time to compute. If an incorrect username is provided then the hash_password() method is never called.
 
-**Exploit:** CAPEC-462: Cross-Domain Search Timing
+### Exploit:
+
+<a href="https://capec.mitre.org/data/definitions/462.html">CAPEC-462: Cross-Domain Search Timing</a>
 
 An adversary could use this vulnerability to determine the validity of a given username, or to create a list of users currently registered in the system. To do this, the adversary could construct a request with a potential username, send the request to the login() function, and then measure the time it takes for the software to respond. Performing this step multiple times, each with a different potential username, and recording the response time for each, will result in a dataset with two general response times. The short response time will be associated with valid usernames and the long response time will be associated with invalid usernames.
 
-**Mitigation:** To address this issue the hash_password() method was added to the logic path where the provided username was not found in the system.
+### Fix:
+
+To address this issue the hash_password() method was added to the logic path where the provided username was not found in the system.
 
     fixed file: piccolo/apps/user/tables.py
     
@@ -86,9 +98,11 @@ If providing an iteration value causes a measurably longer execution time as com
 
 Since an adversary will not know when a username’s password was hashed using the default number of iterations or a custom value, they will not be able to determine when hash_password() is being called during the invalid username situation or the valid usernames case.
 
-**Conclusion:** The change to force expensive method calls to be made regardless of the logic path removes the possibility of timing discrepancies during execution of the software, thus removing the root cause weakness “Observable Timing Discrepancy”. Without this weakness adversaries are no longer able to determine valid usernames within the system.
+### Conclusion:
 
-**References:**
+The change to force expensive method calls to be made regardless of the logic path removes the possibility of timing discrepancies during execution of the software, thus removing the root cause weakness “Observable Timing Discrepancy”. Without this weakness adversaries are no longer able to determine valid usernames within the system.
+
+### References:
 
 Piccolo Project Page: https://piccolo-orm.com/
 
@@ -104,11 +118,11 @@ NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2023-41885
 
 Piccolo Code Commit to Fix Issue: https://github.com/piccolo-orm/piccolo/commit/edcfe3568382922ba3e3b65896e6e7272f972261
 
-**Contributions:**
+### Contributions:
 
 Originally created by Drew Buttner - The MITRE Corporation<br>
 Reviewed by David Rothenberg - The MITRE Corporation<br>
 Reviewed by Steve Christey - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
-This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
