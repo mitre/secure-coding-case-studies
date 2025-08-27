@@ -1,12 +1,18 @@
 # MSCCS-8 :: Cross-Site Scripting In OpenC3 COSMOS
 
-**Introduction:** Website applications often need to respond to a requested action based on input provided by a user. If that response contains a copy of the user’s input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2024, such a weakness was discovered in the login page of the open source edition of OpenC3 COSMOS. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
+### Introduction:
 
+Website applications often need to respond to a requested action based on input provided by a user. If that response contains a copy of the user’s input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2024, such a weakness was discovered in the login page of the open source edition of OpenC3 COSMOS. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
+
+### Software:
+
+**Name:** OpenC3 COSMOS (Open Source Edition)  
 **Language:** JavaScript  
-**Software:** OpenC3 COSMOS (Open Source Edition)  
 **URL:** https://github.com/OpenC3/cosmos
 
-**Weakness:** CWE-79: Improper Neutralization of Input During Web Page Generation
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/79.html">CWE-79: Improper Neutralization of Input During Web Page Generation</a>
 
 The weakness exists when a web application fails to properly neutralize user-controlled input in the web application's code, and the input is then returned to the user as part of the web application’s response.
 
@@ -16,7 +22,9 @@ There are three main kinds of cross-site scripting (XSS): reflected, stored, and
 
 A common tactic adversaries use in reflected XSS exploits is to leverage a phishing attack. The adversary places malicious input into a URL with a hostname that appears valid and tricks a user into thinking the URL is legitimate. When a user clicks on the phishing URL, the request is sent to the web application which in turn generates a response that (if vulnerable) includes the malicious content which is then executed by the user's browser.
 
-**Vulnerability:** CVE-2024-43795 – Published 2 October 2024
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2024-43795">CVE-2024-43795</a> – Published 2 October 2024
 
 The vulnerability in OpenC3 COSMOS occurs when the login() method fails to properly neutralize a user input parameter. The user controlled `redirect` parameter is then used to specify what webpage to direct the user to.
 
@@ -48,7 +56,9 @@ Regarding the first condition, the weakness in the source code relies on the par
 
 Regarding the second condition, there should be safeguards to ensure that tainted input will not lead to undesired behavior. This is known as neutralization. There is no neutralization of the tainted input after it is initialized on line 145. As a result, an adversary could set the `redirect` string on line 145 to inject malicious JavaScript code and it would be accepted and passed into the decodeURI method on line 148.
 
-**Exploit:** CAPEC-63: Cross-Site Scripting
+### Exploit:
+
+<a href="https://capec.mitre.org/data/definitions/63.html">CAPEC-63: Cross-Site Scripting</a>
 
 To exploit this vulnerability, an adversary can craft a URL with a search query part containing malicious JavaScript code. For example, an adversary could craft a URL similar to the following:
 
@@ -60,7 +70,7 @@ Looking deeper at the exploit for this specific vulnerability, the response sent
 
 With more powerful scripts potential consequences include remote server-side code execution and the reading of application data such as passwords.
 
-**Mitigation:**
+### Fix:
 
 To resolve this issue the source code was modified to include a form of neutralization. The changes on lines 148-153 of the fixed Login.vue file add a check of the contents of the "redirect" parameter before using it.
 
@@ -80,11 +90,11 @@ To resolve this issue the source code was modified to include a form of neutrali
 
 Line 148 add a check that the `redirect` parameter begins with one slash (“/”) and only one slash. This single slash as the first character in the search query of a URL is the syntax for directing to a local webpage. The presented exploit will no longer work because the first character in a valid "redirect" parameter is now required to be "/", meaning the `redirect` parameter will not be used if the first character is the "j" in "javascript". If the `redirect` parameter is invalid, the code moves to line 152 and the window.location value is set to the root path of the website.
 
-**Conclusion:**
+### Conclusion:
 
 Improper neutralization of input is a common weakness that annually ranks among the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking #2 in 2023 and #1 in 2024. The weakness can lead to remote code execution and/or the reading of application data. One such weakness led to a vulnerability that was discovered in OpenC3 COSMOS in 2024. In response, OpenC3 COSMOS made changes to implement an effective neutralization of the user-controlled "redirect" parameter and remove the root cause weakness “Improper Neutralization of Input During Web Page Generation”. Without this weakness, the OpenC3 COSMOS login page code can no longer be exploited in a reflected XSS attack to execute JavaScript code in a user's web browser. Software developers should always follow secure coding practices and ensure any user-controlled input is effectively neutralized to avoid such vulnerabilities in their own projects.
 
-**References:**
+### References:
 
 OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-vfj8-5pj7-2f9g
 
@@ -99,3 +109,11 @@ NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2024-43795
 CVE-2024-43795 Entry: https://www.cve.org/CVERecord?id=CVE-2024-43795
 
 GitHub Security Lab Report (GHSL-2024-128): https://securitylab.github.com/advisories/GHSL-2024-127_GHSL-2024-129_OpenC3_COSMOS/
+
+### Contributions:
+
+Originally created by Travis Aldrich - The MITRE Corporation<br>
+Reviewed by Drew Buttner - The MITRE Corporation
+
+(C) 2025 The MITRE Corporation. All rights reserved.<br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
