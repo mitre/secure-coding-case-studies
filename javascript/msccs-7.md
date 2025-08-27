@@ -1,12 +1,18 @@
 # MSCCS-7 :: PATH TRAVERSAL IN SALTCORN SERVER
 
-**Introduction:** Insufficient neutralization of user-controllable data used to construct pathnames may allow access to files and directories beyond authorized boundaries. An adversary can exploit such a vulnerability by crafting malicious requests targeting sensitive files and directories, leading to unauthorized data exposure or deletion. The underlying weakness in the source code is consistently listed among the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking 5th in 2024. In October 2024, a vulnerability stemming from this weakness was disclosed in the JavaScript-based Saltcorn server. This case study explores the root cause of the vulnerability, its potential impact, and how the code was ultimately fixed.
+### Introduction:
 
+Insufficient neutralization of user-controllable data used to construct pathnames may allow access to files and directories beyond authorized boundaries. An adversary can exploit such a vulnerability by crafting malicious requests targeting sensitive files and directories, leading to unauthorized data exposure or deletion. The underlying weakness in the source code is consistently listed among the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking 5th in 2024. In October 2024, a vulnerability stemming from this weakness was disclosed in the JavaScript-based Saltcorn server. This case study explores the root cause of the vulnerability, its potential impact, and how the code was ultimately fixed.
+
+### Software:
+
+**Name:** Saltcorn  
 **Language:** JavaScript  
-**Software:** Saltcorn  
 **URL:** https://github.com/saltcorn/saltcorn
 
-**Weakness:** CWE-22: Improper Limitation of a Pathname to a Restricted Directory
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/22.html">CWE-22: Improper Limitation of a Pathname to a Restricted Directory</a>
 
 The weakness arises when an application utilizes user-controllable data to build a pathname meant to remain within a restricted directory. If the application fails to neutralize navigation commands such as ".." in the input, it may inadvertently allow adversaries to access files in unauthorized areas of the file system. 
 
@@ -14,7 +20,9 @@ Saltcorn is an open source, no-code database application builder. The Saltcorn p
 
 The `sync` route contains one endpoint, `/clean_sync_dir`, that handles POST requests, and the handler is tasked with deleting a directory used for syncing once offline data from the client has been uploaded and synchronized accordingly. However, because the code does not adequately neutralize user-controllable inputs for path traversal commands, the resulting pathname may lead to an unauthorized location differing from the intended syncing directory.
 
-**Vulnerability:** CVE-2024-47818 – Published 7 October 2024  
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2024-47818">CVE-2024-47818</a> – Published 7 October 2024  
 
 The weakness in the code originates from the POST request handler for the `/clean_sync_dir` route. The error_catcher() middleware function on line 336 accepts a user-provided request `req` argument and extracts the `dir_name` from the request body on line 337. The code then attempts to construct a pathname `syncDir` on lines 340-345 by joining the potentially tainted `dir_name` to the end of a pre-determined path `rootFolder.location/mobile_app/sync`. The resulting `syncDir` specifies a directory whose contents are to be deleted by calling fs.rm() on line 346.
 
@@ -43,7 +51,9 @@ The join() function used on line 340 performs this construction by combining the
     352	    })
     353	);
     
-**Exploit:** CAPEC-126: Path Traversal
+### Exploit:
+
+<a href="https://capec.mitre.org/data/definitions/126.html">CAPEC-126: Path Traversal</a>
 
 An adversary can exploit this weakness by including `../` sequences in `dir_name` to traverse up the server's directory structure, allowing them to specify a path outside the intended confines of `rootFolder.location/mobile_app/sync/`, resulting in the deletion of an unauthorized directory.
 
@@ -67,7 +77,9 @@ One way for an adversary to obtain these values is to leverage the password rese
 
 Thus, an adversary that controls the POST request is able to exploit this weakness and delete files beyond the intended confines of `rootFolder.location/mobile_app/sync/`, causing data loss or system instability.
 
-**Mitigation:** To fix this issue, a new normalise_in_base() function was created to properly join potentially unsafe path segments to a trusted base and then verify that the resultant path still starts with that trusted base.
+### Fix:
+
+To fix this issue, a new normalise_in_base() function was created to properly join potentially unsafe path segments to a trusted base and then verify that the resultant path still starts with that trusted base.
 
 Looking at the implementation of this new normalise_in_base() function, line 162 joins the array of unsafe paths to the trusted base. As part of this call to join(), the resulting path is normalized. So far, this is similar to the original code. The important change is on line 165, which checks that the resulting path still resides within the trusted base. If it doesn’t, then a null value is returned on line 166.
 
@@ -106,9 +118,11 @@ This new normalise_in_base() function was then used within the original error_ca
 
 As previously discussed, normalize_in_base() joins the segments, normalizes the resulting path, and verifies that the path is still within the trusted base, thus removing the weakness from the code.
 
-**Conclusion:** The changes made to the Saltcorn source code prevent malicious sequences such as “../” from causing the creation of a path outside of the desired trusted base. With the weakness resolved, user-controlled input that reaches the error_cather() method can no longer be crafted to cause the deletion of files outside the restricted base path.
+### Conclusion:
 
-**References:**
+The changes made to the Saltcorn source code prevent malicious sequences such as “../” from causing the creation of a path outside of the desired trusted base. With the weakness resolved, user-controlled input that reaches the error_cather() method can no longer be crafted to cause the deletion of files outside the restricted base path.
+
+### References:
 
 Saltcorn Project Page: https://github.com/saltcorn/saltcorn
 
@@ -123,3 +137,11 @@ OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-43f3-h63w-p6f6
 NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2024-47818
 
 Saltcorn Code Commit to Fix Issue: https://github.com/saltcorn/saltcorn/commit/3c551261d0e230635774798009951fa83a07cc3a
+
+### Contributions:
+
+Originally created by Mark Tran - The MITRE Corporation<br>
+Reviewed by Drew Buttner - The MITRE Corporation
+
+(C) 2025 The MITRE Corporation. All rights reserved.<br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
