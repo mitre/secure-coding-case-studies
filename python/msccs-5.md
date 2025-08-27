@@ -1,16 +1,24 @@
 # MSCCS-5 :: IMPROPER CERTIFICATE VALIDATION IN AIRFLOW
 
-**Introduction:** Establishing a secure communications channel (often via the SSL/TLS protocols) typically involves using a digital certificate to authenticate identity and to establish an encrypted link. Establishing this secure context is essential to provide protection against malicious hosts that seek to impersonate their target. Failure to validate the digital certificate provided by a host creates a false root of trust in the communications channel thus removing the guarantee that potentially sensitive data is being sent to the intended endpoint securely. In 2023 such a vulnerability was disclosed in the Python-based Apache Airflow application. This case study looks at that vulnerability, the root cause authentication mistake, what it allowed an adversary to achieve, and how the code was eventually corrected.
+### Introduction:
 
+Establishing a secure communications channel (often via the SSL/TLS protocols) typically involves using a digital certificate to authenticate identity and to establish an encrypted link. Establishing this secure context is essential to provide protection against malicious hosts that seek to impersonate their target. Failure to validate the digital certificate provided by a host creates a false root of trust in the communications channel thus removing the guarantee that potentially sensitive data is being sent to the intended endpoint securely. In 2023 such a vulnerability was disclosed in the Python-based Apache Airflow application. This case study looks at that vulnerability, the root cause authentication mistake, what it allowed an adversary to achieve, and how the code was eventually corrected.
+
+### Software:
+
+**Name:** Apache Airflow  
 **Language:** Python  
-**Software:** Apache Airflow  
 **URL:** https://github.com/apache/airflow
 
-**Weakness:** CWE-295: Improper Certificate Validation
+### Weakness:
+
+<a href="https://cwe.mitre.org/data/definitions/295.html">CWE-295: Improper Certificate Validation</a>
 
 The weakness “Improper Certificate Validation” exists when an application either fails to validate, or incorrectly validates, a digital certificate. An adversary can take advantage of this weakness to impersonate an endpoint or perform an adversary-in-the-middle (i.e., man-in-the-middle) attack to intercept communications.
 
-**Vulnerability:** CVE-2023-41885 – Published 23 August 2023
+### Vulnerability:
+
+<a href="https://www.cve.org/CVERecord?id=CVE-2023-41885">CVE-2023-41885</a> – Published 23 August 2023
 
 The vulnerable code is part of the _build_client() method defined on line 80 of the imap.py file. This function determines the desired type of client connection and then configures the mail_client in the appropriate way. The provided input is parsed on line 82 to determine if the “use_ssl” flag is set to True. If True then on line 83 the client IMAP object gets assigned the IMAP4_SSL class. This IMAP object is then used on lines 88 and 90 to create the mail_client, which is returned from the function on line 92.
 
@@ -32,13 +40,17 @@ The vulnerable code is part of the _build_client() method defined on line 80 of 
 
 The IMAP4_SSL class allows an optional ssl_context parameter that holds the configuration options, certificates, and private keys for the secure connection. However, as seen on lines 88 and 90, no ssl_context is passed to the constructor of this class and thus the ssl_context defaults to the value of “None”. The lack of a defined ssl_context means that the certificate is trusted by default and is not checked for validity or possible revocation. The connection host will blindly trust the host it has connected to.
 
-**Exploit:** CAPEC-94: Adversary in the Middle
+### Exploit:
+
+<a href="https://capec.mitre.org/data/definitions/94.html">CAPEC-94: Adversary in the Middle</a>
 
 An adversary could take advantage of this by inserting itself into the communications channel path and providing its own malicious certificate. The malicious host will present a certificate to the connection host that if not properly validated will enable the malicious host to be perceived as legitimate.
 
 Inadequate verification of this malicious host’s identity would permit the adversary to perform a wide array of actions. The adversary may opt to filter selected traffic, modify selected traffic before passing it along to the intended host, or passively record all traffic from this application.
 
-**Mitigation:** To address this issue, the code was modified to set one of two ssl_context options whenever the “use_ssl” flag is set to True. The suggested “default” option uses the create_default_context() method to create a new SSL context which will load the system’s trusted CA certificates, enable certificate validation and hostname checking, and try to choose reasonably secure protocol and cipher settings.
+### Fix:
+
+To address this issue, the code was modified to set one of two ssl_context options whenever the “use_ssl” flag is set to True. The suggested “default” option uses the create_default_context() method to create a new SSL context which will load the system’s trusted CA certificates, enable certificate validation and hostname checking, and try to choose reasonably secure protocol and cipher settings.
 
     fixed file: airflow/providers/imap/hooks/imap.py
     
@@ -76,9 +88,11 @@ Lines 87-92 of the fixed code check if the SSL_CONTEXT configuration in either i
 
 The option “none” will only be set in the code if the imap configuration is specifically set to “none”, or if the imap configuration is empty and the email configuration is set to “none”.
 
-**Conclusion:** The changes force the default secure approach to hostname validation when using SSL. The addition of the ssl_context mitigates the root cause authentication weakness “Improper Certificate Validation” by forcing the installed CA certificate to be used to establish a secure communications channel between the mail client and trusted host. Adversaries are no longer able to impersonate the trusted host and intercept secure emails.
+### Conclusion:
 
-**References:**
+The changes force the default secure approach to hostname validation when using SSL. The addition of the ssl_context mitigates the root cause authentication weakness “Improper Certificate Validation” by forcing the installed CA certificate to be used to establish a secure communications channel between the mail client and trusted host. Adversaries are no longer able to impersonate the trusted host and intercept secure emails.
+
+### References:
 
 Apache Airflow Project Page: https://airflow.apache.org/
 
@@ -96,11 +110,11 @@ Apache Airflow Code Commit to Fix Issue: https://github.com/apache/airflow/pull/
 
 Python Documentation for IMAP4_SSL(): https://docs.python.org/3/library/imaplib.html#imaplib.IMAP4_SSL
 
-**Contributions:**
+### Contributions:
 
 Originally created by David Rothenberg - The MITRE Corporation<br>
 Reviewed by Drew Buttner - The MITRE Corporation<br>
 Reviewed by Steve Christey - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
-This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a><br>
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
