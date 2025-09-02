@@ -88,7 +88,7 @@ To resolve this issue the source code was modified to include a form of neutrali
     152        window.location = '/'
     153      }
 
-Line 148 add a check that the `redirect` parameter begins with one slash (“/”) and only one slash. This single slash as the first character in the search query of a URL is the syntax for directing to a local webpage. The presented exploit will no longer work because the first character in a valid "redirect" parameter is now required to be "/", meaning the `redirect` parameter will not be used if the first character is the "j" in "javascript". If the `redirect` parameter is invalid, the code moves to line 152 and the window.location value is set to the root path of the website.
+Line 148 adds a check that the `redirect` parameter begins with one slash (“/”) and only one slash. This single slash as the first character in the search query of a URL is the syntax for directing to a local webpage. The presented exploit will no longer work because the first character in a valid "redirect" parameter is now required to be "/", meaning the `redirect` parameter will not be used if the first character is the "j" in "javascript". If the `redirect` parameter is invalid, the code moves to line 152 and the window.location value is set to the root path of the website.
 
 ### Conclusion:
 
@@ -117,3 +117,4 @@ Reviewed by Drew Buttner - The MITRE Corporation
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
 This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
+
