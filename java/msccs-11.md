@@ -49,14 +49,48 @@ Within the change-tracking-web module, the _getMessage() method fails to properl
     146      },
     147      false);
 
-For this code weakness to be exploitable, two conditions must be met. First, the parameter `name` must be controllable by an adversary such that they can set the value to whatever they want. Second, the code must improperly neutralize (e.g., canonicalize, encode, escape, quote, validate) the adversary provided input such that the value is stored as is within the database.
+For this code weakness to be exploitable, two conditions must be met. First, the parameter `name` that is retrived by the call to getName() must be controllable by an adversary such that they can set the value to whatever they want. Second, the code must improperly neutralize (e.g., canonicalize, encode, escape, quote, validate) the adversary provided input such that the value is stored as is within the database and then sent to a user without modification.
 
 *ADVERSARY CONTROLLED INPUT*
 
-Regarding the first condition, there are multiple ways that an adversary can populate the `name` field in database such that it will later be retrieved by the vulnerable code. One example is by editing a publication via the `/change_tracking/edit_ct_collection` MVC command. This command is processed on line 49 of EditCTCollectionMVCActionCommand.java. The value of `name` to add is pulled from the request on line 60 and then passed to the add function on line 73.
+Regarding the first condition, there are multiple ways that an adversary can populate the `name` field in database such that it will later be retrieved by the vulnerable code. One example is by editing a publication via the edit_ct_collection.jsp page. The command is set on line 16 via the actionName variable, and is then used on line 56 to direct the server on how to handle the edit publication request (i.e., which Java code on the server to point to). Finally, the user provided `name` is collected from the publicationName field on the web form on lines 88-89
+
+    supporting file modules/apps/change-tracking/change-tracking-web/src/main/resources/META-INF/resources/publications/edit_ct_collection.jsp
+    
+    16   String actionName = "/change_tracking/edit_ct_collection";
+    ...
+    56     <liferay-portlet:actionURL name="<%= actionName %>" var="actionURL">
+    57       <liferay-portlet:param name="mvcRenderCommandName" value="/change_tracking/view_publications" />
+    58       <liferay-portlet:param name="redirect" value="<%= redirect %>" />
+    59     </liferay-portlet:actionURL>
+    ...
+    63     <react:component
+    64       module="{ChangeTrackingCollectionEditView} from change-tracking-web"
+    65       props='<%=
+    66         HashMapBuilder.<String, Object>put(
+    67           "actionUrl", actionURL
+    ...
+    88         ).put(
+    89           "publicationName", name
+    ...
+    98         ).build()
+    99       %>'
+    100    />
+
+The above request with the user provided value for `name` is handled on the server by the `/change_tracking/edit_ct_collection` MVC command. This command is processed on line 49 of EditCTCollectionMVCActionCommand.java. The value of the publication `name` is pulled from the request on line 60 and then passed to the add function on line 73.
 
     supporting file modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/portlet/action/EditCTCollectionMVCActionCommand.java
     
+    39   @Component(
+    40     property = {
+    41       "jakarta.portlet.name=" + CTPortletKeys.PUBLICATIONS,
+    42       "mvc.command.name=/change_tracking/edit_ct_collection"
+    43     },
+    44     service = MVCActionCommand.class
+    45   )
+    46   public class EditCTCollectionMVCActionCommand extends BaseMVCActionCommand {
+    47
+    48   @Override
     49   protected void doProcessAction(
     50           ActionRequest actionRequest, ActionResponse actionResponse)
     51     throws IOException {
@@ -71,7 +105,7 @@ Regarding the first condition, there are multiple ways that an adversary can pop
     73         themeDisplay.getUserId(), ctRemoteId, name,
     74         description);
 
-The addCTCollection() function is implemented in CTCollectionLocalServiceImpl.java on line 130. The adversary provided value for `name` is set on 154, and the ctCollection is saved in the database via the call to update() on line 159. Note that on line 135 the validate() funciton is called, but this
+The addCTCollection() function is implemented in CTCollectionLocalServiceImpl.java on line 130. The adversary provided value for `name` is added to the ctCollection object via setName() on 154, and then saved in the database via the call to update() on line 159. Note that on line 135 the validate() funciton is called which makes sure that the name is less than the defined max length of 75 characters. Note that validating a publication name using only a length check is appropriate if it is acceptable for publication names to contain letters, numbers, and special characters and thus validation can't be used to limit character type.
 
     supporting file modules/apps/change-tracking/change-tracking-service/src/main/java/com/liferay/change/tracking/service/impl/CTCollectionLocalServiceImpl.java
     
@@ -113,11 +147,13 @@ The database field that the `name` parameter is stored in is a 75 character stri
              name VARCHAR(75) null,description VARCHAR(200) null,onDemandUserId LONG,shareable BOOLEAN,
              status INTEGER,statusByUserId LONG,statusDate DATE null)";
 
+At this point the user has been able to submit a 75 character or less string as the publication name and that name is stored in the database as is, thus meeting the first condition for the weakness to be exploitable.
+
 *IMPROPER NEUTRALIZATION*
 
-Regarding the second condition, there should be safeguards in the code to ensure that tainted input will not lead to undesired behavior. This is known as neutralization. There is no neutralization of the tainted input before or after it is saved in the database.
+Regarding the second condition, there should be safeguards in the code to ensure that tainted input will not lead to undesired behavior if sent back to the user. This is known as neutralization. There is no neutralization of the tainted input before or after it is saved in the database.
 
-In this case, the value of the `name` parameter is obtained from the portal database via the call to getName(). The getName() function is located in CTCollectionModelImpl.java and returns the object value on line 606 without any neutralization.
+In this case, the value of the `name` parameter is retrieved from the portal database via the call to getName(). The getName() function is located in CTCollectionModelImpl.java and returns the object value on line 606 without any neutralization.
 
     supporting file: modules/apps/change-tracking/change-tracking-service/src/main/java/com/liferay/change/tracking/model/impl/CTCollectionModelImpl.java
 
@@ -131,6 +167,8 @@ In this case, the value of the `name` parameter is obtained from the portal data
     606      return _name;
     607    }
     608  }
+
+This value is then used by the vulnerable code in PublicationInviteUserNotificationHandler.java on line 143 which was listed earlier in this section.
 
 ### Exploit:
 
