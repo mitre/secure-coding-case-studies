@@ -174,7 +174,7 @@ This value is then used by the vulnerable code in PublicationInviteUserNotificat
 
 <a href="https://capec.mitre.org/data/definitions/63.html">CAPEC-63: Cross-Site Scripting</a>
 
-To exploit this vulnerability, an adversary can 
+To exploit this vulnerability, an adversary can submit a tainted publication name
 
 ### Fix:
 
@@ -191,7 +191,44 @@ To resolve this issue the source code was modified to include a form of neutrali
     147      },
     148      false);
 
-The HtmlUtil.escape() function is defined by Liferay Portal within the file HtmlUtil.java. 
+The HtmlUtil.escape() function is defined by Liferay Portal within the file HtmlUtil.java. This function implements recommendations from OWASP to guard against cross site scripting. Specifically, it replaces certain special characters with an HTML encoding of that character.
+
+    supporting file: portal-kernel/src/com/liferay/portal/kernel/util/impl/HtmlUtil.java
+    
+    93      if (c == '<') {
+    94        replacement = "&lt;";
+    95      }
+    96      else if (c == '>') {
+    97        replacement = "&gt;";
+    98      }
+    99      else if (c == '&') {
+    100       replacement = "&amp;";
+    101     }
+    102     else if (c == '"') {
+    103       replacement = "&#34;";
+    104     }
+    105     else if (c == '\'') {
+    106       replacement = "&#39;";
+    107     }
+    108     else if (c == '\u00bb') {
+    109       replacement = "&#187;";
+    110     }
+    111     else if (c == '\u2013') {
+    112       replacement = "&#8211;";
+    113     }
+    114     else if (c == '\u2014') {
+    115       replacement = "&#8212;";
+    116     }
+    117     else if (c == '\u2028') {
+    118       replacement = "&#8232;";
+    119     }
+    120     else if (!_isValidXmlCharacter(c) ||
+    121              _isUnicodeCompatibilityCharacter(c)) {
+    122
+    123       replacement = StringPool.SPACE;
+    124     }
+
+With proper HTML encoding in place, the `name` parameter can no longer be used to launch a stored cross site scripting attack.
 
 ### Conclusion:
 
