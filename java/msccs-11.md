@@ -26,7 +26,7 @@ The success of a stored XSS exploit does not depend on the type of web applicati
 
 <a href="https://www.cve.org/CVERecord?id=CVE-2025-43807">CVE-2025-43807</a> – Published 22 September 2025
 
-Liferay Portal is an open-source enterprise portal application for integrating information, people and processes across organizational boundaries. A cross-site scripting related weakness was identified in one of Liferay Portal's modules.
+Liferay Portal is an open-source enterprise portal web application for integrating information, people and processes across organizational boundaries. Users interact via a series of JSP pages and a back-end server component written in Java handles the requests. A cross-site scripting related weakness was identified in one of Liferay Portal'server modules.
 
 Within the change-tracking-web module, the _getMessage() method fails to properly neutralize a `name` parameter retrieved from a CTCollection. Looking at the vulnerable code, line 143 calls ctCollection.getName() to retrieve the value that has been stored in the portal database. This `name` is added without any nuetralization to the message object defined on line 142 and returned as part of the message on line 140. 
 
