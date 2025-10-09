@@ -2,7 +2,7 @@
 
 ### Introduction:
 
-Website applications often need to respond to a requested action using information obtained from a persitant datastore (e.g., database). If that information contains a copy of user provided input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2025, such a weakness was discovered in the notifications widget of Liferay Portal. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
+Web applications often need to respond to a requested action using information obtained from a persitant data store (e.g., database, file system). If that information contains a copy of user provided input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2025, such a weakness was discovered in the notifications widget of Liferay Portal. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
 
 ### Software:
 
@@ -14,13 +14,13 @@ Website applications often need to respond to a requested action using informati
 
 <a href="https://cwe.mitre.org/data/definitions/79.html">CWE-79: Improper Neutralization of Input During Web Page Generation</a>
 
-The weakness exists when a web application fails to properly neutralize user-controlled input in the web application's code, and the input is then returned to the user as part of the web application’s response.
+The weakness exists when a web application's server component fails to properly neutralize (e.g., canonicalize, encode, escape, quote, validate) user-controlled input, and the input is then returned to the user as part of the web application’s response.
 
-There are three main kinds of cross-site scripting (XSS): reflected, stored, and DOM-based. This case study will focus on stored XSS, which is when a server-side application stores externally influenced input in a trusted data store and at a later time that potentially dangerous data can be read back into the application and included in dynamic content. For example, the server component of a web application may process a post by looking at the input parameters provided in the query string and store those parameters in its database (step 3 in the diagram below) for use later in generating a response to a different user’s reqeust that their browser will receive and process (step 5). If that response contains a copy of the adversary input, and if that adversary input contained malicious code embedded by an adversary (step 2 in diagram below), then that code will be executed by the user’s browser. A classic example is when an adversary posts a message in a bulletin board application and a different user makes a request to read that post.
+There are three main kinds of cross-site scripting (XSS): reflected, stored, and DOM-based. This case study will focus on stored XSS, which is when server-side code stores externally influenced input in a trusted data store and at a later time that potentially dangerous data is read back into the application and included in dynamic content. For example, the server component of a web application may process a post by looking at the input parameters provided in the query string and store those parameters in its database (step 3 in the diagram below) for use later in generating a response to a different user’s reqeust that their browser will receive and process (step 5). If that response contains a copy of the orginal input, and if that input contained malicious code embedded by an adversary (step 2 in diagram below), then the injected code will be executed by the user’s browser. A classic example is when an adversary posts a message to a bulletin board application and a different user makes a request to read that post.
 
 <br/><p align="center"><img src="../images/msccs-11-image-1.jpg" width=75% height=75% alt="XSS=identify->send->store->request->reflect->execute"></p><br/>
 
-The success of a stored XSS exploit does not depend on the type of web application or where the malicious data is stored. The adversary is looking for an application that will store their malicious data as is (i.e., without any neutralization) and then offer it up to an unsuspecting user whose browser will then execute that data.
+The success of a stored XSS exploit does not depend on the type of web application or where the malicious data is stored. Instead, the adversary is looking for an application that will store their malicious data as is (i.e., without any neutralization) and then offer it up to an unsuspecting user whose browser will then execute that data.
 
 ### Vulnerability:
 
