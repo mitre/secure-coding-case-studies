@@ -2,7 +2,7 @@
 
 ### Introduction:
 
-Website applications often need to respond to a requested action based on input provided by a user. If that response contains a copy of the user’s input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2025, such a weakness was discovered in the notifications widget of Liferay Portal. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
+Website applications often need to respond to a requested action using information obtained from a persitant datastore (e.g., database). If that information contains a copy of user provided input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2025, such a weakness was discovered in the notifications widget of Liferay Portal. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
 
 ### Software:
 
@@ -140,7 +140,20 @@ To exploit this vulnerability, an adversary can
 
 ### Fix:
 
-To resolve this issue the source code was modified to include a form of neutralization. The changes 
+To resolve this issue the source code was modified to include a form of neutralization. The change on lines 144 of the fixed PublicationInviteUserNotificationHandler.java file adds the use of HtmlUtil.escape() to neutralize (e.g., escape) specific charactures in the `name` parameter that carry specific meanings in the context of HTML markup before returning the value of ctCollection.getName() to the user.
+
+    fixed file: modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/notifications/PublicationInviteUserNotificationHandler.java
+    
+    141    return _language.format(
+    142      serviceContext.getLocale(), "x-has-invited-you-to-work-on-x-as-a-x",
+    143      new Object[] {
+    144        userName, HtmlUtil.escape(ctCollection.getName()),
+    145        _language.get(
+    146            serviceContext.getLocale(), _getRoleLabel(roleValue))
+    147      },
+    148      false);
+
+The HtmlUtil.escape() function is defined by Liferay Portal within the file HtmlUtil.java. 
 
 ### Conclusion:
 
