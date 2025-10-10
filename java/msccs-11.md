@@ -2,7 +2,7 @@
 
 ### Introduction:
 
-Web applications often need to respond to a requested action using information obtained from a persitant data store (e.g., database, file system). If that information contains a copy of user provided input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2025, such a weakness was discovered in the notifications widget of Liferay Portal. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
+Web applications often need to respond to a requested action using information obtained from a persistent data store (e.g., database, file system). If that information contains a copy of user provided input without proper neutralization, then a dangerous attack known as Cross-Site Scripting (XSS) may be possible. The underlying weakness that leads to XSS is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #2 in 2023 and #1 in 2024. In 2025, such a weakness was discovered in the notifications widget of Liferay Portal. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
 
 ### Software:
 
@@ -16,7 +16,7 @@ Web applications often need to respond to a requested action using information o
 
 The weakness exists when a web application's server component fails to properly neutralize (e.g., canonicalize, encode, escape, quote, validate) user-controlled input, and the input is then returned to the user as part of the web application’s response.
 
-There are three types of XSS attacks that take advantage of this type weakness: reflected, stored, and DOM-based. This case study will focus on stored XSS, which is when server-side code stores externally influenced input in a trusted data store, and then at a later time that potentially dangerous data is read back into the application and included in dynamic content. For example, the server component of a web application may process a post by looking at the input parameters provided in the query string and store those parameters in its database (step 3 in the diagram below) for use later in generating a response to a different user’s reqeust that their browser will receive and process (step 5). If that response contains a copy of the orginal input, and if that input contained malicious code embedded by an adversary (step 2 in diagram below), then the injected code will be executed by the user’s browser. A classic example is when an adversary posts a message to a bulletin board application and a different user makes a request to read that post.
+There are three types of XSS attacks that take advantage of this type weakness: reflected, stored, and DOM-based. This case study will focus on stored XSS, which is when server-side code stores externally influenced input in a trusted data store, and then at a later time that potentially dangerous data is read back into the application and included in dynamic content. For example, the server component of a web application may process a post by looking at the input parameters provided in the query string and store those parameters in its database (step 3 in the diagram below) for use later in generating a response to a different user’s request that their browser will receive and process (step 5). If that response contains a copy of the original input, and if that input contained malicious code embedded by an adversary (step 2 in diagram below), then the injected code will be executed by the user’s browser. A classic example is when an adversary posts a message to a bulletin board application and a different user makes a request to read that post.
 
 <br/><p align="center"><img src="../images/msccs-11-image-1.jpg" width=75% height=75% alt="XSS=identify->send->store->request->reflect->execute"></p><br/>
 
@@ -26,9 +26,9 @@ The success of a stored XSS attack does not depend on the type of web applicatio
 
 <a href="https://www.cve.org/CVERecord?id=CVE-2025-43807">CVE-2025-43807</a> – Published 22 September 2025
 
-Liferay Portal is an open-source enterprise portal web application for integrating information, people and processes across organizational boundaries. Users interact via a series of JSP pages and a back-end server component written in Java handles the requests. A cross-site scripting related weakness was identified in one of Liferay Portal'server modules.
+Liferay Portal is an open-source enterprise portal web application for integrating information, people and processes across organizational boundaries. Users interact via a series of JSP pages and a back-end server component written in Java handles the requests. A cross-site scripting related weakness was identified in one of Liferay Portal's server modules.
 
-Within the change-tracking-web module, the _getMessage() method fails to properly neutralize a `name` parameter retrieved from a CTCollection. Looking at the vulnerable code, line 143 calls ctCollection.getName() to retrieve the value that has been stored in the portal database. This `name` is added without any nuetralization to the message object defined on line 142 and returned as part of the message on line 140. 
+Within the change-tracking-web module, the _getMessage() method fails to properly neutralize a `name` parameter retrieved from a CTCollection. Looking at the vulnerable code, line 143 calls ctCollection.getName() to retrieve the value that has been stored in the portal database. This `name` is added without any neutralization to the message object defined on line 142 and returned as part of the message on line 140. 
 
     vulnerable file: modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/notifications/PublicationInviteUserNotificationHandler.java
 
@@ -49,7 +49,7 @@ Within the change-tracking-web module, the _getMessage() method fails to properl
     146      },
     147      false);
 
-For this code weakness to be exploitable, two conditions must be met. First, the parameter `name` that is retrived by the call to getName() must be controllable by an adversary such that they can set the value to whatever they want. Second, the code must improperly neutralize (e.g., canonicalize, encode, escape, quote, validate) the adversary provided input such that the value is stored as is within the database and then sent to a user without modification.
+For this code weakness to be exploitable, two conditions must be met. First, the parameter `name` that is retrieved by the call to getName() must be controllable by an adversary such that they can set the value to whatever they want. Second, the code must improperly neutralize (e.g., canonicalize, encode, escape, quote, validate) the adversary provided input such that the value is stored as is within the database and then sent to a user without modification.
 
 *ADVERSARY CONTROLLED INPUT*
 
@@ -105,7 +105,7 @@ The above request with the user provided value for `name` is handled on the serv
     73         themeDisplay.getUserId(), ctRemoteId, name,
     74         description);
 
-The addCTCollection() function is implemented in CTCollectionLocalServiceImpl.java on line 130. The adversary provided value for `name` is added to the ctCollection object via setName() on 154, and then saved in the database via the call to update() on line 159. Note that on line 135 the validate() funciton is called which makes sure that the name is less than the defined max length of 75 characters. Note that validating a publication name using only a length check is appropriate if it is acceptable for publication names to contain letters, numbers, and special characters and thus validation can't be used to limit character type.
+The addCTCollection() function is implemented in CTCollectionLocalServiceImpl.java on line 130. The adversary provided value for `name` is added to the ctCollection object via setName() on 154, and then saved in the database via the call to update() on line 159. Note that on line 135 the validate() function is called which makes sure that the name is less than the defined max length of 75 characters. Note that validating a publication name using only a length check is appropriate if it is acceptable for publication names to contain letters, numbers, and special characters and thus validation can't be used to limit character type.
 
     supporting file modules/apps/change-tracking/change-tracking-service/src/main/java/com/liferay/change/tracking/service/impl/CTCollectionLocalServiceImpl.java
     
@@ -174,17 +174,15 @@ This value is then used by the vulnerable code in PublicationInviteUserNotificat
 
 <a href="https://capec.mitre.org/data/definitions/63.html">CAPEC-63: Cross-Site Scripting</a>
 
-To exploit this vulnerability, an adversary can submit a tainted publication name which is stored in the database.
+To exploit this vulnerability, an adversary can submit a tainted publication name to be stored in the database using the edit publication functionality previously described. The only limitation is that the name must be less than 75 characters. For example, an adversary could craft a publication name as follows:
 
-When there is a notification during an invite user ... if userGroupRoles is empty it sends a notification to invite them
+    Bad Pub <script>alert("exploit");</script> Name 
 
-NOTIFICATION_TYPE_ADD_ENTRY
-
-notification is picked up by the handler and a message is sent to the user. The message is generated using the vulnerable code and include the publication name without neutralization.
+At a later time when a new user is invited to work with this publication, a notification with type NOTIFICATION_TYPE_ADD_ENTRY will be sent to the user. In creating this notification, the server code will call the vulnerable getMessage() to populate the template message "x-has-invited-you-to-work-on-x-as-a-x". At this time the tainted name is pulled from the database and added to the message. When the message is received by the user and displayed in their browser, the malicious script is executed.
 
 ### Fix:
 
-To resolve this issue the source code was modified to include a form of neutralization. The change on lines 144 of the fixed PublicationInviteUserNotificationHandler.java file adds the use of HtmlUtil.escape() to neutralize (e.g., escape) specific charactures in the `name` parameter that carry specific meanings in the context of HTML markup before returning the value of ctCollection.getName() to the user.
+To resolve this issue the source code was modified to include a form of neutralization. The change on lines 144 of the fixed PublicationInviteUserNotificationHandler.java file adds the use of HtmlUtil.escape() to neutralize (e.g., escape) specific characters in the `name` parameter that carry defined meanings in the context of HTML markup before returning the value of ctCollection.getName() to the user.
 
     fixed file: modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/notifications/PublicationInviteUserNotificationHandler.java
     
@@ -235,6 +233,14 @@ The HtmlUtil.escape() function is defined by Liferay Portal within the file Html
     124     }
 
 With proper HTML encoding in place, the `name` parameter can no longer be used to launch a stored cross site scripting attack.
+
+### Prevention:
+
+To prevent future issues like this a few best practices should be followed. The first is to validate all externally provided input to the most precise extent possible. In this case study the validation of publication name consisted of a 75 character max length check. This is a great start that will challenge an adversary to fit any exploit code into the size limitation. However, if for example publications names should only contain letters then adding additional validation to check that any provided name only includes characters a-zA-Z would be even more effective and challenging for an adversary.
+
+The second practice is to understand the context in which the externally provided input will be used and the output encoding that is appropriate. For this case study the fix was to add HTML entity encoding to the data when it is output as a web response. It is important to realize that HTML entity encoding is only appropriate for the HTML body, and different types of encoding must be used when the data is used in different places. (e.g., data used to build a URL requires URL encoding)
+
+Finally, the use of taint analysis to check for this type of issue is important during source code development. Static analysis tools can help with this. To be effective at identifying issues such as the one described in this case study the tool must be able recognize where data is supplied by an external user (this is known as the "source") and then trace that data throughout the source code to where it is used to perform some action (known as the "sink"). For this case study the analysis tool would need to recognize getSting() functionality as where the data is pulled from the request, follow that data to the database where it is must be recorded as potentially tainted, and then track the use of that data to build the message that is eventually send back to the user as part of the notification. Leveraging a qualified static analysis tool to check the source code would hopefully identify places where the input validation and output encoding was missed by the developer thus enabling a XSS attack as demonstrated in this case study.
 
 ### Conclusion:
 
