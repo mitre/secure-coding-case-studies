@@ -22,7 +22,7 @@ Once selected, create a new issue within the "Issues" section of the Secure Codi
 
 ## 3. Case Study Structure
 
-Each case study should follow a consistent structure to ensure readability and logical flow. The order and style are critical to maintain this consistency. Each case study MUST have the following 12 sections in the order presented:
+Each case study should follow a consistent structure to ensure readability and logical flow. The order and style are critical to maintain this consistency. Each case study MUST have the following sections in the order presented:
 
 ```
 1) Title
@@ -32,9 +32,10 @@ Each case study should follow a consistent structure to ensure readability and l
 5) Vulnerability
 6) Exploit
 7) Fix
-8) Conclusion
-9) References
-10) Contributions
+8) Prevention
+9) Conclusion
+10) References
+11) Contributions
 ```
 
 Each of the above sections is explained in detail below. Please try to follow the guidance as closely as possible.
@@ -153,7 +154,16 @@ _URL_
 - Focus only on the changes that are relevant to the weakness being addressed by the case study.
 - Provide the fixed source code (see the Source Code section of this guidance) and walk the reader through the changes line by line.
 - This section can vary in length depending on how complex the fixed source code is and how many changes had to be made.
-  
+
+### _Prevention_
+
+- This section is used to describe how to prevent similar weaknesses in the future.
+- The objective is that a reader will have enough knowledge after reading this section to go implement the suggestions.
+- Include well-established secure coding practices that are most effective for this type of weakness.
+- Include ways to identify such weaknesses that may have been inadvertently made. This may involve a type of tool to assist and the analysis technique leveraged.
+- Try to relate each recommendation back to the case study and how it would have helped prevent the issue.
+- Typical prevention sections are a few paragraphs in length.
+
 ### _Conclusion_
 
 - Provides a brief summary of the case study.
