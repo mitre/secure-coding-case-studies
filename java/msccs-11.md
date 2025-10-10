@@ -16,11 +16,11 @@ Web applications often need to respond to a requested action using information o
 
 The weakness exists when a web application's server component fails to properly neutralize (e.g., canonicalize, encode, escape, quote, validate) user-controlled input, and the input is then returned to the user as part of the web application’s response.
 
-There are three main kinds of cross-site scripting (XSS): reflected, stored, and DOM-based. This case study will focus on stored XSS, which is when server-side code stores externally influenced input in a trusted data store and at a later time that potentially dangerous data is read back into the application and included in dynamic content. For example, the server component of a web application may process a post by looking at the input parameters provided in the query string and store those parameters in its database (step 3 in the diagram below) for use later in generating a response to a different user’s reqeust that their browser will receive and process (step 5). If that response contains a copy of the orginal input, and if that input contained malicious code embedded by an adversary (step 2 in diagram below), then the injected code will be executed by the user’s browser. A classic example is when an adversary posts a message to a bulletin board application and a different user makes a request to read that post.
+There are three types of XSS attacks that take advantage of this type weakness: reflected, stored, and DOM-based. This case study will focus on stored XSS, which is when server-side code stores externally influenced input in a trusted data store, and then at a later time that potentially dangerous data is read back into the application and included in dynamic content. For example, the server component of a web application may process a post by looking at the input parameters provided in the query string and store those parameters in its database (step 3 in the diagram below) for use later in generating a response to a different user’s reqeust that their browser will receive and process (step 5). If that response contains a copy of the orginal input, and if that input contained malicious code embedded by an adversary (step 2 in diagram below), then the injected code will be executed by the user’s browser. A classic example is when an adversary posts a message to a bulletin board application and a different user makes a request to read that post.
 
 <br/><p align="center"><img src="../images/msccs-11-image-1.jpg" width=75% height=75% alt="XSS=identify->send->store->request->reflect->execute"></p><br/>
 
-The success of a stored XSS exploit does not depend on the type of web application or where the malicious data is stored. Instead, the adversary is looking for an application that will store their malicious data as is (i.e., without any neutralization) and then offer it up to an unsuspecting user whose browser will then execute that data.
+The success of a stored XSS attack does not depend on the type of web application or where the malicious data is stored. Instead, the adversary is looking for an application that will store their malicious data and then send it without any neutralization to an unsuspecting user whose browser will then execute that data.
 
 ### Vulnerability:
 
@@ -77,7 +77,7 @@ Regarding the first condition, there are multiple ways that an adversary can pop
     99       %>'
     100    />
 
-The above request with the user provided value for `name` is handled on the server by the `/change_tracking/edit_ct_collection` MVC command. This command is processed on line 49 of EditCTCollectionMVCActionCommand.java. The value of the publication `name` is pulled from the request on line 60 and then passed to the add function on line 73.
+The above request with the user provided value for `name` is handled on the server by the `/change_tracking/edit_ct_collection` MVC command established on line 42. This command is processed starting on line 49 of EditCTCollectionMVCActionCommand.java. The value of the publication `name` is pulled from the request on line 60 and then passed to the add function on line 73.
 
     supporting file modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/portlet/action/EditCTCollectionMVCActionCommand.java
     
@@ -174,7 +174,13 @@ This value is then used by the vulnerable code in PublicationInviteUserNotificat
 
 <a href="https://capec.mitre.org/data/definitions/63.html">CAPEC-63: Cross-Site Scripting</a>
 
-To exploit this vulnerability, an adversary can submit a tainted publication name
+To exploit this vulnerability, an adversary can submit a tainted publication name which is stored in the database.
+
+When there is a notification during an invite user ... if userGroupRoles is empty it sends a notification to invite them
+
+NOTIFICATION_TYPE_ADD_ENTRY
+
+notification is picked up by the handler and a message is sent to the user. The message is generated using the vulnerable code and include the publication name without neutralization.
 
 ### Fix:
 
