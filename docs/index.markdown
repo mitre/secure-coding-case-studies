@@ -12,6 +12,10 @@ layout: home
 <p>MITRE led the development of this collection of case studies, writing many and reviewing contributions by others. MITRE has a long history in the Software Assurance and Software Vulnerability areas. MITRE founded the Common Vulnerabilities and Exposures (CVE™) effort in 1999 and since has partnered with industry and government leaders to create additional foundational efforts such as the Common Weakness Enumeration (CWE™) and the Common Attack Pattern Enumeration and Classification (CAPEC™).</p>
 
 <h3 style="font-size:25px; text-align:center"><b>Case Studies</b></h3>
+<a href="https://github.com/mitre/secure-coding-case-studies/tree/main/java"><b>Java</b></a>
+<ul>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/go/msccs-11.md">Cross-Site Scripting In Liferay Portal</a></li>
+</ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/python"><b>Python</b></a>
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-1.md">SQL Injection In Postgraas Server</a></li>
