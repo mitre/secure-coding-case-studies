@@ -14,7 +14,7 @@ layout: home
 <h3 style="font-size:25px; text-align:center"><b>Case Studies</b></h3>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/java"><b>Java</b></a>
 <ul>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/go/msccs-11.md">Cross-Site Scripting In Liferay Portal</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/java/msccs-11.md">Cross-Site Scripting In Liferay Portal</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/python"><b>Python</b></a>
 <ul>
