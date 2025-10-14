@@ -211,35 +211,58 @@ _URL_
 
 ## 4. Source Code
 
-When showing source code in a case study, either generic example code or actual vulnerable // fixed code, make sure it is visually separated from the text of the case study. To do this in Markdown use the "code block" formatting option which indents the block and highlights it. A fixed-width font will also be used. A code block is accomplished by preceding each individual line with four spaces.
+When showing source code in a case study, either generic example code or actual vulnerable // fixed code, make sure it is visually separated from the text of the case study. To do this in Markdown use the "fenced code block" formatting option which places three backtick characters before the block. The code with then be highlighted and a fixed-width font will be used.
 
 > Example:
 >
-> A generic code example would be:
+> A generic code example would be ...
 >
-    strName = processNetworkRequest()\
-    dbCursor = connection.cursor()\
-    dbCursor.execute("SELECT * FROM items WHERE owner = '" + strName + "' AND item = 'PrivateData'")\
-    result = cursor.fetchall()
-
-> The same highlighting should be used for single line of example code as well.
-
-    SELECT * FROM items WHERE owner = 'Sam' AND item = 'PrivateData'
-
-When presenting actual code from the real world software being used by the case study, incorporate the file name and actual line numbers to help the reader find the source code if they want to explore this code form themself.
+````
+```
+strName = processNetworkRequest()\
+dbCursor = connection.cursor()\
+dbCursor.execute("SELECT * FROM items WHERE owner = '" + strName + "' AND item = 'PrivateData'")\
+result = cursor.fetchall()
+```
+````
+The same highlighting should be used for single line of example code as well.
+> Example:
+````
+```
+SELECT * FROM items WHERE owner = 'Sam' AND item = 'PrivateData'
+```
+````
+When presenting actual code from the real world software being used by the case study, incorporate the file name and actual line numbers (indented by one space) to help the reader find the source code if they want to explore this code form themself.
 
 > Example:
 >
 > Looking at the vulnerable source code in postgres_cluster_driver.py, line 22 use ...
 > 
-    vulnerable file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.py
+````
+```
+vulnerable file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.py
 
-    19	def check_db_or_user_exists(db_name, db_user, config):
-    20		with _create_pg_connection(config) as con:
-    21			with con.cursor() as cur:
-    22				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
-    23				db_exists = cur.fetchone() is not None
+ 19	def check_db_or_user_exists(db_name, db_user, config):
+ 20		with _create_pg_connection(config) as con:
+ 21			with con.cursor() as cur:
+ 22				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
+ 23				db_exists = cur.fetchone() is not None
+```
+````
+Use the `'''diff` construct along with `+` and `-` signs before relevant line numbers to show specific fixed lines.
+> Example:
+````diff
+```diff
+fixed file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.py
 
+ 19	def check_db_or_user_exists(db_name, db_user, config):
+ 20		with _create_pg_connection(config) as con:
+ 21			with con.cursor() as cur:
+-22				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
++22				cur.execute("SELECT 1 FROM pg_database WHERE datname=%s;", (db_name, ))
+ 23				db_exists = cur.fetchone() is not None
+```
+````
 ## 5. Images and Diagrams
 
 Images and diagrams should be used as tools to help the reader better understand a complex topic. For example, a diagram that summarizes the different steps involved in an exploit might help the reader better understand a complex topic detailed in the case study text. Typically, case studies have between 0 and 2 images or diagrams. More than 2 may become distracting, but this is not a hard and fast rule.
