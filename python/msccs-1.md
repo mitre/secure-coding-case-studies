@@ -18,18 +18,24 @@ The weakness exists when software constructs all or part of an SQL command using
 
 A classic example of this type of weakness is when string concatenation is used to build an SQL command, and untrusted inputs are leveraged from sources like network requests, file data, or user prompts. The example code snippet shows this weakness, while the example inputs show how the meaning of the command can change.
 
-    strName = processNetworkRequest()
-    dbCursor = connection.cursor()
-    dbCursor.execute("SELECT * FROM items WHERE owner = '" + strName + "' AND item = 'PrivateData'")
-    result = cursor.fetchall()
+```
+strName = processNetworkRequest()
+dbCursor = connection.cursor()
+dbCursor.execute("SELECT * FROM items WHERE owner = '" + strName + "' AND item = 'PrivateData'")
+result = cursor.fetchall()
+```
 
 A provided name of `Sam` will result in the expected SQL command that selects only the private data owned by Sam.
 
-    SELECT * FROM items WHERE owner = 'Sam' AND item = 'PrivateData'
+```
+SELECT * FROM items WHERE owner = 'Sam' AND item = 'PrivateData'
+```
 
 However, a provided name of `x' OR '1=1'--` will result in an SQL command that selects every record in the items table. The OR logic is always TRUE since 1 always equals 1, and hence it does not matter what value is provided for owner. The added -- characters comment out the rest of the line to prevent the additional logic from being applied.
 
-    SELECT * FROM items WHERE owner = 'x' OR '1=1'--' AND item = 'PrivateData'
+```
+SELECT * FROM items WHERE owner = 'x' OR '1=1'--' AND item = 'PrivateData'
+```
 
 This resulting SQL command is equivalent to `SELECT * FROM items;` which is not what the original intention of the command was. By using more complex SQL syntax an adversary could craft a resulting SQL command to achieve a wide variety of objectives.
 
@@ -39,17 +45,19 @@ This resulting SQL command is equivalent to `SELECT * FROM items;` which is not 
 
 Looking at the vulnerable source code in postgraas_server, line 22 (line 24 is also vulnerable in the same way) uses the Python format() method to insert a string into the SQL statement. The format() method performs a concatenation of a provided value into a template string. No neutralization is performed as part of the format() method. An adversary that can control the value being inserted could use these lines of code to inject malicious SQL into the template string thus manipulating the actions that the SQL statement would perform.
 
-    vulnerable file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.py
-    
-    19	def check_db_or_user_exists(db_name, db_user, config):
-    20		with _create_pg_connection(config) as con:
-    21			with con.cursor() as cur:
-    22				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
-    23				db_exists = cur.fetchone() is not None
-    24				cur.execute("SELECT 1 FROM pg_roles WHERE rolname='{}';".format(db_user))
-    25				user = cur.fetchone()
-    26				user_exists = user is not None
-    27				return db_exists or user_exists
+```diff
+vulnerable file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.py
+
+ 19	def check_db_or_user_exists(db_name, db_user, config):
+ 20		with _create_pg_connection(config) as con:
+ 21			with con.cursor() as cur:
+-22				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
+ 23				db_exists = cur.fetchone() is not None
+-24				cur.execute("SELECT 1 FROM pg_roles WHERE rolname='{}';".format(db_user))
+ 25				user = cur.fetchone()
+ 26				user_exists = user is not None
+ 27				return db_exists or user_exists
+```
 
 For this code weakness to be exploitable, the values being inserted (db_name and db_user) must be controllable by the user, also known as tainted input. Looking deeper into the code, the values are obtained from the function parameters defined on line 19. These parameters originate from an untrusted source as part of the database connection arguments provided to the application. This flow of data from the malicious user’s HTTP Request to line 19 is illustrated in the diagram below. The remainder of this section describes this flow in detail.
 
@@ -59,33 +67,35 @@ For this code weakness to be exploitable, the values being inserted (db_name and
 
 The data flow into the weakness begins with the handling of a POST request on line 128 of the file management_resources.py. POST requests can be manipulated by an adversary and sent to the postgraas_server as part of an adversary’s exploit — meaning any argument that comes along with the POST request is fully controlled by the adversary.
 
-    supporting file: postgraas_server\management_resources.py
-    
-    128	def post(self):
-    129		parser = reqparse.RequestParser()
-    130		parser.add_argument(
-    131			'postgraas_instance_name',
-    132			required=True,
-    133			type=str,
-    134			help="name of the postgraas instance"
-    135		)
-    136		parser.add_argument('db_name', required=True, type=str, help="Database name")
-    137		parser.add_argument('db_username', required=True, type=str, help="Username of db user")
-    138		parser.add_argument('db_pwd', required=True, type=str, help="Password of the db user")
-    139		args = parser.parse_args()
-    …
-    159		db_credentials = {
-    160			'db_name': args['db_name'],
-    161			'db_username': args['db_username'],
-    162			'db_pwd': args['db_pwd'],
-    163			'host': current_app.postgraas_backend.hostname,
-    164			'port': current_app.postgraas_backend.port
-    165			}
-    …
-    183		try:
-    184			db_entry.container_id = current_app.postgraas_backend.create(db_entry,db_credentials)
-    185		except PostgraasApiException as e:
-    186			abort(500, msg=str(e))
+```
+supporting file: postgraas_server\management_resources.py
+
+128	def post(self):
+129		parser = reqparse.RequestParser()
+130		parser.add_argument(
+131			'postgraas_instance_name',
+132			required=True,
+133			type=str,
+134			help="name of the postgraas instance"
+135		)
+136		parser.add_argument('db_name', required=True, type=str, help="Database name")
+137		parser.add_argument('db_username', required=True, type=str, help="Username of db user")
+138		parser.add_argument('db_pwd', required=True, type=str, help="Password of the db user")
+139		args = parser.parse_args()
+…
+159		db_credentials = {
+160			'db_name': args['db_name'],
+161			'db_username': args['db_username'],
+162			'db_pwd': args['db_pwd'],
+163			'host': current_app.postgraas_backend.hostname,
+164			'port': current_app.postgraas_backend.port
+165			}
+…
+183		try:
+184			db_entry.container_id = current_app.postgraas_backend.create(db_entry,db_credentials)
+185		except PostgraasApiException as e:
+186			abort(500, msg=str(e))
+```
 
 The db_name and db_username arguments are retrieved on line 139 after being named on lines 136 and 137 respectively. Then on lines 160 and 161 within the same function, each of these arguments is added to the db_credentials object without any validation or modification. No protections are in place to stop an adversary from manipulating the parameters and providing specially crafted db_name and db_username values.
 On line 184 the db_credentials object is passed into the create() call to establish the connection with the PostgreSQL database.
@@ -94,14 +104,16 @@ On line 184 the db_credentials object is passed into the create() call to establ
 
 Following the flow further sees the create() function defined on line 9 of the file _init_.py and the definition of the connection_info object that holds the db_credentials object passed via the code above.
 
-    supporting file: postgraas_server\backends\postgres_cluster\_init_.py
-    
-    9	def create(self, entity, connection_info):
-    10		try:
-    11			pgcd.create_postgres_db(connection_info, self.config)
-    12		except ValueError as e:
-    13			raise PostgraasApiException(str(e))
-    14		return None
+```
+supporting file: postgraas_server\backends\postgres_cluster\_init_.py
+
+9	def create(self, entity, connection_info):
+10		try:
+11			pgcd.create_postgres_db(connection_info, self.config)
+12		except ValueError as e:
+13			raise PostgraasApiException(str(e))
+14		return None
+```
 
 The connection_info object, which now contains the tainted db_name and db_username values, is then passed to the create_postgres_db() call on line 11.
 
@@ -109,11 +121,13 @@ The connection_info object, which now contains the tainted db_name and db_userna
 
 The create_postgres_db() function defined on line 30 in the file postgres_cluster_driver.py receives untrusted db_name and db_username values that were part of the previously defined connection_info object through the connection_dict parameter.
 
-    supporting file: postgraas_server\backends\postgres_cluster\postgres_cluster_driver.py
-    
-    30	def create_postgres_db(connection_dict, config):
-    31	 if check_db_or_user_exists(connection_dict['db_name'],connection_dict['db_username'],config):
-    32			raise ValueError("db or user already exists")
+```
+supporting file: postgraas_server\backends\postgres_cluster\postgres_cluster_driver.py
+
+30	def create_postgres_db(connection_dict, config):
+31	 if check_db_or_user_exists(connection_dict['db_name'],connection_dict['db_username'],config):
+32			raise ValueError("db or user already exists")
+```
 
 *CHECK_DB_OR_USER_EXISTS()*
 
@@ -125,11 +139,15 @@ These untrusted values are then passed to the vulnerable check_db_or_user_exists
 
 In a benign interaction a user would provide an expected name of a database. An example of such a db_name might be: `annual_sales` The resulting SQL command would be:
 
-    SELECT 1 FROM pg_database WHERE datname='annual_sales'
+```
+SELECT 1 FROM pg_database WHERE datname='annual_sales'
+```
     
 Unfortunately, an adversary interacting with the vulnerable software could send a specially crafted POST request with a malicious db_name argument. In the example exploit that follows, the adversary will leverage the malicious interaction to learn about a specific property of the database that should not be available. Assume the adversary provides the following long and obviously incorrect value for db_name: `known_database_name' UNION SELECT 1 from pg_database WHERE datistemplate = TRUE --` Doing so would result in the following SQL command after the vulnerable format() concatenation is performed:
 
-    SELECT 1 FROM pg_database WHERE datname='known_database_name' UNION SELECT 1 from pg_database WHERE datistemplate = TRUE --'
+```
+SELECT 1 FROM pg_database WHERE datname='known_database_name' UNION SELECT 1 from pg_database WHERE datistemplate = TRUE --'
+```
 
 When executed, the first WHERE clause will always be true since a known database name was used. The UNION keyword that was injected combines the result from the first SELECT statement to the result of the second SELECT statement. In this case, the second SELECT statement will return true if the datistemplate property of the database is true or will return false if the property is false. Therefore, the complete SQL statement will now return true or false depending on the value of the datistemplate property.
 
@@ -141,19 +159,27 @@ Many techniques exist to generate valid SQL that can cause the SQL engine to alt
 
 To fix this issue, the format() method was replaced by Psycopg’s built-in parameterization functionality on line 23 (also on line 25) to automatically convert Python objects to and from SQL literals.
 
-    fixed file: postgraas_server\backends\postgres_cluster\postgres_cluster_driver.py
-    
-    20	def check_db_or_user_exists(db_name, db_user, config):
-    21		with _create_pg_connection(config) as con:
-    22			with con.cursor() as cur:
-    23				cur.execute("SELECT 1 FROM pg_database WHERE datname=%s;", (db_name, ))
-    24				db_exists = cur.fetchone() is not None
-    25				cur.execute("SELECT 1 FROM pg_roles WHERE rolname=%s;", (db_user, ))
-    26				user = cur.fetchone()
-    27				user_exists = user is not None
-    28				return db_exists or user_exists
+```diff
+fixed file: postgraas_server\backends\postgres_cluster\postgres_cluster_driver.py
+
+ 20	def check_db_or_user_exists(db_name, db_user, config):
+ 21		with _create_pg_connection(config) as con:
+ 22			with con.cursor() as cur:
+-23				cur.execute("SELECT 1 FROM pg_database WHERE datname='{}';".format(db_name))
++23				cur.execute("SELECT 1 FROM pg_database WHERE datname=%s;", (db_name, ))
+ 24				db_exists = cur.fetchone() is not None
+-25				cur.execute("SELECT 1 FROM pg_roles WHERE rolname='{}';".format(db_user))
++25				cur.execute("SELECT 1 FROM pg_roles WHERE rolname=%s;", (db_user, ))
+ 26				user = cur.fetchone()
+ 27				user_exists = user is not None
+ 28				return db_exists or user_exists
+```
 
 Parameterization is a well-known tactic to properly neutralize potentially tainted input and completely eliminate any related vulnerability. Parameterization removes the ability for a malicious value to escape outside of the intended query to create a new query that performs a different task. Parameterization works by separating the values from the queries enabling the SQL engine to enforce values only being used for their intended purpose. Refer to the OWASP Cheat Sheet linked to in the references for additional guidance on this technique.
+
+### Prevention
+
+Static analysis tools that track taint from user-supplied sources to the SQL related sinks are effective in identifying places in source code where this type of mistake may have been made. Once identified, leverage parameterization to fix the issue. If the coding language being used does not support parameterization, then very precise data validation can help reduce the ability to provide meaningful exploit code to inject.
 
 ### Conclusion:
 
