@@ -30,24 +30,26 @@ Liferay Portal is an open-source enterprise portal web application for integrati
 
 Within the change-tracking-web module, the _getMessage() method fails to properly neutralize a `name` parameter retrieved from a CTCollection. Looking at the vulnerable code, line 143 calls ctCollection.getName() to retrieve the value that has been stored in the portal database. This `name` is added without any neutralization to the message object defined on line 142 and returned as part of the message on line 140. 
 
-    vulnerable file: modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/notifications/PublicationInviteUserNotificationHandler.java
+```diff
+vulnerable file: modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/notifications/PublicationInviteUserNotificationHandler.java
 
-    92   private String _getMessage(
-    93        UserNotificationEvent userNotificationEvent,
-    94        ServiceContext serviceContext)
-    95     throws Exception {
-    ...
-    102    CTCollection ctCollection = _ctCollectionLocalService.fetchCTCollection(
-    103        ctCollectionId);
-	...
-    140    return _language.format(
-    141      serviceContext.getLocale(), "x-has-invited-you-to-work-on-x-as-a-x",
-    142      new Object[] {
-    143        userName, ctCollection.getName(),
-    144        _language.get(
-    145            serviceContext.getLocale(), _getRoleLabel(roleValue))
-    146      },
-    147      false);
+ 92   private String _getMessage(
+ 93        UserNotificationEvent userNotificationEvent,
+ 94        ServiceContext serviceContext)
+ 95     throws Exception {
+ ...
+ 102    CTCollection ctCollection = _ctCollectionLocalService.fetchCTCollection(
+ 103        ctCollectionId);
+ ...
+ 140    return _language.format(
+ 141      serviceContext.getLocale(), "x-has-invited-you-to-work-on-x-as-a-x",
+ 142      new Object[] {
+-143        userName, ctCollection.getName(),
+ 144        _language.get(
+ 145            serviceContext.getLocale(), _getRoleLabel(roleValue))
+ 146      },
+ 147      false);
+```
 
 For this code weakness to be exploitable, two conditions must be met. First, the parameter `name` that is retrieved by the call to getName() must be controllable by an adversary such that they can set the value to whatever they want. Second, the code must improperly neutralize (e.g., canonicalize, encode, escape, quote, validate) the adversary provided input such that the value is stored as is within the database and then sent to a user without modification.
 
@@ -55,97 +57,105 @@ For this code weakness to be exploitable, two conditions must be met. First, the
 
 Regarding the first condition, there are multiple ways that an adversary can populate the `name` field in database such that it will later be retrieved by the vulnerable code. One example is by editing a publication via the edit_ct_collection.jsp page. The command is set on line 16 via the actionName variable, and is then used on line 56 to direct the server on how to handle the edit publication request (i.e., which Java code on the server to point to). Finally, the user provided `name` is collected from the publicationName field on the web form on lines 88-89
 
-    supporting file modules/apps/change-tracking/change-tracking-web/src/main/resources/META-INF/resources/publications/edit_ct_collection.jsp
-    
-    16   String actionName = "/change_tracking/edit_ct_collection";
-    ...
-    56     <liferay-portlet:actionURL name="<%= actionName %>" var="actionURL">
-    57       <liferay-portlet:param name="mvcRenderCommandName" value="/change_tracking/view_publications" />
-    58       <liferay-portlet:param name="redirect" value="<%= redirect %>" />
-    59     </liferay-portlet:actionURL>
-    ...
-    63     <react:component
-    64       module="{ChangeTrackingCollectionEditView} from change-tracking-web"
-    65       props='<%=
-    66         HashMapBuilder.<String, Object>put(
-    67           "actionUrl", actionURL
-    ...
-    88         ).put(
-    89           "publicationName", name
-    ...
-    98         ).build()
-    99       %>'
-    100    />
+```
+supporting file modules/apps/change-tracking/change-tracking-web/src/main/resources/META-INF/resources/publications/edit_ct_collection.jsp
+
+ 16   String actionName = "/change_tracking/edit_ct_collection";
+ ...
+ 56     <liferay-portlet:actionURL name="<%= actionName %>" var="actionURL">
+ 57       <liferay-portlet:param name="mvcRenderCommandName" value="/change_tracking/view_publications" />
+ 58       <liferay-portlet:param name="redirect" value="<%= redirect %>" />
+ 59     </liferay-portlet:actionURL>
+ ...
+ 63     <react:component
+ 64       module="{ChangeTrackingCollectionEditView} from change-tracking-web"
+ 65       props='<%=
+ 66         HashMapBuilder.<String, Object>put(
+ 67           "actionUrl", actionURL
+ ...
+ 88         ).put(
+ 89           "publicationName", name
+ ...
+ 98         ).build()
+ 99       %>'
+ 100    />
+```
 
 The above request with the user provided value for `name` is handled on the server by the `/change_tracking/edit_ct_collection` MVC command established on line 42. This command is processed starting on line 49 of EditCTCollectionMVCActionCommand.java. The value of the publication `name` is pulled from the request on line 60 and then passed to the add function on line 73.
 
-    supporting file modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/portlet/action/EditCTCollectionMVCActionCommand.java
-    
-    39   @Component(
-    40     property = {
-    41       "jakarta.portlet.name=" + CTPortletKeys.PUBLICATIONS,
-    42       "mvc.command.name=/change_tracking/edit_ct_collection"
-    43     },
-    44     service = MVCActionCommand.class
-    45   )
-    46   public class EditCTCollectionMVCActionCommand extends BaseMVCActionCommand {
-    47
-    48   @Override
-    49   protected void doProcessAction(
-    50           ActionRequest actionRequest, ActionResponse actionResponse)
-    51     throws IOException {
-    ...
-    59     long ctRemoteId = ParamUtil.getLong(actionRequest, "ctRemoteId");
-    60     String name = ParamUtil.getString(actionRequest, "name");
-    61     String description = ParamUtil.getString(actionRequest, "description");
-    ...
-    70       CTCollection ctCollection =
-    71         _ctCollectionService.addCTCollection(
-    72         null, themeDisplay.getCompanyId(),
-    73         themeDisplay.getUserId(), ctRemoteId, name,
-    74         description);
+```
+supporting file modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/portlet/action/EditCTCollectionMVCActionCommand.java
+
+ 39   @Component(
+ 40     property = {
+ 41       "jakarta.portlet.name=" + CTPortletKeys.PUBLICATIONS,
+ 42       "mvc.command.name=/change_tracking/edit_ct_collection"
+ 43     },
+ 44     service = MVCActionCommand.class
+ 45   )
+ 46   public class EditCTCollectionMVCActionCommand extends BaseMVCActionCommand {
+ 47
+ 48   @Override
+ 49   protected void doProcessAction(
+ 50           ActionRequest actionRequest, ActionResponse actionResponse)
+ 51     throws IOException {
+ ...
+ 59     long ctRemoteId = ParamUtil.getLong(actionRequest, "ctRemoteId");
+ 60     String name = ParamUtil.getString(actionRequest, "name");
+ 61     String description = ParamUtil.getString(actionRequest, "description");
+ ...
+ 70       CTCollection ctCollection =
+ 71         _ctCollectionService.addCTCollection(
+ 72         null, themeDisplay.getCompanyId(),
+ 73         themeDisplay.getUserId(), ctRemoteId, name,
+ 74         description);
+```
 
 The addCTCollection() function is implemented in CTCollectionLocalServiceImpl.java on line 130. The adversary provided value for `name` is added to the ctCollection object via setName() on 154, and then saved in the database via the call to update() on line 159. Note that on line 135 the validate() function is called which makes sure that the name is less than the defined max length of 75 characters. Note that validating a publication name using only a length check is appropriate if it is acceptable for publication names to contain letters, numbers, and special characters and thus validation can't be used to limit character type.
 
-    supporting file modules/apps/change-tracking/change-tracking-service/src/main/java/com/liferay/change/tracking/service/impl/CTCollectionLocalServiceImpl.java
-    
-    130  public CTCollection addCTCollection(
-    131          String externalReferenceCode, long companyId, long userId,
-    132          long ctRemoteId, String name, String description)
-    133    throws PortalException {
-    134
-    135    _validate(name, description);
-    ...
-    140    CTCollection ctCollection = ctCollectionPersistence.create(
-    141        ctCollectionId);
-    ...
-    154    ctCollection.setName(name);
-    ...
-    159    ctCollection = ctCollectionPersistence.update(ctCollection);
-    ...
-    166    return ctCollection;
-    167  }
-    ...
-    1580 private void _validate(String name, String description)
-    1581   throws PortalException {
-    ...
-    1587   int nameMaxLength = ModelHintsUtil.getMaxLength(
-    1588     CTCollection.class.getName(), "name");
-    1589
-    1590   if (name.length() > nameMaxLength) {
-    1591     throw new CTCollectionNameException("Name is too long");
-    1592   }
+```
+supporting file modules/apps/change-tracking/change-tracking-service/src/main/java/com/liferay/change/tracking/service/impl/CTCollectionLocalServiceImpl.java
+
+ 130  public CTCollection addCTCollection(
+ 131          String externalReferenceCode, long companyId, long userId,
+ 132          long ctRemoteId, String name, String description)
+ 133    throws PortalException {
+ 134
+ 135    _validate(name, description);
+ ...
+ 140    CTCollection ctCollection = ctCollectionPersistence.create(
+ 141        ctCollectionId);
+ ...
+ 154    ctCollection.setName(name);
+ ...
+ 159    ctCollection = ctCollectionPersistence.update(ctCollection);
+ ...
+ 166    return ctCollection;
+ 167  }
+ ...
+ 1580 private void _validate(String name, String description)
+ 1581   throws PortalException {
+ ...
+ 1587   int nameMaxLength = ModelHintsUtil.getMaxLength(
+ 1588     CTCollection.class.getName(), "name");
+ 1589
+ 1590   if (name.length() > nameMaxLength) {
+ 1591     throw new CTCollectionNameException("Name is too long");
+ 1592   }
+```
 
 The database field that the `name` parameter is stored in is a 75 character string as defined by the SQL CREATE statement on line 102 of CTCollectionModelImpl.java.
 
-    supporting file: modules/apps/change-tracking/change-tracking-service/src/main/java/com/liferay/change/tracking/model/impl/CTCollectionModelImpl.java
-    
-    102  public static final String TABLE_SQL_CREATE =
-    103      "create table CTCollection (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,
-             externalReferenceCode VARCHAR(75) null,ctCollectionId LONG not null primary key,companyId LONG,
-             userId LONG,createDate DATE null,modifiedDate DATE null,ctRemoteId LONG,schemaVersionId LONG,
-             name VARCHAR(75) null,description VARCHAR(200) null,onDemandUserId LONG,shareable BOOLEAN,
-             status INTEGER,statusByUserId LONG,statusDate DATE null)";
+```
+supporting file: modules/apps/change-tracking/change-tracking-service/src/main/java/com/liferay/change/tracking/model/impl/CTCollectionModelImpl.java
+
+ 102  public static final String TABLE_SQL_CREATE =
+ 103      "create table CTCollection (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,
+	 	  externalReferenceCode VARCHAR(75) null,ctCollectionId LONG not null primary key,companyId LONG,
+		  userId LONG,createDate DATE null,modifiedDate DATE null,ctRemoteId LONG,schemaVersionId LONG,
+		  name VARCHAR(75) null,description VARCHAR(200) null,onDemandUserId LONG,shareable BOOLEAN,
+		  status INTEGER,statusByUserId LONG,statusDate DATE null)";
+```
 
 At this point the user has been able to submit a 75 character or less string as the publication name and that name is stored in the database as is, thus meeting the first condition for the weakness to be exploitable.
 
@@ -155,18 +165,20 @@ Regarding the second condition, there should be safeguards in the code to ensure
 
 In this case, the value of the `name` parameter is retrieved from the portal database via the call to getName(). The getName() function is located in CTCollectionModelImpl.java and returns the object value on line 606 without any neutralization.
 
-    supporting file: modules/apps/change-tracking/change-tracking-service/src/main/java/com/liferay/change/tracking/model/impl/CTCollectionModelImpl.java
+```
+supporting file: modules/apps/change-tracking/change-tracking-service/src/main/java/com/liferay/change/tracking/model/impl/CTCollectionModelImpl.java
 
-    599  @JSON
-    600  @Override
-    601  public String getName() {
-    602    if (_name == null) {
-    603      return "";
-    604    }
-    605    else {
-    606      return _name;
-    607    }
-    608  }
+ 599  @JSON
+ 600  @Override
+ 601  public String getName() {
+ 602    if (_name == null) {
+ 603      return "";
+ 604    }
+ 605    else {
+ 606      return _name;
+ 607    }
+ 608  }
+```
 
 This value is then used by the vulnerable code in PublicationInviteUserNotificationHandler.java on line 143 which was listed earlier in this section.
 
@@ -174,9 +186,11 @@ This value is then used by the vulnerable code in PublicationInviteUserNotificat
 
 <a href="https://capec.mitre.org/data/definitions/63.html">CAPEC-63: Cross-Site Scripting</a>
 
-To exploit this vulnerability, an adversary can submit a tainted publication name to be stored in the database using the edit publication functionality previously described. The only limitation is that the name must be less than 75 characters. For example, an adversary could craft a publication name as follows:
+To exploit this vulnerability, an adversary can submit a tainted publication name to be stored in the database using the edit publication functionality previously described. The only limitation is that the name must be less than 75 characters. For example, an adversary could craft a publication name as follows : (just an example, not tested) 
 
-    Bad Pub <script>alert("exploit");</script> Name 
+```
+Bad Pub <script>alert("exploit");</script> Name 
+```
 
 At a later time when a new user is invited to work with this publication, a notification with type NOTIFICATION_TYPE_ADD_ENTRY will be sent to the user. In creating this notification, the server code will call the vulnerable getMessage() to populate the template message "x-has-invited-you-to-work-on-x-as-a-x". At this time the tainted name is pulled from the database and added to the message. When the message is received by the user and displayed in their browser, the malicious script is executed.
 
@@ -184,53 +198,58 @@ At a later time when a new user is invited to work with this publication, a noti
 
 To resolve this issue the source code was modified to include a form of neutralization. The change on lines 144 of the fixed PublicationInviteUserNotificationHandler.java file adds the use of HtmlUtil.escape() to neutralize (e.g., escape) specific characters in the `name` parameter that carry defined meanings in the context of HTML markup before returning the value of ctCollection.getName() to the user.
 
-    fixed file: modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/notifications/PublicationInviteUserNotificationHandler.java
-    
-    141    return _language.format(
-    142      serviceContext.getLocale(), "x-has-invited-you-to-work-on-x-as-a-x",
-    143      new Object[] {
-    144        userName, HtmlUtil.escape(ctCollection.getName()),
-    145        _language.get(
-    146            serviceContext.getLocale(), _getRoleLabel(roleValue))
-    147      },
-    148      false);
+```diff
+fixed file: modules/apps/change-tracking/change-tracking-web/src/main/java/com/liferay/change/tracking/web/internal/notifications/PublicationInviteUserNotificationHandler.java
+
+ 141    return _language.format(
+ 142      serviceContext.getLocale(), "x-has-invited-you-to-work-on-x-as-a-x",
+ 143      new Object[] {
+-143        userName, ctCollection.getName(),
++144        userName, HtmlUtil.escape(ctCollection.getName()),
+ 145        _language.get(
+ 146            serviceContext.getLocale(), _getRoleLabel(roleValue))
+ 147      },
+ 148      false);
+```
 
 The HtmlUtil.escape() function is defined by Liferay Portal within the file HtmlUtil.java. This function implements recommendations from OWASP to guard against cross site scripting. Specifically, it replaces certain special characters with an HTML encoding of that character.
 
-    supporting file: portal-kernel/src/com/liferay/portal/kernel/util/impl/HtmlUtil.java
-    
-    93      if (c == '<') {
-    94        replacement = "&lt;";
-    95      }
-    96      else if (c == '>') {
-    97        replacement = "&gt;";
-    98      }
-    99      else if (c == '&') {
-    100       replacement = "&amp;";
-    101     }
-    102     else if (c == '"') {
-    103       replacement = "&#34;";
-    104     }
-    105     else if (c == '\'') {
-    106       replacement = "&#39;";
-    107     }
-    108     else if (c == '\u00bb') {
-    109       replacement = "&#187;";
-    110     }
-    111     else if (c == '\u2013') {
-    112       replacement = "&#8211;";
-    113     }
-    114     else if (c == '\u2014') {
-    115       replacement = "&#8212;";
-    116     }
-    117     else if (c == '\u2028') {
-    118       replacement = "&#8232;";
-    119     }
-    120     else if (!_isValidXmlCharacter(c) ||
-    121              _isUnicodeCompatibilityCharacter(c)) {
-    122
-    123       replacement = StringPool.SPACE;
-    124     }
+```
+supporting file: portal-kernel/src/com/liferay/portal/kernel/util/impl/HtmlUtil.java
+
+93      if (c == '<') {
+94        replacement = "&lt;";
+95      }
+96      else if (c == '>') {
+97        replacement = "&gt;";
+98      }
+99      else if (c == '&') {
+100       replacement = "&amp;";
+101     }
+102     else if (c == '"') {
+103       replacement = "&#34;";
+104     }
+105     else if (c == '\'') {
+106       replacement = "&#39;";
+107     }
+108     else if (c == '\u00bb') {
+109       replacement = "&#187;";
+110     }
+111     else if (c == '\u2013') {
+112       replacement = "&#8211;";
+113     }
+114     else if (c == '\u2014') {
+115       replacement = "&#8212;";
+116     }
+117     else if (c == '\u2028') {
+118       replacement = "&#8232;";
+119     }
+120     else if (!_isValidXmlCharacter(c) ||
+121              _isUnicodeCompatibilityCharacter(c)) {
+122
+123       replacement = StringPool.SPACE;
+124     }
+```
 
 With proper HTML encoding in place, the `name` parameter can no longer be used to launch a stored cross site scripting attack.
 
