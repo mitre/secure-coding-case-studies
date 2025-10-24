@@ -2,7 +2,7 @@
 
 ### Introduction:
 
-Applications need to authenticate users to verify that the entity interacting with the application is in fact who they claim to be. Authentication is a critical step when information or functionality should only be available to specific entities. Before any entity's access can be authorized, the entity's identity must be verified. When this verification fails, unintended entities (e.g., an adversary) may be able to  access the information or functionality that they are not authorized for. The underlying weakness that leads to improper authentication is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #13 in 2023 and #14 in 2024. In 2025, such a weakness was discovered in the API key creation functionality of Better Auth. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
+Applications need to authenticate users to verify that the entity interacting with the application is in fact who they claim to be. Authentication is a critical step when information or functionality should only be available to specific entities. Before any entity's access can be authorized, the entity's identity must be verified. When this verification fails, unintended entities (e.g., an adversary) may be able to access the information or functionality that they are not authorized for. The underlying weakness that leads to improper authentication is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #13 in 2023 and #14 in 2024. In 2025, such a weakness was discovered by ZeroPath in the API key creation functionality of Better Auth. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
 
 ### Software:
 
@@ -12,15 +12,15 @@ Applications need to authenticate users to verify that the entity interacting wi
 
 ### Weakness:
 
-<a href="https://cwe.mitre.org/data/definitions/287.html">CWE-287: Improper Authentication</a>
+<a href="https://cwe.mitre.org/data/definitions/287.html">CWE-303: Incorrect Implementation of Authentication Algorithm</a>
 
-The weakness exists when
+The weakness exists when an application incorrectly implements its authentication functionality resulting in unintended execution. In these types of instances, the design is sufficient but there is a mistake made in implementing the design which allows an execution path that is not part of the design.
 
 ### Vulnerability:
 
 <a href="https://www.cve.org/CVERecord?id=CVE-2025-61928">CVE-2025-61928</a> – Published 09 October 2025
 
-aaa
+Looking at the vulnerable source code in Better Auth,
 
 ```diff
 vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.ts
@@ -42,6 +42,9 @@ vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.
 
 ### Exploit:
 
+<a href="https://capec.mitre.org/data/definitions/115.html">CAPEC-115: Authentication Bypass</a>
+
+aaa
 
 ### Fix:
 
@@ -75,11 +78,14 @@ vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.
 ```
 ### Prevention:
 
+Don't roll your own.
 
 ### Conclusion:
 
 
 ### References:
+
+ZeroPath Report: https://zeropath.com/blog/breaking-authentication-unauthenticated-api-key-creation-in-better-auth-cve-2025-61928
 
 OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-99h5-pjcv-gr6v
 
