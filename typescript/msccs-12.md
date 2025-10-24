@@ -1,6 +1,8 @@
-# MSCCS-12 :: AUTHENTICATION BYPASS IN BETTER AUTH
+# MSCCS-12 :: IMPROPER AUTHENTICATION IN BETTER AUTH
 
 ### Introduction:
+
+Applications need to authenticate users to verify that the entity interacting with the application is in fact who they claim to. Authentication is a critical step when information or functionality should only be available to specific entities. Before any entity can be authorized, the entity's identity must be verified. When this verification fails, unintended entities (e.g., an adversary) may be able to access the information or functionality that they are not authorized for. The underlying weakness that leads to improper authentication is annually one of the CWE™ Top 25 Most Dangerous Software Weaknesses, ranking at #13 in 2023 and #14 in 2024. In 2025, such a weakness was discovered in the API key creation functionality of Better Auth. This case study will examine the weakness, the resulting vulnerability, what it allowed an adversary to accomplish, and how the issue was eventually mitigated.
 
 ### Software:
 
@@ -10,19 +12,67 @@
 
 ### Weakness:
 
-<a href="https://cwe.mitre.org/data/definitions/288.html">CWE-288: Authentication Bypass Using an Alternate Path or Channel</a>
+<a href="https://cwe.mitre.org/data/definitions/287.html">CWE-287: Improper Authentication</a>
 
 The weakness exists when
 
 ### Vulnerability:
 
+<a href="https://www.cve.org/CVERecord?id=CVE-2025-61928">CVE-2025-61928</a> – Published 09 October 2025
+
+aaa
+
+```diff
+vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.ts
+
+ 270  const session = await getSessionFromCtx(ctx);
+-271  const authRequired = (ctx.request || ctx.headers) && !ctx.body.userId;
+ 272  const user =
+ 273      session?.user ?? (authRequired ? null : { id: ctx.body.userId });
+ 274  if (!user?.id) {
+ 275     throw new APIError("UNAUTHORIZED", {
+ 276         message: ERROR_CODES.UNAUTHORIZED_SESSION,
+ 277     });
+ 278  }
+ 279
+ 280  if (authRequired) {
+ 281     // if this endpoint was being called from the client,
+ 282     // we must make sure they can't use server-only properties.
+```
 
 ### Exploit:
 
 
 ### Fix:
 
+```diff
+vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.ts
 
+ 270  const session = await getSessionFromCtx(ctx);
+-271  const authRequired = (ctx.request || ctx.headers) && !ctx.body.userId;
++271  const authRequired = ctx.request || ctx.headers;
+ 272  const user =
+-273      session?.user ?? (authRequired ? null : { id: ctx.body.userId });
++273      authRequired && !session
++274         ? null
++275         : session?.user || { id: ctx.body.userId };
+ 276
+ 277  if (!user?.id) {
+ 278     throw new APIError("UNAUTHORIZED", {
+ 279         message: ERROR_CODES.UNAUTHORIZED_SESSION,
+ 280     });
+ 281  }
+ 282
++283  if (session && ctx.body.userId && session?.user.id !== ctx.body.userId) {
++284     	throw new APIError("UNAUTHORIZED", {
++285          message: ERROR_CODES.UNAUTHORIZED_SESSION,
++286      });
++287   }
++288
+ 289  if (authRequired) {
+ 290     // if this endpoint was being called from the client,
+ 291     // we must make sure they can't use server-only properties.
+```
 ### Prevention:
 
 
