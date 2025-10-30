@@ -24,11 +24,9 @@ The mistakes can range from the use of an incorrect operator (e.g., using an 'or
 
 Better Auth is framework-agnostic authentication (and authorization) library for TypeScript. It provides a comprehensive set of features out of the box and includes a plugin ecosystem that simplifies adding advanced functionalities with minimal code in short amount of time.
 
-ZeroPath uncovered a critical vulnerability in Better Auth's API keys plugin which has since been fixed. The vulnerability was due to an incorrect implementation of create key design which allowed adversaries to mint privileged credentials for arbitrary users.
+ZeroPath uncovered a critical vulnerability in Better Auth's API keys plugin which has since been fixed. The vulnerability was due to an incorrect implementation of the create key design which allowed adversaries to mint privileged credentials for arbitrary users.
 
-Looking at the vulnerable source code in Better Auth, the createApiKey() function is used to construct a user object for a given request being handled. The implementation is meant to ???? On line 271 in create-api-key.ts sets the authRequired flag to false if one of two conditions are met. The first is if the authorization context (stored in the variable ctx) has either the request or headers field set. These presence of these fields means that the code is being called through a request from a client and hence authorization is required to set server-only properties after line 282. This is legitimate implementation of the design to make sure that only authorized users can set server properties.
-
-The second ...
+Looking at the vulnerable source code in Better Auth, the createApiKey() function is used to construct a user object for a given request being handled. The design is meant to only allow local server-based requests to change certain server-only properties. Access to these properties is governed by the key that is associated with the user. Keys are generated via the createApiKey() function defined on line 13 of the create-api-key.ts source code file. Within that function, on line 271 the code sets the authRequired flag to true if two conditions are met. The first is if the authorization context (stored in the variable ctx) has either the request or headers field set. These presence of these fields means that the call to create a new key is coming from a client request and has headers which store session cookies. These client requests correctly require authorization to set server-only properties after line 282 and hence authRequired is set to True. This is legitimate implementation of the design to make sure that only authorized users can set server properties.
 
 ```diff
 vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.ts
@@ -49,6 +47,10 @@ vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.
  281       // if this endpoint was being called from the client,
  282       // we must make sure they can't use server-only properties.
 ```
+
+However, the code added a second condition on line 271 that looked to see if a userId was not provided. The design called for a request from a server to provide the userId for which to create the privileged key.
+
+
 
 ### Exploit:
 
