@@ -111,17 +111,21 @@ The fix to the implementation to more accurately reflect the intneded design has
 
 ### References:
 
+Better Auth: https://www.better-auth.com/
+
+Better Auth project site: https://github.com/better-auth/better-auth
+
 ZeroPath Report: https://zeropath.com/blog/breaking-authentication-unauthenticated-api-key-creation-in-better-auth-cve-2025-61928
+
+CVE-2025-61928 Entry: https://www.cve.org/CVERecord?id=CVE-2025-61928
 
 OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-99h5-pjcv-gr6v
 
-CVE-2025-61928 Entry: https://www.cve.org/CVERecord?id=CVE-2025-61928
+NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2025-61928
 
 CWE-303 Entry: https://cwe.mitre.org/data/definitions/303.html
 
 CAPEC-115 Entry: https://capec.mitre.org/data/definitions/115.html
-
-NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2025-61928
 
 Better Auth Code Commit to Fix Issue: https://github.com/better-auth/better-auth/commit/556085067609c508f8c546ceef9003ee8c607d39
 
