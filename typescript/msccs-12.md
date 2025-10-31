@@ -26,11 +26,9 @@ Better Auth is framework-agnostic authentication (and authorization) library for
 
 ZeroPath uncovered a critical vulnerability in Better Auth's API keys plugin which has since been fixed. The vulnerability was due to an incorrect implementation of the create key design which allowed adversaries to mint privileged credentials for arbitrary users.
 
-The design of the createApiKey() function defined on line 13 of the create-api-key.ts source code file in Better Auth is meant to only allow local server-based requests the ability change certain server-only properties. Any key request from a client that attempts to give permissions to set one of these properties should result in an error and no key being created. Requests from a client are signaled by a session and access to the headers.
+The design of the createApiKey() function defined on line 13 of the create-api-key.ts source code file in Better Auth is intended to only allow local server-based requests to create user keys that give the ability to change certain server-only properties. Any key request from a client that attempts to give permissions to set one of these properties should result in an error and no key being created. Such requests from a client are signaled by a session and access to the headers.
 
-Looking at the vulnerable source code, line 271 sets the authRequired flag to true if two conditions are met. The first is if the authorization context (stored in the variable ctx) has either the request or headers present thus signalling a request from a client. These client requests correctly require authorization to set server-only properties after line 282 and hence authRequired should be set to True. This is legitimate implementation of the design to make sure that only authorized users can set server properties.
-
-However, the code added a second condition on line 271 that looked to see if a userId was not provided. When the call comes from the server and no session is present then a userId is provided to state who to create the key for. The vulnerable code incorrectly assumed that the lack of a userId was another indication of a client request and added a check for it.
+Looking at the vulnerable source code, line 271 sets the authRequired flag to true if two conditions are met. The first is if the authorization context (stored in the variable ctx) has either the request or headers present thus signalling a request from a client. These client-based requests correctly require authorization to set server-only properties after line 282 and hence "authRequired" should be set to True. This is proper implementation of the design to make sure that only authorized users can set server properties.
 
 ```diff
 vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.ts
@@ -52,15 +50,15 @@ vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.
  282       // we must make sure they can't use server-only properties.
 ```
 
-
-
-
+However, the code added a second condition on line 271 that looked to see if a userId was not provided. When the call comes from the server and no session is present then a userId is provided to state who to create the key for. The vulnerable code incorrectly assumed that the lack of a userId was another indication of a client request and added a check for it.
 
 ### Exploit:
 
 <a href="https://capec.mitre.org/data/definitions/115.html">CAPEC-115: Authentication Bypass</a>
 
-aaa
+An adversary could take advantage of the vulnerable logic by sending a request and providing a userId. The use of the logical AND meant that this would result in "authRequired" being set to false regardless of the outcome of the client session check. The createApiKey() function saves the userId on line 272 using the adversary input and then on line 280 bypasses the validation that stops the privileges for the server-only properties from being assigned to the key.
+
+The end result is that the adversary is able to create an API key with the server-only privileges for any userID that they choose. They can then use this key log into the application as the user and perform tasks that they shouldn't be allowed to perform.
 
 ### Fix:
 
