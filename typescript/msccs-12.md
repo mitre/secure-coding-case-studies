@@ -97,10 +97,17 @@ The final change was to add a check on line 283 that looks at the user id associ
 
 ### Prevention:
 
-Don't roll your own.
+Issues such as this are difficult to catch. The mistake is often only a mistake based on the intention of the design. This is very different from mistakes leading to overflows or injection where the underlying code is clearly in error and allowing functionality that should not be allowed.
+
+Detailed reviews, both peer reviews and independent reivews, can be used to uncover these implementation mistakes. To support these reviews, detailed and accurate code comments that reflect the intended design should be part of the source code. This will help anyone reviewing the code know what is supposed to happen.
+
+In-depth dynamic testing with complete coverage of all user-supplied inputs can also help expose these types of issues. However, to be effective, care must be taken to create test cases that align with the design and expose places where unexpected outcomes are seen. Pen testing type of activites where the testers are given access to the source code can be effective techniques to expose these issues.
+
+Finally, avoiding the urge to "roll your own" libraries instead of leveraging existing and proven code can help avoid these types of weaknesses. Implementation issues eventually surface and existing libraries have ofter experienced and fixed the issues. This is exactly what has happened with Better Auth which is now more sucure since the issue has been fixed.
 
 ### Conclusion:
 
+The fix to the implementation to more accurately reflect the intneded design has closed a logic hole that enabled targeted keys to be generated. With the weakness resolved, adversaries can no longer leverage the createApiKey() to create a new key for a target user and then use that key to bypass authorization and gain access to what should have been unauthorized resources.
 
 ### References:
 
@@ -109,6 +116,14 @@ ZeroPath Report: https://zeropath.com/blog/breaking-authentication-unauthenticat
 OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-99h5-pjcv-gr6v
 
 CVE-2025-61928 Entry: https://www.cve.org/CVERecord?id=CVE-2025-61928
+
+CWE-303 Entry: https://cwe.mitre.org/data/definitions/303.html
+
+CAPEC-115 Entry: https://capec.mitre.org/data/definitions/115.html
+
+NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2025-61928
+
+Better Auth Code Commit to Fix Issue: https://github.com/better-auth/better-auth/commit/556085067609c508f8c546ceef9003ee8c607d39
 
 ### Contributions:
 
