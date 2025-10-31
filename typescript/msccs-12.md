@@ -62,6 +62,8 @@ The end result is that the adversary is able to create an API key with the serve
 
 ### Fix:
 
+The weakness was fixed by changing the implementation to be more accurate to the design. The first change was to line 271 where the check for userID was removed. This put the focus of the "authRequired" flag soley on the status of the request which was the original intention. The "user" field was also changed online 272-275 to more accurately refelct the status of the session and when the provided userId is used.
+
 ```diff
 vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.ts
 
@@ -90,6 +92,9 @@ vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.
  290     // if this endpoint was being called from the client,
  291     // we must make sure they can't use server-only properties.
 ```
+
+The final change was to add a check on line 283 that looks at the user id associated with the current session and the userID provided as input. If they don't match, which would be the case when an adversary is trying to create a key for a targetted user, then an error is thrown on line 284.
+
 ### Prevention:
 
 Don't roll your own.
