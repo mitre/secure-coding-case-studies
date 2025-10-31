@@ -30,6 +30,10 @@ layout: home
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/msccs-7.md">Path Traversal In Saltcorn Server</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/msccs-8.md">Cross-Site Scripting In OpenC3 COSMOS Server</a></li>
 </ul>
+<a href="https://github.com/mitre/secure-coding-case-studies/tree/main/typescript"><b>TypeScript</b></a>
+<ul>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/typescript/msccs-12.md">Improper Authentication In Better Auth</a></li>
+</ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/go"><b>Go</b></a>
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/go/msccs-9.md">Parameter Injection In WhoDB</a></li>
