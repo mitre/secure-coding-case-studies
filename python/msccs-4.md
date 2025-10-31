@@ -159,7 +159,7 @@ CVE-2023-32309 Entry: https://www.cve.org/CVERecord?id=CVE-2023-32309
 
 CWE-22 Entry: https://cwe.mitre.org/data/definitions/22.html
 
-CAPEC-66 Entry: https://capec.mitre.org/data/definitions/126.html
+CAPEC-126 Entry: https://capec.mitre.org/data/definitions/126.html
 
 OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-jh85-wwv9-24hv
 
