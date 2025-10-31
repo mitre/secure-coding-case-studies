@@ -22,13 +22,13 @@ The mistakes can range from the use of an incorrect operator (e.g., using an 'or
 
 <a href="https://www.cve.org/CVERecord?id=CVE-2025-61928">CVE-2025-61928</a> – Published 09 October 2025
 
-Better Auth is framework-agnostic authentication (and authorization) library for TypeScript. It provides a comprehensive set of features out of the box and includes a plugin ecosystem that simplifies adding advanced functionalities with minimal code in short amount of time.
+Better Auth is framework-agnostic authentication library for TypeScript. It provides a comprehensive set of features out of the box and includes a plugin ecosystem that simplifies adding advanced functionalities with minimal code in short amount of time.
 
 ZeroPath uncovered a critical vulnerability in Better Auth's API keys plugin which has since been fixed. The vulnerability was due to an incorrect implementation of the create key design which allowed adversaries to mint privileged credentials for arbitrary users.
 
 The design of the createApiKey() function defined on line 13 of the create-api-key.ts source code file in Better Auth is intended to only allow local server-based requests to create user keys that give the ability to change certain server-only properties. Any key request from a client that attempts to give permissions to set one of these properties should result in an error and no key being created. Such requests from a client are signaled by a session and access to the headers.
 
-Looking at the vulnerable source code, line 271 sets the authRequired flag to true if two conditions are met. The first is if the authorization context (stored in the variable ctx) has either the request or headers present thus signalling a request from a client. These client-based requests correctly require authorization to set server-only properties after line 282 and hence "authRequired" should be set to True. This is proper implementation of the design to make sure that only authorized users can set server properties.
+Looking at the vulnerable source code, line 271 sets the authRequired flag to true if two conditions are met. The first is if the authorization context (stored in the variable ctx) has either the request or headers present thus signaling a request from a client. These client-based requests correctly require authorization to set server-only properties after line 282 and hence "authRequired" should be set to True. This is proper implementation of the design to make sure that only authorized users can set server properties.
 
 ```diff
 vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.ts
@@ -62,7 +62,7 @@ The end result is that the adversary is able to create an API key with the serve
 
 ### Fix:
 
-The weakness was fixed by changing the implementation to be more accurate to the design. The first change was to line 271 where the check for userID was removed. This put the focus of the "authRequired" flag soley on the status of the request which was the original intention. The "user" field was also changed online 272-275 to more accurately refelct the status of the session and when the provided userId is used.
+The weakness was fixed by changing the implementation to be more accurate to the design. The first change was to line 271 where the check for userID was removed. This put the focus of the "authRequired" flag solely on the status of the request which was the original intention. The "user" field was also changed online 272-275 to more accurately reflect the status of the session and when the provided userId is used.
 
 ```diff
 vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.ts
@@ -93,21 +93,21 @@ vulnerable file: packages/better-auth/src/plugins/api-key/routes/create-api-key.
  291     // we must make sure they can't use server-only properties.
 ```
 
-The final change was to add a check on line 283 that looks at the user id associated with the current session and the userID provided as input. If they don't match, which would be the case when an adversary is trying to create a key for a targetted user, then an error is thrown on line 284.
+The final change was to add a check on line 283 that looks at the user id associated with the current session and the userID provided as input. If they don't match, which would be the case when an adversary is trying to create a key for a targeted user, then an error is thrown on line 284.
 
 ### Prevention:
 
-Issues such as this are difficult to catch. The mistake is often only a mistake based on the intention of the design. This is very different from mistakes leading to overflows or injection where the underlying code is clearly in error and allowing functionality that should not be allowed.
+Issues such as this are difficult to catch. The mistake is often only a mistake based on the intention of the design. This is very different from mistakes leading to overflows or injections where the underlying code is clearly in error and allowing functionality that should not be allowed.
 
-Detailed reviews, both peer reviews and independent reivews, can be used to uncover these implementation mistakes. To support these reviews, detailed and accurate code comments that reflect the intended design should be part of the source code. This will help anyone reviewing the code know what is supposed to happen.
+Detailed reviews, both peer reviews and independent reviews, can be used to uncover these implementation mistakes. To support these reviews, detailed and accurate code comments that reflect the intended design should be part of the source code. This will help anyone reviewing the code know what is supposed to happen.
 
-In-depth dynamic testing with complete coverage of all user-supplied inputs can also help expose these types of issues. However, to be effective, care must be taken to create test cases that align with the design and expose places where unexpected outcomes are seen. Pen testing type of activites where the testers are given access to the source code can be effective techniques to expose these issues.
+In-depth dynamic testing with complete coverage of all user-supplied inputs can also help expose these types of issues. However, to be effective, care must be taken to create test cases that align with the design and expose places where unexpected outcomes are seen. Pen testing type of activities where the testers are given access to the source code can be effective techniques to expose these issues.
 
-Finally, avoiding the urge to "roll your own" libraries instead of leveraging existing and proven code can help avoid these types of weaknesses. Implementation issues eventually surface and existing libraries have ofter experienced and fixed the issues. This is exactly what has happened with Better Auth which is now more sucure since the issue has been fixed.
+Finally, avoiding the urge to "roll your own" libraries instead of leveraging existing and proven code can help avoid these types of weaknesses. Implementation issues eventually surface and existing libraries have often experienced and fixed the issues. This is exactly what has happened with Better Auth which is now more secure since the issue has been fixed.
 
 ### Conclusion:
 
-The fix to the implementation to more accurately reflect the intneded design has closed a logic hole that enabled targeted keys to be generated. With the weakness resolved, adversaries can no longer leverage the createApiKey() to create a new key for a target user and then use that key to bypass authorization and gain access to what should have been unauthorized resources.
+The fix to the implementation to more accurately reflect the intended design has closed a logic hole that enabled targeted keys to be generated. With the weakness resolved, adversaries can no longer leverage the createApiKey() to create a new key for a target user and then use that key to bypass authorization and gain access to what should have been unauthorized resources.
 
 ### References:
 
