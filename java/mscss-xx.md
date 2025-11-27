@@ -22,7 +22,16 @@ An example of this type of weakness can occur using the Java Server Page (JSP) f
 
 [CVE-2021-442287](https://www.cve.org/CVERecord?id=CVE-2021-44228) – Published 12 December 2021
 
-Log4j2 is a logging software developed by Apache to assist developers in a streamlined way to logging system events locally and remotely. Built into the software was a way to resolve JNDI calls inside log statements. If the attacker has access to what is being placed into the logs, the attacker
+Log4j2 is a logging software developed by Apache to assist developers in a streamlined way to logging system events locally and remotely. Built into the software was a way to resolve JNDI calls inside log statements. If the attacker has access to what is being placed into the logs, the attacker would be able to remotely invoke any program they wished.
+
+```java
+@SuppressWarnings("unchecked")
+public <T> T lookup(final String name) throws NamingException {
+    return (T) this.context.lookup(name);
+}
+```
+
+When a JNDI call was detected in a log statement, the code was just immediately passing the received value into the context to allow for resolution. Users of the log4j2 software would often attempt to log user input, such as chat messages, form fields, and more. Since these lookups were enabled by default, any one of these tainted fields would be able to resolve a JNDI address that could return malicious code that would be executed where the log statement was executed.
 
 ## Exploit
 
