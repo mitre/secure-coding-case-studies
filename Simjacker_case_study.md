@@ -21,7 +21,7 @@ The S@T Browser is a SIM Toolkit application defined by the SIMalliance specific
 
 This weakness happens when a system performs sensitive or high-privilege actions without first checking who is making the request. If there is no authentication, an attacker only needs to send a correctly structured message to trigger important functions that should normally be protected.
 
-![Simjacker Attack Flow](images/Screenshot-1.jpg)
+![Simjacker Attack Flow](Screenshot-1.jpg)
 
 **Generic example (not from the S@T Browser):**
 
@@ -171,4 +171,5 @@ Originally created by Chandan Nanjundaswamy
 
 (C) 2025 The MITRE Corporation. All rights reserved.<br>
 This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>
+
 
