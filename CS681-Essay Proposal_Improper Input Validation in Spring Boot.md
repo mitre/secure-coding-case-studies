@@ -1,7 +1,9 @@
 IMPROPER INPUT VALIDATION IN SPRING BOOT
 Introduction:
 
-Web APIs frequently accept structured input from untrusted clients, making proper input validation a foundational security requirement. When applications fail to validate incoming data, attackers may exploit this weakness to manipulate application behavior, access unauthorized functionality, or corrupt backend systems. Improper input validation is consistently ranked among the CWE Top 25 Most Dangerous Software Weaknesses. In 2022, a vulnerability related to unsafe request handling and validation was disclosed in the Spring ecosystem. This case study examines a real Spring Boot vulnerability, explains how improper input validation enabled exploitation, and demonstrates how the issue was fixed and how similar vulnerabilities can be prevented.
+Many Spring Boot applications rely on automatic JSON-to-object binding to map incoming HTTP requests into Java classes. While this feature simplifies development, it can introduce serious security risks when applications bind user input directly to entity classes containing internal fields such as administrative flags or privileged attributes. When these fields are unintentionally exposed, attackers can manipulate values that developers never intended to be user-controlled.
+
+This weakness is closely associated with CWE categories involving improper input validation and mass assignment. It has appeared in multiple Spring-based projects that rely heavily on automatic data binding. This case study explains how this vulnerability arises, how it can be exploited, and which secure coding practices are necessary to prevent it.
 
 Software:
 
@@ -11,108 +13,126 @@ URL: https://github.com/spring-projects/spring-boot
 
 Weakness:
 
-CWE-20: Improper Input Validation
+CWE-915: Improperly Controlled Modification of Dynamically Determined Attributes
+Related: CWE-20 (Improper Input Validation), CWE-522 (Unprotected Fields)
 
-Improper input validation occurs when software does not adequately verify that externally supplied input conforms to expected constraints before using it. This includes failing to validate data type, format, range, or semantic meaning. When untrusted input is passed directly into application logic, attackers may influence execution paths or internal state in unintended ways.
+This weakness occurs when software allows users to modify object attributes that were intended to be internal-only. In frameworks that support automatic data binding, such as Spring MVC, attackers can submit JSON payloads containing fields that match attribute names inside entity classes. If developers do not explicitly restrict which fields may be updated, attackers can override protected values and cause privilege escalation or unauthorized behavior.
 
-A common manifestation of this weakness in Java web applications occurs when request payloads are automatically bound to objects without enforcing validation rules. If fields are trusted implicitly, malicious or malformed values can bypass business logic controls.
+Generic Example:
+Entity Structure
+public class User {
 
-A generic example of this weakness is shown below:
+    public String username;
+    public String email;
+    public String admin;
 
-public void processUser(User user) {
-    database.save(user);
+}
+
+API Endpoint for JSON Invocation
+@PostMapping("/update")
+public User update(@RequestBody User user) {
+    return userService.save(user);
+}
+
+Malicious Payload
+{
+  "username": "Sakthi",
+  "email": "abc@gmail.com",
+  "admin": "yes"
 }
 
 
-In this example, the User object is trusted without validating its fields, allowing invalid or malicious data to propagate through the application.
+Because Spring’s data binder accepts all matching fields by default, a regular user can assign themselves elevated privileges by setting admin = "yes". Without restrictions or validation, confidential areas of the application become accessible.
 
 Vulnerability:
 
-CVE-2022-22965
+This case study examines an open-source Spring Boot project demonstrating this vulnerability. Specifically, the vulnerability exists due to the following conditions:
 
-CVE-2022-22965, commonly referred to as Spring4Shell, affected applications built on the Spring Framework running on certain configurations of Java. While the vulnerability ultimately enabled remote code execution, the root cause involved unsafe handling of user-controlled request parameters and insufficient validation during request processing.
+The controller binds request data directly to an entity class, allowing modification of sensitive attributes
 
-In vulnerable configurations, Spring’s data binding mechanism allowed attackers to supply crafted parameter names that accessed internal class loader properties. These properties were never intended to be influenced by external input.
+Validation is missing at the request-handling layer
 
-The following code illustrates the vulnerable binding logic used by Spring:
+Entity fields are public or otherwise modifiable when they should be internal-only
 
-vulnerable file: spring-web/src/main/java/org/springframework/web/bind/WebDataBinder.java
+Spring’s default data binder maps all matching JSON fields without restriction
 
-public void bind(PropertyValues pvs) {
-    MutablePropertyValues mpvs =
-        (pvs instanceof MutablePropertyValues ?
-         (MutablePropertyValues) pvs :
-         new MutablePropertyValues(pvs));
+The absence of DTO separation enables privilege escalation
 
-    doBind(mpvs);
-}
-
-
-Because insufficient restrictions were applied to which properties could be bound, attackers were able to manipulate internal framework objects through crafted HTTP requests.
+The vulnerable source code exposes internal fields through automatic binding, allowing attackers to manipulate application state. Proper use of Data Transfer Objects (DTOs) prevents this vulnerability by explicitly defining which fields may be modified by external input.
 
 Exploit:
 
-CAPEC-242: Code Injection
+CAPEC-234: Privilege Escalation
 
-To exploit this vulnerability, an attacker sends a specially crafted HTTP request containing malicious parameter names. These parameters target internal class loader fields, allowing the attacker to write arbitrary files to the server.
+An attacker exploits this vulnerability by submitting a crafted JSON payload that includes sensitive fields. For example:
 
-An example of a malicious parameter used in exploitation is shown below:
-
-class.module.classLoader.resources.context.parent.pipeline.first.pattern
-
-
-When processed by a vulnerable Spring application, this input could be used to write a malicious JSP file to disk. Once written, the attacker could access the file through the browser, resulting in remote code execution and complete compromise of the application.
-
-Fix:
-
-The Spring development team fixed the vulnerability by introducing stricter validation and deny-listing of sensitive properties during data binding. Internal class loader fields were explicitly blocked from being bound using user-supplied input.
-
-fixed file: spring-web/src/main/java/org/springframework/web/bind/WebDataBinder.java
-
-public void bind(PropertyValues pvs) {
-+   checkAllowedFields(pvs);
-    MutablePropertyValues mpvs =
-        (pvs instanceof MutablePropertyValues ?
-         (MutablePropertyValues) pvs :
-         new MutablePropertyValues(pvs));
-    doBind(mpvs);
+{
+  "id": 12,
+  "email": "test123@gmail.com",
+  "admin": "yes"
 }
 
 
-These changes ensure that only explicitly allowed fields can be populated through request parameters, eliminating the unsafe binding behavior.
+If the application binds this payload directly to the entity, the attacker gains administrative privileges. With elevated access, the attacker may reach protected endpoints, modify restricted records, or perform administrator-only actions. In some cases, attackers may also manipulate accounts belonging to other users.
+
+Fix:
+
+The vulnerable project resolves this issue by introducing DTOs, enforcing validation, and preventing unexpected fields from being deserialized.
+
+Effective remediation techniques include:
+
+Replacing entity binding with a dedicated Data Transfer Object (DTO)
+
+Validating input using @Valid and Bean Validation annotations
+
+Hiding internal fields using annotations such as @JsonIgnore
+
+Rejecting unexpected fields during deserialization
+
+Example Fix
+public class UserUpdateDTO {
+
+    public String email;
+
+}
+
+@PostMapping("/update")
+public User update(@Valid @RequestBody UserUpdateDTO userUpdateDto) {
+    user.setEmail(userUpdateDto.email);
+    return userService.save(user);
+}
+
+
+This approach ensures that only explicitly allowed fields can be modified. DTOs act as a controlled interface between external input and internal entities, preventing unauthorized modification of sensitive attributes.
 
 Prevention:
 
-Preventing improper input validation vulnerabilities requires a layered approach:
+Preventing this vulnerability requires deliberate design choices and consistent secure configuration. Effective prevention strategies include:
 
-Explicitly define allow-lists for request-bindable fields
+Always using DTOs instead of binding requests directly to entity classes
 
-Avoid binding untrusted input directly to complex or sensitive objects
+Applying strong validation rules to all incoming data
 
-Apply Bean Validation annotations (e.g., @NotNull, @Email, @Min) to all request models
+Limiting DTOs to only fields that are intended to be user-modifiable
 
-Use static analysis tools to detect unsafe data flows from request input to sensitive sinks
+Avoiding public fields in domain models and enforcing proper encapsulation
 
-Perform code reviews with a focus on input handling and validation logic
+Enabling strict deserialization settings such as fail-on-unknown-properties=true
 
-Keep frameworks and dependencies fully up to date with security patches
+Conducting periodic security reviews of controller binding behavior
 
-If these practices had been consistently enforced, the unsafe binding behavior exploited in this vulnerability would have been prevented.
+Using static analysis tools to detect mass-assignment patterns
+
+Relating each recommendation back to the case study demonstrates how the vulnerability could have been avoided entirely through secure design practices.
 
 Conclusion:
 
-This case study demonstrates how improper input validation and unsafe request binding can lead to severe security consequences. In CVE-2022-22965, insufficient validation allowed attackers to manipulate internal framework properties, ultimately resulting in remote code execution. By enforcing strict validation rules, limiting automatic binding, and following secure coding practices, developers can significantly reduce the risk of similar vulnerabilities in future applications.
+Improper input validation in Spring Boot illustrates how convenient framework features can lead to data tampering and privilege escalation when misused. This case study demonstrates the severity of exposing internal fields through automatic data binding and shows how attackers can exploit such behavior with minimal effort.
+
+By introducing DTOs, validating incoming data, and restricting which attributes may be updated, developers can eliminate mass-assignment vulnerabilities. Small design decisions can have significant security implications, but straightforward defensive practices can prevent these issues without adding unnecessary complexity.
 
 References:
 
 Spring Boot Project Page: https://github.com/spring-projects/spring-boot
 
-CVE-2022-22965 Entry: https://www.cve.org/CVERecord?id=CVE-2022-22965
-
-CWE-20 Entry: https://cwe.mitre.org/data/definitions/20.html
-
-CAPEC-242 Entry: https://capec.mitre.org/data/definitions/242.html
-
-NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2022-22965
-
-Spring Security Advisory: https://spring.io/security/cve-2022-22965
+Spring Boot Documentation – @RequestBody: https://docs.spring.io/spring-framework/reference/web/webflux/controller/ann-methods/requestbody.html
