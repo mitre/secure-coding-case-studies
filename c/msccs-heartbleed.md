@@ -218,3 +218,9 @@ Other actions could reduce the risk of vulnerabilities like Heartbleed:
 * Seggelmann, R., et al. "RFC 6520: Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS) Heartbeat Extension." (2012). <https://tools.ietf.org/html/rfc6520>
 * Codenomicon. "The Heartbleed Bug." <https://www.heartbleed.com/>
 * OpenSSL. Heartbleed commit diff. <https://github.com/openssl/openssl/commit/731f431497f463f3a2a97236fe0187b11c44aead>
+
+### Contributions:
+
+Originally created by [David A. Wheeler](https://dwheeler.com).
+
+This work is openly licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>.
