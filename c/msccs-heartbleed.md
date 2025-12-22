@@ -103,14 +103,16 @@ In addition, the attack is silent, leaving no trace in standard logs. This made 
 Let's examine [commit 731f431497f463f3](https://github.com/openssl/openssl/commit/731f431497f463f3a2a97236fe0187b11c44aead) which fixed the Heartbleed vulnerability. We'll examine the "diff" (difference) from its previous commit. Line numbers shown are for the updated file.
 
 In this version, we first check if the record will be long enough to
-store *any* reply, and if not, the request will be silently discarded (lines 1338-1340; notice that lines that *had* been earlier are moved to lines 1341 and below, because this new check is occurring early in the function).
+store *any* reply, and if not, the request will be silently discarded (in the updated file these are lines 1338-1340).
+Lines that *had* been early in the function were moved to
+lines 1341 and below, after this new check.
 [RFC 6520 section 4](https://datatracker.ietf.org/doc/html/rfc6520) says that
 "If the payload_length of a received HeartbeatMessage is too large,
 the received HeartbeatMessage MUST be discarded silently".
 Previously this wasn't checked.
 Lines 1343-1344 in the new version first check that the payload isn't too large.
 The rest of the lines accurately compute the `write_length` and use *that*
-as the length to write.
+accurate calculation as the length to write.
 
 ```diff
 fixed file: ssl/d1_both.c
