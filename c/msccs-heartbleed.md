@@ -185,7 +185,7 @@ fixed file: ssl/d1_both.c
 
 ### Prevention:
 
-In this case, Google found the vulnerability through careful human review, while Codenomicon found the vulnerability through an advanced fuzzing technique carefully crafted to find subtle defects. However, Heartbleed was found after-the-fact. We want to find vulnerabilities *before* they are released.
+In this case, Google found the vulnerability through careful human review, while Codenomicon found the vulnerability through an advanced fuzzing technique carefully crafted to find subtle defects. Once the defect was found, the source code was easily fixed. However, the Heartbleed vulnerability was found after the code was released, causing massive headaches worldwide as organizations worked to find vulnerable versions and update them. We want to find vulnerabilities *before* they are released.
 
 As noted in [How to Prevent the next Heartbleed](https://dwheeler.com/essays/heartbleed.html), many static analysis tools had been used to analyze OpenSSL yet this vulnerability was not found by any of them. Typical static analysis tools use heuristics, and complex code often leads them to fail to detect vulnerabilities. Many dynamic test suites only have "positive tests" to verify that the program works correctly when given correct data, but in security, what usually matters is "negative tests" to verify that the program works correctly when given a data or request that is *not* correct.
 
@@ -210,6 +210,8 @@ Other actions could reduce the risk of vulnerabilities like Heartbleed:
 2. *Simplify the Application Program Interface (API).* APIs are often absurdly complex or difficult to use, leading to complex and hard-to-understand code.
 3. *Allocate and deallocate memory normally.* OpenSSL had a complex approach to memory management that somewhat impeded analysis.
 4. *Use a standard FLOSS license.* OpenSSL at the time used an odd one-off license. This non-standard licensing approach discouraged review since few people (or lawyers) want to analyze or deal with an odd unknown license. This lack of review likely contributed to failure to detect the vulnerability before release. Newer versions of OpenSSL use the Apache 2.0 license, a far more common license.
+
+The online lab exercise [oob1](https://best.openssf.org/labs/oob1.html), part of the online course [Developing Secure Software (LFD121)](https://training.linuxfoundation.org/training/developing-secure-software-lfd121/), provides hands-on experience in fixing the Heartbleed vulnerability.
 
 ### References:
 
