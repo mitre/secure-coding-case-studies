@@ -16,16 +16,20 @@ C is a memory-unsafe language (it does not prevent invalid memory accesses by de
 
 ### Weakness:
 
-The fundamental weakness in this case study is [**CWE-126: Buffer Over-read**](https://cwe.mitre.org/data/definitions/126.html). This occurs when software reads data outside the intended memory buffer (typically beyond its end) because it trusted attacker-supplied data to determine the end, instead of trustworthy data.
+The fundamental weakness in this case study is [**CWE-126: Buffer Over-read**](https://cwe.mitre.org/data/definitions/126.html). This occurs when software reads data outside the intended memory buffer (typically beyond its end) because it trusted attacker-supplied data in a way that permitted referencing memory locations after the targeted buffer.
+
+The typical cause of this problem is that the attacker provides data that indicates, to the receiving system, that it should read memory beyond the end of the memory buffer. For example, it may provide a "message length" that does not accurately reflect the actual length, but instead requests a much larger length to be read (this was the cause of the Heartbleed vulnerability).
+
+By reading out-of-bounds memory, an attacker might be able to directly obtain unauthorized secret values, such as cryptographic secrets, session keys, or passwords. An attacker might also be able to acquire memory addresses which can in some cases bypass protection mechanisms such as ASLR.
 
 This vulnerability was reached because of two other weaknesses:
 
-* [**CWE-20: Improper Input Validation**](https://cwe.mitre.org/data/definitions/20.html), where the software fails to validate input data.
-* [**CWE-130: Improper Handling of Length Parameter Inconsistency**](https://cwe.mitre.org/data/definitions/130.html), where the software fails to resolve inconsistency between length information provided.
+* [**CWE-20: Improper Input Validation**](https://cwe.mitre.org/data/definitions/20.html), where the software fails to validate input data. In this case, a length value provided by an attacker was not validated to be within its valid range.
+* [**CWE-130: Improper Handling of Length Parameter Inconsistency**](https://cwe.mitre.org/data/definitions/130.html), where the software fails to resolve inconsistency between length information provided. In this case, there were multiple length values in the input; their values were inconsistent with each other yet this inconsistency was not properly handled.
 
 ### Vulnerability:
 
-The Heartbleed vulnerability ([CVE-2014-0160](https://www.cve.org/CVERecord?id=CVE-2014-0160)) of OpenSSL involved incorrect handling of a "heartbeat" request. OpenSSL implements the TLS protocol for security. An optional feature of the protocol is a "hearbeat" request, where the requester provides can provide a string and its length, and the system is to respond with the same string and the length. Unfortunately, an attacker could provide a string and claim an excessively-long length of the string being provided. When the vulnerable versions of OpenSSL received a heartbeat request from the network, it failed to verify that the requested length of the payload matched the length of the data provided (CWE-126) as was required by the specification. As a result, it would reply with additional data beyond the intended memory buffer. Since OpenSSF is a cryptographic library, this other data often had secrets such as private keys, session ids, passwords, and so on.
+The Heartbleed vulnerability ([CVE-2014-0160](https://www.cve.org/CVERecord?id=CVE-2014-0160)) of OpenSSL involved incorrect handling of a "heartbeat" request. OpenSSL implements the TLS protocol for security. An optional feature of the protocol is a "heartbeat" request, where the requester provides can provide a string and its length, and the system is to respond with the same string of that length. Unfortunately, an attacker could provide a string and claim an excessively-long length of the string being provided. When a vulnerable version of OpenSSL received a heartbeat request from the network, it failed to verify that the requested length of the payload matched the length of the data provided (CWE-126) as was required by the specification. As a result, it would reply with additional data beyond the intended memory buffer. Since OpenSSL is a cryptographic library, this other data often had secrets such as private keys, session ids, and passwords.
 
 It was possible to reach this vulnerability because:
 
@@ -39,6 +43,8 @@ The OpenSSL code, after loading its payload type, would read two bytes from the 
 Here is the vulnerable C code in [commit 4d6c12f3088d3ee5](https://github.com/openssl/openssl/commit/4e6c12f3088d3ee5747ec9e16d03fc671b8f40be) in file [ssl/d1_both.c](https://github.com/openssl/openssl/blob/4e6c12f3088d3ee5747ec9e16d03fc671b8f40be/ssl/d1_both.c) just before it was fixed:
 
 ```c
+vulnerable file: ssl/d1_both.c
+
  1325 int
  1326 dtls1_process_heartbeat(SSL *s)
  1327     {
@@ -87,7 +93,7 @@ Here is the vulnerable C code in [commit 4d6c12f3088d3ee5](https://github.com/op
  1370      OPENSSL_free(buffer);
 ```
 
-### Exploitation:
+### Exploit:
 
 Exploitation of this vulnerability was easy and is a good example of [CAPEC-540: Over-read Buffers](https://capec.mitre.org/data/definitions/540.html).
 It was so simple that a cartoon, [XKCD #1354](https://xkcd.com/1354/], could clearly explain how to attack it.
@@ -107,7 +113,7 @@ store *any* reply, and if not, the request will be silently discarded (in the up
 Lines that *had* been early in the function were moved to
 lines 1341 and below, after this new check.
 [RFC 6520 section 4](https://datatracker.ietf.org/doc/html/rfc6520) says that
-"If the payload_length of a received HeartbeatMessage is too large,
+"If the `payload_length` of a received HeartbeatMessage is too large,
 the received HeartbeatMessage MUST be discarded silently".
 Previously this wasn't checked.
 Lines 1343-1344 in the new version first check that the payload isn't too large.
@@ -212,6 +218,10 @@ Other actions could reduce the risk of vulnerabilities like Heartbleed:
 4. *Use a standard FLOSS license.* OpenSSL at the time used an odd one-off license. This non-standard licensing approach discouraged review since few people (or lawyers) want to analyze or deal with an odd unknown license. This lack of review likely contributed to failure to detect the vulnerability before release. Newer versions of OpenSSL use the Apache 2.0 license, a far more common license.
 
 The online lab exercise [oob1](https://best.openssf.org/labs/oob1.html), part of the online course [Developing Secure Software (LFD121)](https://training.linuxfoundation.org/training/developing-secure-software-lfd121/), provides hands-on experience in fixing the Heartbleed vulnerability.
+
+### Conclusion:
+
+The addition of checks to ensure the requested length did not exceed the data provided (as required), and ensuring that only the valid provided data was returned, eliminated the weakness Buffer Over-read (CWE-126). With the weakness resolved, requesters could no longer receive data they weren't authorized to receive, and the Heartbleed vulnerability CVE-2014-0160 was eliminated.
 
 ### References:
 
