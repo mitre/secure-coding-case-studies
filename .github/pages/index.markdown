@@ -18,7 +18,7 @@ layout: home
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/python"><b>Python</b></a>
 <ul>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-1.md">SQL Injection In Postgraas Server</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-89-cve-2018-25088.md">SQL Injection In Postgraas Server</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-2.md">Open Redirect In Jupyter Server</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-3.md">Observable Timing Discrepancy In Piccolo</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-4.md">Path Traversal In PyMdown-Extensions</a></li>
