@@ -20,7 +20,11 @@ The most important step in creating an insightful and interesting case study is 
 
 Once selected, create a new issue within the "Issues" section of the Secure Coding Case Studies GitHub respository. This will help ensure that someone else doesn't propose creating a case study for the same vulnerability. This will also provide a place for others to provide comments and insight related to the proposed case study.
 
-## 3. Case Study Structure
+## 3. Filename
+
+The filename for the case study must follow a specific structure that includes the weakness and vulnerability identifiers. This is done to improve search engine understanding. The file naming convention is "secure-coding-case-study-cwe-123-cve-2025-12345.md" with the "cwe-##" being replaced with the specific weakness identifier that the case study is exploring, and the "cve-####-#####" being replaced by the specific vulnerability identifier that resulted from the weakness.
+
+## 4. Case Study Structure
 
 Each case study should follow a consistent structure to ensure readability and logical flow. The order and style are critical to maintain this consistency. Each case study MUST have the following sections in the order presented:
 
@@ -293,7 +297,7 @@ fixed file: postgraas_server/backends/postgres_cluster/postgres_cluster_driver.p
  23				db_exists = cur.fetchone() is not None
 ```
 ````
-## 5. Images and Diagrams
+## 6. Images and Diagrams
 
 Images and diagrams should be used as tools to help the reader better understand a complex topic. For example, a diagram that summarizes the different steps involved in an exploit might help the reader better understand a complex topic detailed in the case study text. Typically, case studies have between 0 and 2 images or diagrams. More than 2 may become distracting, but this is not a hard and fast rule.
 
