@@ -14,30 +14,30 @@ layout: home
 <h3 style="font-size:25px; text-align:center"><b>Case Studies</b></h3>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/java"><b>Java</b></a>
 <ul>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/java/msccs-11.md">Cross-Site Scripting In Liferay Portal</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/java/secure-coding-case-study-cwe-79-cve-2025-43807.md">Cross-Site Scripting In Liferay Portal</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/python"><b>Python</b></a>
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-89-cve-2018-25088.md">SQL Injection In Postgraas Server</a></li>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-2.md">Open Redirect In Jupyter Server</a></li>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-3.md">Observable Timing Discrepancy In Piccolo</a></li>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-4.md">Path Traversal In PyMdown-Extensions</a></li>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-5.md">Improper Certificate Validation In Airflow</a></li>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/msccs-6.md">Code Injection In Searchor</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-601-cve-2023-39968.md">Open Redirect In Jupyter Server</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-208-cve-2023-41885.md">Observable Timing Discrepancy In Piccolo</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-22-cve-2023-32309.md">Path Traversal In PyMdown-Extensions</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-295-cve-2023-41885.md">Improper Certificate Validation In Airflow</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-95-cve-2023-43364.md">Code Injection In Searchor</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/javascript"><b>JavaScript</b></a>
 <ul>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/msccs-7.md">Path Traversal In Saltcorn Server</a></li>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/msccs-8.md">Cross-Site Scripting In OpenC3 COSMOS Server</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/secure-coding-case-study-cwe-22-cve-2024-47818.md">Path Traversal In Saltcorn Server</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/secure-coding-case-study-cwe-79-cve-2024-43795.md">Cross-Site Scripting In OpenC3 COSMOS Server</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/typescript"><b>TypeScript</b></a>
 <ul>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/typescript/msccs-12.md">Improper Authentication In Better Auth</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/typescript/secure-coding-case-study-cwe-303-cve-2025-61928.md">Improper Authentication In Better Auth</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/go"><b>Go</b></a>
 <ul>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/go/msccs-9.md">Parameter Injection In WhoDB</a></li>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/go/msccs-10.md">Cross-Site Scripting In Miniflux</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/go/secure-coding-case-study-cwe-88-cve-2025-24787.md">Parameter Injection In WhoDB</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/go/secure-coding-case-study-cwe-79-cve-2023-27592.md">Cross-Site Scripting In Miniflux</a></li>
 </ul>
 
 <h3 style="font-size:25px; text-align:center"><b>Style Guide</b></h3>
