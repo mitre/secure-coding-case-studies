@@ -25,6 +25,10 @@ layout: home
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-295-cve-2023-41885.md">Improper Certificate Validation In Airflow</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-95-cve-2023-43364.md">Code Injection In Searchor</a></li>
 </ul>
+<a href="https://github.com/mitre/secure-coding-case-studies/tree/main/java"><b>C</b></a>
+<ul>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-125-cve-2014-0160.md">Out-Of-Bounds Read In OpenSSL</a></li>
+</ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/javascript"><b>JavaScript</b></a>
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/secure-coding-case-study-cwe-22-cve-2024-47818.md">Path Traversal In Saltcorn Server</a></li>
