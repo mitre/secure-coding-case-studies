@@ -4,7 +4,7 @@ This collection of case studies focus on secure software development and reveal 
 
 With each case study focusing on a real issue in real software, there should be no debate as to the applicability of these mistakes to one’s own day-to-day coding projects. By understanding these issues, the mistakes that were made, and how each was fixed, we will be in a better position to avoid similar problems in the future.
 
-MITRE led the development of this collection of case studies, writing many and reviewing contributions by others. MITRE has a long history in the Software Assurance and Software Vulnerability areas. MITRE founded the Common Vulnerabilities and Exposures (CVE®) effort in 1999 and since has partnered with industry and government leaders to create additional foundational efforts such as the Common Weakness Enumeration (CWE™) and the Common Attack Pattern Enumeration and Classification (CAPEC™).
+MITRE led the development of this collection of case studies, writing many and reviewing contributions by others. MITRE has a long history in the Software Assurance and Software Vulnerability areas. MITRE founded the Common Vulnerabilities and Exposures (CVE™) effort in 1999 and since has partnered with industry and government leaders to create additional foundational efforts such as the Common Weakness Enumeration (CWE™) and the Common Attack Pattern Enumeration and Classification (CAPEC™).
 
 ## Definitions
 
