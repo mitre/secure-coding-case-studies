@@ -1,7 +1,6 @@
 ---
 layout: page
 title: About MITRE
-permalink: /about/
 ---
 
 MITRE is a not-for-profit company trusted to lead—by government, industry, and academia. The bedrock of any trusted relationship is integrity. For more than 65 years, MITRE has proudly operated federally funded research and development centers, or FFRDCs. We now operate six of the 42 FFRDCs in existence—a high honor. Since our inception, MITRE has consistently addressed the most complex whole-of-nation challenges that threaten our country’s safety, security, and prosperity. Our mission-driven teams bring technical expertise, objectivity, and an interdisciplinary approach to drive innovation and accelerate solutions in the public interest. Above all, MITRE is trusted to deliver data-driven results and recommendations without any conflicts of interest.
