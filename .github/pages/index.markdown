@@ -22,6 +22,7 @@ layout: home
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-601-cve-2023-39968.md">Open Redirect In Jupyter Server</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-208-cve-2023-41885.md">Observable Timing Discrepancy In Piccolo</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-22-cve-2023-32309.md">Path Traversal In PyMdown-Extensions</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-22-cve-2024-1558.md">Path Traversal In MLflow</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-295-cve-2023-41885.md">Improper Certificate Validation In Airflow</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-95-cve-2023-43364.md">Code Injection In Searchor</a></li>
 </ul>
