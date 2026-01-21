@@ -169,7 +169,7 @@ Example:
 > To exploit this vulnerability an adversary must construct a GET or POST request that contains a crafted “next” parameter. This request would be directed to a web application that uses a vulnerable version of Jupyter Server. Such a request would be the GET URL crafted below:
 >
 > \`\`\`  
->    https<nolink>:\/\/example.org/?next=https<nollink>:\/\/www.malicious_site.com  
+>    https<nolink>://www<nolink>.example.org/?next=https<nollink>://www.malicious_site.com  
 > \`\`\`  
 >
 > This URL — maybe sent via an email to a target user — would appear to come from a trusted application and the target user may be comfortable following the URL for that reason.
@@ -232,25 +232,25 @@ Example:
 
 > \#\# References
 > 
-> Searchor Project Page: (https://github.com/ArjunSharda/Searchor)
+> Searchor Project Page: (https<nolink>://github.com/ArjunSharda/Searchor)
 > 
-> CVE-2018-25088 Entry: (https://www.cve.org/CVERecord?id=CVE-2023-3364)
+> CVE-2018-25088 Entry: (https<nolink>://www<nolink>.cve.org/CVERecord?id=CVE-2023-3364)
 > 
-> CWE-94 Entry: (https://cwe.mitre.org/data/definitions/94.html)
+> CWE-94 Entry: (https<nolink>://cwe.mitre.org/data/definitions/94.html)
 > 
-> CAPEC-242 Entry: (https://capec.mitre.org/data/definitions/242.html)
+> CAPEC-242 Entry: (https<nolink>://capec.mitre.org/data/definitions/242.html)
 > 
-> OSV Vulnerability Report: (https://osv.dev/vulnerability/GHSA-66m2-493m-crh2)
+> OSV Vulnerability Report: (https<nolink>://osv.dev/vulnerability/GHSA-66m2-493m-crh2)
 > 
-> NVD Vulnerability Report: (https://nvd.nist.gov/vuln/detail/CVE-2023-3364)
+> NVD Vulnerability Report: (https<nolink>://nvd.nist.gov/vuln/detail/CVE-2023-3364)
 > 
-> Searchor Code Commit to Fix Issue: (https://github.com/ArjunSharda/Searchor/commit/16016506f7bf92b0f21f51841d599126d6fcd15b)
+> Searchor Code Commit to Fix Issue: (https<nolink>://github.com/ArjunSharda/Searchor/commit/16016506f7bf92b0f21f51841d599126d6fcd15b)
 > 
-> Click and Python: Build Extensible and Composable CLI Apps: (https://realpython.com/python-click/)
+> Click and Python: Build Extensible and Composable CLI Apps: (https<nolink>://realpython.com/python-click/)
 > 
-> Searchor-2.4.0-POC-Exploit: (https://github.com/nexis-nexis/Searchor-2.4.0-POC-Exploit-)
+> Searchor-2.4.0-POC-Exploit: (http<nolink>s://github.com/nexis-nexis/Searchor-2.4.0-POC-Exploit-)
 > 
-> Python Documentation for ast.literal_eval(): (https://docs.python.org/3/library/ast.html#ast.literal_eval)
+> Python Documentation for ast.literal_eval(): (https<nolink>://docs.python.org/3/library/ast.html#ast.literal_eval)
 
 ### _Contributions_
 
