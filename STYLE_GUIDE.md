@@ -1,17 +1,19 @@
 # Secure Coding Case Studies - Style Guide
 
-This style guide is designed to help contributors create high-quality, informative, and consistent secure coding case studies. Following these guidelines will ensure that each case study is based on a relevant issue, is written in a clear and engaging manner, and is effective in educating readers about secure coding practices. Additionally, these guidelines attempt to define a consistent style to the way the case studies are structured and written, further enhancing the ability to deliver an important service to the secure coding community.
+This style guide is designed to help contributors create high-quality, informative, and consistent secure coding case studies. Following these guidelines will ensure that each case study is based on a relevant issue, is written in a clear and engaging manner, walks the reader though the actual vulnerable and fixed code, and is effective in educating readers about secure coding practices. Additionally, these guidelines attempt to define a consistent style to the way the case studies are structured and written, further enhancing the ability to deliver an important service to the secure coding community.
 
 ## 1. General Principles
 
 - **Clarity and Simplicity**: Write in plain language and avoid unnecessary jargon. Explain technical concepts clearly for readers which may have varying levels of expertise. Expect the reader to not know what something means and try to provide a short explanation or definition of any concepts used. The goal is for the reader not to get lost or confused while reading the case study.
+- **Prose**: Try to write in complete grammatically correct sentences and paragraphs instead of relying on bulleted lists.
+- **Source Code**: Present the actual source code to the reader and walk them through it referencing specific lines where appropriate.
 - **Accuracy**: Ensure all technical details, code examples, and recommendations are correct and align with current best practices. A reader will lose interest and trust if there are technical errors with what is being presented.
 - **Focus on Security**: Highlight the security implications of the coding practices being discussed. Emphasize the risks of insecure coding, the potential consequences to those leveraging the software, and the benefits of secure alternatives.
 - **Actionable Insights**: Provide practical solutions and recommendations that readers can apply in real-world scenarios.
 
 ## 2. Selecting A Case Study
 
-The most important step in creating an insightful and interesting case study is the selection of an appropriate real-world incident.
+The most important step in creating an insightful and interesting case study is the selection of an appropriate real-world incident for which the vulnerable and fixed source code is available.
 
 - A case study MUST be about a real publicly disclosed vulnerability in real software. The real-world aspect of the case study provides the strongest possible argument that the type of issue is something that readers should pay attention to. The thinking being that if it happened to this software, then it could happen to my software.
 - Select an issue where the source code is available. The purpose of these secure coding case studies is to show the mistake made in the code, how that mistake was exploited, and then how the code was fixed to eliminate the problem. This cannot be explained without access to both the vulnerable and fixed source code. IMPORTANT: Make sure the code is properly licensed to be made public.
@@ -22,7 +24,7 @@ Once selected, create a new issue within the "Issues" section of the Secure Codi
 
 ## 3. Filename
 
-The filename for the case study must follow a specific structure that includes the weakness and vulnerability identifiers. This is done to improve search engine understanding. The file naming convention is "secure-coding-case-study-cwe-123-cve-2025-12345.md" with the "cwe-##" being replaced with the specific weakness identifier that the case study is exploring, and the "cve-####-#####" being replaced by the specific vulnerability identifier that resulted from the weakness.
+The filename for the case study must follow a specific structure that includes the weakness and vulnerability identifiers. This is done to improve search engine understanding. The file naming convention is "secure-coding-case-study-cwe-123-cve-2025-12345.md" with the "cwe-###" being replaced with the specific weakness identifier that the case study is exploring, and the "cve-####-#####" being replaced by the specific vulnerability identifier that resulted from the weakness.
 
 ## 4. Case Study Structure
 
@@ -64,7 +66,7 @@ Examples:
 
 ### _Introduction_
 
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
 - Briefly introduce the topic and explain why it is important.
 - Typical introductions are one paragraph in length.
   - First sentence or two introduces the issue and potential consequences.
@@ -74,15 +76,16 @@ Examples:
 
 Example:
 
-> \#\#\# Introduction:
+> \#\# Introduction
 > 
 > The use of a database to store information is fundamental to many applications. Unfortunately, if the commands to place or retrieve this information are not properly constructed, then an adversary could inappropriately alter or read the information. The underlying source code weakness that makes such attacks possible is annually one of the CWE Top 25 Most Dangerous Software Weaknesses. In 2023 such a vulnerability was disclosed in Blue Yonder postgraas_server. Postgraas offers basic create, read, update, and delete (CRUD) operations for complete PostgreSQL database instances via a simple representational state transfer (REST) application programming interface (API). This case study will look at that vulnerability, the mistake made by the developers, what it enabled an adversary to accomplish, and how the code was eventually corrected.
 
 ### _Software_
 
 - This section is used to identify the specific software that the case study is referencing.
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
 - Use the **bold** style in Markdown (two astericks) for each field name.
+- Use two whitespace characters at the end of each line to signify a newline in Markdown.
 - Three different fields are expected.
 
 _Name_
@@ -93,32 +96,34 @@ _Name_
 _Language_
 
 - The source code language where the root cause weakness was made.
-- Examples are Python, JavaScript, C, C++, Java, Go
+- Examples are Python, JavaScript, C, C++, Java, Go.
 
 _URL_
 
 - The URL where the software can be found.
-- For open source projects this is typically a source repository such as GitHub
+- For open source projects this is typically a source repository such as GitHub.
+- Use the square bracket in Markdown to properly signify a URL.
 
 Examples:
 
-> \#\#\# Software:
+> \#\# Software
 > 
-> \*\*Name:\*\* postgraas_server\
-> \*\*Language:\*\* Python\
-> \*\*URL:\*\* https<nolink>://github.com/blue-yonder/postgraas_server
+> \*\*Name:\*\* postgraas_server  
+> \*\*Language:\*\* Python  
+> \*\*URL:\*\* [https<nolink>://github.com/blue-yonder/postgraas_server]
 
-> \#\#\# Software:
+> \#\# Software:
 > 
-> \*\*Name:\*\* Apache Airflow\
-> \*\*Language:\*\* C++\
-> \*\*URL:\*\* https<nolink>://github.com/apache/airflow
+> \*\*Name:\*\* Apache Airflow  
+> \*\*Language:\*\* C++  
+> \*\*URL:\*\* [https<nolink>://github.com/apache/airflow]
 
 ### _Weakness_
 
 - This section is used to introduce the type of code level mistake.
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
 - List the relevant CWE identifier and name at the beginning of the section.
+- Use the Markdown structure of \[title\]\(url\) to express the CWE.
 - This is not the section to show the vulnerable code, but rather a place to summarize and explain the type of mistake. For example, if the issue is related to an SQL Injection exploit, then use weakness section to explain what improper neutralization is and how this can manipulated by an adversary.
 - Typically one to two paragraphs in length.
 - The use of generic code examples (i.e., not code the actual code from the vulnerable software, but rather generic code to demonstrate the weakness) is recommended when appropriate to help explain the type of weakness. Please see the section in this style guide related to displaying source code.
@@ -126,9 +131,9 @@ Examples:
 
 Example:
 
-> \#\#\# Weakness:
+> \#\# Weakness
 > >
-> CWE-89: Improper Neutralization of Special Elements Used in an SQL Command
+> \[CWE-89: Improper Neutralization of Special Elements Used in an SQL Command\]\(https<nolink>://cwe.mitre.org/data/definitions/89.html\)
 >
 > The weakness exists when software constructs all or part of an SQL command using externally influenced input that has been obtained from an upstream component, but the software does not neutralize (e.g., canonicalize, encode, escape, quote, validate) or incorrectly neutralizes special elements that could modify the intent of the SQL command.
 >
@@ -137,8 +142,9 @@ Example:
 ### _Vulnerability_
 
 - This section is used to describe the publicly disclosed vulnerability.
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
 - List the relevant CVE identifier at the beginning of the section.
+- Use the Markdown structure of \[title\]\(url\) to express the CWE.
 - Next, provide any additional information necessary to introduce the specific real world software and what it is used for. Focus on information that is necessary for the reader to fully understand the vulnerability and its place within the software.
 - Then walk the reader through the actual vulnerable code in detail. Call out specific lines and show how the weakness exists. Avoid exploit details as these will go in the next section of the case study.
 - Provide the vulnerable source code. (see the Source Code section of this guidance)
@@ -148,18 +154,23 @@ Example:
 ### _Exploit_
 
 - This section is used to describe the how the vulnerability was (or could have been) exploited and what the consequences of the exploit were (or could have been).
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
 - List the relevant CAPEC identifier and name at the beginning of the section.
+- Use the Markdown structure of \[title\]\(url\) to express the CWE.
 - Typically one to three paragraphs in length, but complex exploits may take longer to explain and step the reader through.
 - When applicable, include example inputs that were used to drive the exploit and show how those inputs took advantage of the weakness in the code. Such code inputs should be highlighted in the same manner as example source code.
 
 Example:
 
-> \#\#\# Exploit:
+> \#\# Exploit
+>
+> \[CAPEC-66: SQL Injection\]\(https<nolink>://capec.mitre.org/data/definitions/66.html)
 >
 > To exploit this vulnerability an adversary must construct a GET or POST request that contains a crafted “next” parameter. This request would be directed to a web application that uses a vulnerable version of Jupyter Server. Such a request would be the GET URL crafted below:
 >
->    https://www.example.org/?next=https://www.malicious_site.com
+> \`\`\`  
+>    https<nolink>:\/\/example.org/?next=https<nollink>:\/\/www.malicious_site.com  
+> \`\`\`  
 >
 > This URL — maybe sent via an email to a target user — would appear to come from a trusted application and the target user may be comfortable following the URL for that reason.
 >
@@ -168,7 +179,7 @@ Example:
 ### _Fix_
 
 - This section is used to describe how the original weakness in the source code was fixed.
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
 - Focus only on the changes that are relevant to the weakness being addressed by the case study.
 - Provide the fixed source code (see the Source Code section of this guidance) and walk the reader through the changes line by line.
 - This section can vary in length depending on how complex the fixed source code is and how many changes had to be made.
@@ -176,7 +187,7 @@ Example:
 ### _Prevention_
 
 - This section is used to describe how to prevent similar weaknesses in the future.
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
 - The objective is that a reader will have enough knowledge after reading this section to go implement the suggestions.
 - Include well-established secure coding practices that are most effective for this type of weakness.
 - Include ways to identify such weaknesses that may have been inadvertently made. This may involve a type of tool to assist and the analysis technique leveraged.
@@ -185,26 +196,28 @@ Example:
 
 Example:
 
-> \#\#\# Prevention:
+> \#\# Prevention
 >
 > Static analysis tools that track taint from user-supplied sources to the SQL related sinks are effective in identifying places in source code where this type of mistake may have been made. Once identified, leverage parameterization to fix the issue. If the coding language being used does not support parameterization, then very precise data validation can help reduce the ability to provide meaningful exploit code to inject.
 
 ### _Conclusion_
 
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
 - Provides a brief summary of the case study.
 - Typically one to two paragraphs in length.
 - Do not introduce any new information in the Conclusion.
 
 Example:
 
-> \#\#\# Conclusion:
+> \#\# Conclusion
 >
 > The addition of parameterization to the code improves the neutralization efforts and removes the weakness “Improper Neutralization of Special Elements Used in an SQL Command”. With the weakness resolved, user controlled input that reaches the execute() call no longer operates outside of the original intent of the SQL command.
 
 ### _References_
 
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
+- Use the Markdown structure of (url) to express the URL.
+- Add a blank line inbetween each reference.
 - Provide the name and URL of software project page or source repository.
 - Provide the name and URL of the CVE item.
 - Provide the name and URL of the CWE and CAPEC entries.
@@ -217,31 +230,41 @@ Example:
 
 Example:
 
-> \#\#\# References:
+> \#\# References
 > 
-> Searchor Project Page: https://github.com/ArjunSharda/Searchor<br>
-> CVE-2018-25088 Entry: https://www.cve.org/CVERecord?id=CVE-2023-3364<br>
-> CWE-94 Entry: https://cwe.mitre.org/data/definitions/94.html<br>
-> CAPEC-242 Entry: https://capec.mitre.org/data/definitions/242.html<br>
-> OSV Vulnerability Report: https://osv.dev/vulnerability/GHSA-66m2-493m-crh2<br>
-> NVD Vulnerability Report: https://nvd.nist.gov/vuln/detail/CVE-2023-3364<br>
-> Searchor Code Commit to Fix Issue: https://github.com/ArjunSharda/Searchor/commit/16016506f7bf92b0f21f51841d599126d6fcd15b<br>
-> Click and Python: Build Extensible and Composable CLI Apps: https://realpython.com/python-click/<br>
-> Searchor-2.4.0-POC-Exploit: https://github.com/nexis-nexis/Searchor-2.4.0-POC-Exploit-<br>
-> Python Documentation for ast.literal_eval(): https://docs.python.org/3/library/ast.html#ast.literal_eval
+> Searchor Project Page: (https://github.com/ArjunSharda/Searchor)
+> 
+> CVE-2018-25088 Entry: (https://www.cve.org/CVERecord?id=CVE-2023-3364)
+> 
+> CWE-94 Entry: (https://cwe.mitre.org/data/definitions/94.html)
+> 
+> CAPEC-242 Entry: (https://capec.mitre.org/data/definitions/242.html)
+> 
+> OSV Vulnerability Report: (https://osv.dev/vulnerability/GHSA-66m2-493m-crh2)
+> 
+> NVD Vulnerability Report: (https://nvd.nist.gov/vuln/detail/CVE-2023-3364)
+> 
+> Searchor Code Commit to Fix Issue: (https://github.com/ArjunSharda/Searchor/commit/16016506f7bf92b0f21f51841d599126d6fcd15b)
+> 
+> Click and Python: Build Extensible and Composable CLI Apps: (https://realpython.com/python-click/)
+> 
+> Searchor-2.4.0-POC-Exploit: (https://github.com/nexis-nexis/Searchor-2.4.0-POC-Exploit-)
+> 
+> Python Documentation for ast.literal_eval(): (https://docs.python.org/3/library/ast.html#ast.literal_eval)
 
 ### _Contributions_
 
-- Use the third-level heading in Markdown (three hash characters) for the section heading.
-- Provides credit to those individuals who significantly contributed to the writing of the case study
+- Use the second-level heading in Markdown (two hash characters) for the section heading.
+- Provides credit to those individuals who significantly contributed to the writing of the case study.
+- Use two whitespace characters at the end of each line to signal a newline in Markdown
 - Includes the original creator and any reviewer
 
 Example:
 
-> \#\#\# Contributions:
+> \#\# Contributions
 > 
-> Originally created by Drew Buttner - The MITRE Corporation\
-> Reviewed by David Rothenberg - The MITRE Corporation
+> Originally created by Drew Buttner - The MITRE Corporation  
+> Reviewed by Steve Christey Coley - The MITRE Corporation
 
 ## 4. Source Code
 
@@ -253,9 +276,9 @@ When showing source code in a case study, either generic example code or actual 
 >
 ````
 ```
-strName = processNetworkRequest()\
-dbCursor = connection.cursor()\
-dbCursor.execute("SELECT * FROM items WHERE owner = '" + strName + "' AND item = 'PrivateData'")\
+strName = processNetworkRequest()  
+dbCursor = connection.cursor()  
+dbCursor.execute("SELECT * FROM items WHERE owner = '" + strName + "' AND item = 'PrivateData'")  
 result = cursor.fetchall()
 ```
 ````
