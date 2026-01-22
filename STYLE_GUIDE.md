@@ -102,7 +102,7 @@ _URL_
 
 - The URL where the software can be found.
 - For open source projects this is typically a source repository such as GitHub.
-- Use the square bracket in Markdown to properly signify a URL.
+- Use the angle bracket in Markdown to properly signify a URL.
 
 Examples:
 
@@ -110,13 +110,13 @@ Examples:
 > 
 > \*\*Name:\*\* postgraas_server  
 > \*\*Language:\*\* Python  
-> \*\*URL:\*\* [https<nolink>://github.com/blue-yonder/postgraas_server]
+> \*\*URL:\*\* \<https<nolink>://github.com/blue-yonder/postgraas_server\>
 
 > \#\# Software:
 > 
 > \*\*Name:\*\* Apache Airflow  
 > \*\*Language:\*\* C++  
-> \*\*URL:\*\* [https<nolink>://github.com/apache/airflow]
+> \*\*URL:\*\* \<https<nolink>://github.com/apache/airflow\>
 
 ### _Weakness_
 
@@ -216,7 +216,7 @@ Example:
 ### _References_
 
 - Use the second-level heading in Markdown (two hash characters) for the section heading.
-- Use the Markdown structure of (url) to express the URL.
+- Use the Markdown angle bracket structure of \<url\> to express the URL.
 - Add a blank line inbetween each reference.
 - Provide the name and URL of software project page or source repository.
 - Provide the name and URL of the CVE item.
@@ -232,25 +232,25 @@ Example:
 
 > \#\# References
 > 
-> Searchor Project Page: (https<nolink>://github.com/ArjunSharda/Searchor)
+> Searchor Project Page: \<https<nolink>://github.com/ArjunSharda/Searchor\>
 > 
-> CVE-2018-25088 Entry: (https<nolink>://www<nolink>.cve.org/CVERecord?id=CVE-2023-3364)
+> CVE-2018-25088 Entry: \<https<nolink>://www<nolink>.cve.org/CVERecord?id=CVE-2023-3364\>
 > 
-> CWE-94 Entry: (https<nolink>://cwe.mitre.org/data/definitions/94.html)
+> CWE-94 Entry: \<https<nolink>://cwe.mitre.org/data/definitions/94.html\>
 > 
-> CAPEC-242 Entry: (https<nolink>://capec.mitre.org/data/definitions/242.html)
+> CAPEC-242 Entry: \<https<nolink>://capec.mitre.org/data/definitions/242.html\>
 > 
-> OSV Vulnerability Report: (https<nolink>://osv.dev/vulnerability/GHSA-66m2-493m-crh2)
+> OSV Vulnerability Report: \<https<nolink>://osv.dev/vulnerability/GHSA-66m2-493m-crh2\>
 > 
-> NVD Vulnerability Report: (https<nolink>://nvd.nist.gov/vuln/detail/CVE-2023-3364)
+> NVD Vulnerability Report: \<https<nolink>://nvd.nist.gov/vuln/detail/CVE-2023-3364\>
 > 
-> Searchor Code Commit to Fix Issue: (https<nolink>://github.com/ArjunSharda/Searchor/commit/16016506f7bf92b0f21f51841d599126d6fcd15b)
+> Searchor Code Commit to Fix Issue: \<https<nolink>://github.com/ArjunSharda/Searchor/commit/16016506f7bf92b0f21f51841d599126d6fcd15b\>
 > 
-> Click and Python: Build Extensible and Composable CLI Apps: (https<nolink>://realpython.com/python-click/)
+> Click and Python: Build Extensible and Composable CLI Apps: \<https<nolink>://realpython.com/python-click/\>
 > 
-> Searchor-2.4.0-POC-Exploit: (http<nolink>s://github.com/nexis-nexis/Searchor-2.4.0-POC-Exploit-)
+> Searchor-2.4.0-POC-Exploit: \<http<nolink>s://github.com/nexis-nexis/Searchor-2.4.0-POC-Exploit-\>
 > 
-> Python Documentation for ast.literal_eval(): (https<nolink>://docs.python.org/3/library/ast.html#ast.literal_eval)
+> Python Documentation for ast.literal_eval(): \<https<nolink>://docs.python.org/3/library/ast.html#ast.literal_eval\>
 
 ### _Contributions_
 
