@@ -144,12 +144,21 @@ Example:
 - This section is used to describe the publicly disclosed vulnerability.
 - Use the second-level heading in Markdown (two hash characters) for the section heading.
 - List the relevant CVE identifier at the beginning of the section.
-- Use the Markdown structure of \[title\]\(url\) to express the CWE.
+- Use the Markdown structure of \[id\]\(url\) to express the CVE, add the published date at the end
 - Next, provide any additional information necessary to introduce the specific real world software and what it is used for. Focus on information that is necessary for the reader to fully understand the vulnerability and its place within the software.
-- Then walk the reader through the actual vulnerable code in detail. Call out specific lines and show how the weakness exists. Avoid exploit details as these will go in the next section of the case study.
+- Walk the reader through the actual vulnerable code in detail. Call out specific lines and show how the weakness exists. Show the entire flow from source to sink. Avoid exploit details as these will go in the next section of the case study.
 - Provide the vulnerable source code. (see the Source Code section of this guidance)
 - Only include source code that is absolutely necessary in explaining the vulnerability to the reader. Use the triple dot "..." convention to skip multiple lines.
 - This is a longer section and should contain as much text as necessary to properly explain the vulnerable source code.
+
+Example:
+
+> \#\# Vulnerability
+> >
+> \[CVE-2025-12345\]\(https<nolink>://www.cve.org/CVERecord?id=CVE-2025-12345\) – Published 1 January 2025
+>
+> Looking at the vulnerable source code in AppName, line 123 ...
+
 
 ### _Exploit_
 
