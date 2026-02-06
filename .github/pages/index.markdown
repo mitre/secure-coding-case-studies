@@ -25,6 +25,7 @@ layout: home
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-22-cve-2024-1558.md">Path Traversal In MLflow</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-295-cve-2023-41885.md">Improper Certificate Validation In Airflow</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-95-cve-2023-43364.md">Code Injection In Searchor</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-89-cve-2025-57833.md">SQL Injection In Django</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/java"><b>C</b></a>
 <ul>
