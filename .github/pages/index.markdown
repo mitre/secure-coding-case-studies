@@ -15,6 +15,7 @@ layout: home
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/java"><b>Java</b></a>
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/java/secure-coding-case-study-cwe-79-cve-2025-43807.md">Cross-Site Scripting In Liferay Portal</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/java/secure-coding-case-study-cwe-94-cve-2023-34468.md">Code Injection In Apache NiFi</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/python"><b>Python</b></a>
 <ul>
