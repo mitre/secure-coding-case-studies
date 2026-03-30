@@ -31,6 +31,7 @@ layout: home
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/java"><b>C</b></a>
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-125-cve-2014-0160.md">Out-Of-Bounds Read In OpenSSL</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-78_cve-2014-6271.md">OS Command Injection In Bash Shell</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/javascript"><b>JavaScript</b></a>
 <ul>
