@@ -24,7 +24,7 @@ Once selected, create a new issue within the "Issues" section of the Secure Codi
 
 ## 3. Filename
 
-To submit a new case study, start by creating a fork of the repository. The new case study can then be added to the fork. Once the case study is completed, a pull request can be created to submit the case study for potential inclusion..
+To submit a new case study, start by creating a fork of the repository. The new case study can then be added to the fork. Once the case study is completed, a pull request can be created to submit the case study for potential inclusion.
 
 The filename for the case study must follow a specific structure that includes the weakness and vulnerability identifiers. This is done to improve search engine understanding. The file naming convention is "secure-coding-case-study-cwe-123-cve-2025-12345.md" with the "cwe-###" being replaced with the specific weakness identifier that the case study is exploring, and the "cve-####-#####" being replaced by the specific vulnerability identifier that resulted from the weakness.
 
