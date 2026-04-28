@@ -24,6 +24,8 @@ Once selected, create a new issue within the "Issues" section of the Secure Codi
 
 ## 3. Filename
 
+To submit a new case study, start by creating a fork of the repository. The new case study can then be added to the fork. Once the case study is completed, a pull request can be created to submit the case study for potential inclusion..
+
 The filename for the case study must follow a specific structure that includes the weakness and vulnerability identifiers. This is done to improve search engine understanding. The file naming convention is "secure-coding-case-study-cwe-123-cve-2025-12345.md" with the "cwe-###" being replaced with the specific weakness identifier that the case study is exploring, and the "cve-####-#####" being replaced by the specific vulnerability identifier that resulted from the weakness.
 
 ## 4. Case Study Structure
@@ -275,7 +277,7 @@ Example:
 > Originally created by Drew Buttner - The MITRE Corporation  
 > Reviewed by Steve Christey Coley - The MITRE Corporation
 
-## 4. Source Code
+## 5. Source Code
 
 When showing source code in a case study, either generic example code or actual vulnerable // fixed code, make sure it is visually separated from the text of the case study. To do this in Markdown use the "fenced code block" formatting option which places three backtick characters before the block. The code with then be highlighted and a fixed-width font will be used.
 
