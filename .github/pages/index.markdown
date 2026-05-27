@@ -32,7 +32,7 @@ layout: home
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-787-cve-2021-3156.md">Out-Of-Bounds Write In Sudo</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-125-cve-2014-0160.md">Out-Of-Bounds Read In OpenSSL</a></li>
-    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-78_cve-2014-6271.md">OS Command Injection In Bash Shell</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-78-cve-2014-6271.md">OS Command Injection In Bash Shell</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/javascript"><b>JavaScript</b></a>
 <ul>
