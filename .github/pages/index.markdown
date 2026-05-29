@@ -20,6 +20,7 @@ layout: home
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/python"><b>Python</b></a>
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-89-cve-2025-57833.md">SQL Injection In Django</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-1336-cve-2024-34359.md">Server-Side Template Injection In llama-cpp-python</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-22-cve-2024-1558.md">Path Traversal In MLflow</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-601-cve-2023-39968.md">Open Redirect In Jupyter Server</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/python/secure-coding-case-study-cwe-208-cve-2023-41885.md">Observable Timing Discrepancy In Piccolo</a></li>
