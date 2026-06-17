@@ -42,6 +42,7 @@ layout: home
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/typescript"><b>TypeScript</b></a>
 <ul>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/typescript/secure-coding-case-study-cwe-777-cve-2026-31816.md">Regular Expresion Without Anchors In Budibase</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/typescript/secure-coding-case-study-cwe-303-cve-2025-61928.md">Improper Authentication In Better Auth</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/go"><b>Go</b></a>
