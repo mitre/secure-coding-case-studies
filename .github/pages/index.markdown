@@ -39,6 +39,7 @@ layout: home
 <ul>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/secure-coding-case-study-cwe-22-cve-2024-47818.md">Path Traversal In Saltcorn Server</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/secure-coding-case-study-cwe-79-cve-2024-43795.md">Cross-Site Scripting In OpenC3 COSMOS Server</a></li>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/javascript/secure-coding-case-study-cwe-94-cve-2021-23337.md">Code Injection In Lodash</a></li>
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/typescript"><b>TypeScript</b></a>
 <ul>
