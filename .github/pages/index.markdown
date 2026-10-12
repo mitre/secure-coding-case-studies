@@ -31,6 +31,7 @@ layout: home
 </ul>
 <a href="https://github.com/mitre/secure-coding-case-studies/tree/main/java"><b>C</b></a>
 <ul>
+    <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-787-cve-2023-4863.md">Out-Of-Bounds Write In Libwebp</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-787-cve-2021-3156.md">Out-Of-Bounds Write In Sudo</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-22-cve-2021-41773.md">Path Traversal In Apache HTTP Server</a></li>
     <li><a href="https://github.com/mitre/secure-coding-case-studies/blob/main/c/secure-coding-case-study-cwe-125-cve-2014-0160.md">Out-Of-Bounds Read In OpenSSL</a></li>
